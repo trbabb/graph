@@ -1,0 +1,4 @@
+doc/gen
+.DS_Store
+build
+.vscode
