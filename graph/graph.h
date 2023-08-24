@@ -4,12 +4,50 @@
 
 #include <ankerl/unordered_dense.h>
 
+// todo: wbn to be able to index edges/verts by a custom type.
+//   this would mean maintaining a mapping of E -> Edge and V -> VertexId
+//   > subclass and keep a mapping of K -> Id; override mutation methods
+// todo: should it be possible to keep an edge Id but change the endpoints?
+//   > feels like this is something for the K/V thing above
+// todo: other methods:
+//   - merge(v1, v2)
+//   - split(edge) (adds vert)
+// todo: incident ranges should default to limited; use views::take?
+// todo: add an `edges_repeating()` which returns the kind of range the current one does
+// todo: add an `incident_edges()` which concats incoming and outgoing edge ranges
+
 namespace graph {
 
 /// @brief Unique identifier for a vertex in a graph.
 enum struct VertexId : size_t {};
 /// @brief Unique identifier for an edge in a graph.
 enum struct EdgeId   : size_t {};
+
+VertexId operator+(VertexId v, size_t n) {
+    return static_cast<VertexId>(static_cast<size_t>(v) + n);
+}
+
+VertexId operator+(VertexId v0, VertexId v1) {
+    return static_cast<VertexId>(static_cast<size_t>(v0) + static_cast<size_t>(v1));
+}
+
+VertexId& operator+=(VertexId& v, size_t n) {
+    v = v + n;
+    return v;
+}
+
+EdgeId operator+(EdgeId e, size_t n) {
+    return static_cast<EdgeId>(static_cast<size_t>(e) + n);
+}
+
+EdgeId operator+(EdgeId e0, EdgeId e1) {
+    return static_cast<EdgeId>(static_cast<size_t>(e0) + static_cast<size_t>(e1));
+}
+
+EdgeId& operator+=(EdgeId& e, size_t n) {
+    e = e + n;
+    return e;
+}
 
 /**
  * @brief A directed edge between two vertices.
@@ -81,33 +119,29 @@ namespace std {
 template <>
 struct hash<graph::Edge> {
     size_t operator()(const graph::Edge& e) const {
-        return graph::hash_combine(e.v0, e.v1);
+        return graph::hash_combine(
+            static_cast<size_t>(e.v0),
+            static_cast<size_t>(e.v1)
+        );
     }
 };
     
 } // namespace std
 
 
-
-// todo: wbn to be able to index edges/verts by a custom type.
-//   this would mean maintaining a mapping of E -> Edge and V -> VertexId
-//   > subclass and keep a mapping of K -> Id
-// todo: iterators should return proxy objects
-// todo: incident ranges should default to limited; use views::take
-// todo: add an `edges_repeating()` which returns the kind of range the current one does
-// todo: add an `incident_edges()` which concats incoming and outgoing edge ranges
-
 namespace graph {
 
-template <typename V, typename E>
+template <typename V=void, typename E=void>
 struct DirectedGraph {
+    
+    static constexpr bool HasVertexValue = not std::same_as<V, void>;
+    static constexpr bool HasEdgeValue   = not std::same_as<E, void>;
+    
 private:
 
     using EdgeData   = std::conditional_t<std::same_as<E, void>, int[0], E>;
     using VertexData = std::conditional_t<std::same_as<V, void>, int[0], V>;
     
-    static constexpr bool HasVertexValue = not std::same_as<V, void>;
-    static constexpr bool HasEdgeValue   = not std::same_as<E, void>;
     
     /**
      * @brief A node in a linked list of edges.
@@ -162,13 +196,13 @@ private:
         VertexData data;
     };
     
-    using Edges = ankerl::unordered_dense<EdgeId,   EdgeNode>;
-    using Verts = ankerl::unordered_dense<VertexId, VertexNode>;
+    using Edges = ankerl::unordered_dense::map<EdgeId,   EdgeNode>;
+    using Verts = ankerl::unordered_dense::map<VertexId, VertexNode>;
     
     Verts    _verts;
     Edges    _edges;
-    VertexId _free_vertex_id = 0;
-    EdgeId   _free_edge_id   = 0;
+    VertexId _free_vertex_id = static_cast<VertexId>(0);
+    EdgeId   _free_edge_id   = static_cast<EdgeId>(0);
     
     enum struct Constness {
         Mutable,
@@ -191,6 +225,12 @@ public:
     template <Constness Const>
     struct IncidentEdgeRange;
     
+    template <Constness Const>
+    struct VertexIterator;
+    
+    template <Constness Const>
+    struct VertexRange;
+    
     
     // reference types
 
@@ -198,8 +238,12 @@ public:
     struct EdgeRef {
     private:
         static constexpr bool IsConst = Const == Constness::Const;
-        using Graph = std::conditional_t<IsConst, const DirectedGraph,   DirectedGraph>;
-        using Iter  = std::conditional_t<IsConst, Edges::const_iterator, Edges::iterator>;
+        using Graph = std::conditional_t<IsConst, const DirectedGraph, DirectedGraph>;
+        using Iter  = std::conditional_t<
+            IsConst,
+            typename Edges::const_iterator,
+            typename Edges::iterator
+        >;
         using Value = std::conditional_t<IsConst, const E, E>;
         using Node  = std::conditional_t<IsConst, const EdgeNode, EdgeNode>;
         
@@ -209,7 +253,7 @@ public:
         
         Iter _i;
         
-        Node& node() const requires () { return _i->second; }
+        Node& node() const { return _i->second; }
         Iter  inner_iterator() const { return _i; }
         
     public:
@@ -231,7 +275,9 @@ public:
          * 
          * The `Outgoing` end is the source vertex, the `Incoming` end is the target.
          */
-        VertexId vertex(EdgeDir dir) const { return dir == EdgeDir::Outgoing ? source() : target(); }
+        VertexId vertex(EdgeDir dir) const { 
+            return dir == EdgeDir::Outgoing ? source() : target();
+        }
         
         Value& operator*()  const requires (HasEdgeValue) { return  value(); }
         Value* operator->() const requires (HasEdgeValue) { return &value(); }
@@ -248,7 +294,11 @@ public:
     private:
         static constexpr bool IsConst = Const == Constness::Const;
         using Graph = std::conditional_t<IsConst, const DirectedGraph,   DirectedGraph>;
-        using Iter  = std::conditional_t<IsConst, Verts::const_iterator, Verts::iterator>;
+        using Iter  = std::conditional_t<
+            IsConst,
+            typename Verts::const_iterator,
+            typename Verts::iterator
+        >;
         using Value = std::conditional_t<IsConst, const V, V>;
         
         friend Graph;
@@ -285,7 +335,7 @@ public:
         operator VertexId() const { return id(); }
         
         bool operator==(const VertexRef& other) const { return _i   == other._i; }
-        bool operator==(VertexId id)            const { return id() == id; }
+        bool operator==(VertexId other_id)      const { return id() == other_id; }
     };
     
     // iterator types
@@ -299,8 +349,12 @@ public:
     struct EdgeIterator {
     private:
         static constexpr bool IsConst = Const == Constness::Const;
-        using Graph = std::conditional_t<IsConst, const DirectedGraph,   DirectedGraph>;
-        using Iter  = std::conditional_t<IsConst, Edges::const_iterator, Edges::iterator>;
+        using Graph = std::conditional_t<IsConst, const DirectedGraph, DirectedGraph>;
+        using Iter  = std::conditional_t<
+            IsConst,
+            typename Edges::const_iterator,
+            typename Edges::iterator
+        >;
         
         friend Graph;
         
@@ -333,8 +387,8 @@ public:
             return *this;
         }
         
-        template <Constness Const>
-        bool operator==(const EdgeIterator<Const>& other) const {
+        template <Constness K>
+        bool operator==(const EdgeIterator<K>& other) const {
             return _i == other._i;
         }
         
@@ -353,7 +407,11 @@ public:
     private:
         static constexpr bool IsConst = Const == Constness::Const;
         using Graph = std::conditional_t<IsConst, const DirectedGraph,   DirectedGraph>;
-        using Iter  = std::conditional_t<IsConst, Edges::const_iterator, Edges::iterator>;
+        using Iter  = std::conditional_t<
+            IsConst,
+            typename Edges::const_iterator,
+            typename Edges::iterator
+        >;
         
         friend Graph;
         
@@ -361,19 +419,24 @@ public:
         Iter    _i;
         EdgeDir _dir;
         
-        IncidentEdgeIterator(Graph* graph, Iter i, EdgeDir dir): _graph(graph), _i(i), _dir(dir) {}
+        IncidentEdgeIterator(Graph* graph, Iter i, EdgeDir dir):
+            _graph(graph),
+            _i(i),
+            _dir(dir) {}
         
     public:
         
         /// Implicit conversion to the edge ID.
-        operator IncidentEdgeIterator<Constness::Const>() const requires (Const == Constness::Mutable) {
+        operator IncidentEdgeIterator<Constness::Const>() const
+            requires (Const == Constness::Mutable)
+        {
             return IncidentEdgeIterator<Constness::Const>(_graph, _i, _dir);
         }
         
         EdgeRef<Const> operator*()  const { return _i; }
         EdgeRef<Const> operator->() const { return _i; }
         /// Whether this iterator traverses incoming or outgoing edges.
-        EdgeDir direction()  const { return _dir; }
+        EdgeDir traversal_direction()  const { return _dir; }
         /// The graph this iterator belongs to.
         Graph&  graph()      const { return *_graph; }
         
@@ -403,8 +466,8 @@ public:
             return *this;
         }
         
-        template <Constness Const>
-        bool operator==(const IncidentEdgeIterator<Const>& other) const {
+        template <Constness K>
+        bool operator==(const IncidentEdgeIterator<K>& other) const {
             return _i == other._i;
         }
     };
@@ -417,7 +480,11 @@ public:
     private:
         static constexpr bool IsConst = Const == Constness::Const;
         using Graph = std::conditional_t<IsConst, const DirectedGraph,  DirectedGraph>;
-        using Iter  = std::conditional_t<IsConst, Verts::const_iterator, Verts::iterator>;
+        using Iter  = std::conditional_t<
+            IsConst,
+            typename Verts::const_iterator,
+            typename Verts::iterator
+        >;
         
         friend Graph;
         
@@ -429,7 +496,9 @@ public:
     public:
     
         /// Implicit conversion to the a const iterator.
-        operator VertexIterator<Constness::Const>() const requires (Const == Constness::Mutable) {
+        operator VertexIterator<Constness::Const>() const 
+            requires (Const == Constness::Mutable)
+        {
             return VertexIterator<Constness::Const>(_graph, _i);
         }
         
@@ -450,8 +519,8 @@ public:
             return *this;
         }
         
-        template <Constness Const>
-        bool operator==(const VertexIterator<Const>& other) const {
+        template <Constness K>
+        bool operator==(const VertexIterator<K>& other) const {
             return _i == other._i;
         }
     };
@@ -540,7 +609,11 @@ public:
          * This iterator can never be reached by incrementing a valid iterator.
          */
         IncidentEdgeIterator<Const> end() const {
-            return IncidentEdgeIterator<Const>(_graph, _graph->_edges.end(), EdgeDir::Outgoing);
+            return IncidentEdgeIterator<Const>(
+                _graph,
+                _graph->_edges.end(),
+                EdgeDir::Outgoing
+            );
         }
         
     };
@@ -549,7 +622,6 @@ public:
      * @brief A range capturing all the edges in a graph.
      * 
      * @tparam Const Whether the referenced edges are const or mutable.
-     */
      */
     template <Constness Const>
     struct VertexRange {
@@ -620,7 +692,6 @@ private:
             EdgeId prev_id = ring->tail;
             EdgeId next_id = edge->node().next[(int) dir];
             auto prev = _edges.find(prev_id);
-            size_t cur_i = 0;
             do {
                 EdgeId cur_id = prev->second.next[(int) dir];
                 if (cur_id == edge->id()) {
@@ -629,7 +700,6 @@ private:
                 } else {
                     prev_id = cur_id;
                     prev = _edges.find(cur_id);
-                    cur_i += 1;
                 }
             } while (prev_id != ring->tail);
             
@@ -850,7 +920,8 @@ public:
      * The iterator begins an infinite range which cycles through all the edges incident to
      * `v` in the given incidence direction.
      * 
-     * If the vertex has no edges in the given direction, end_incident_edges() will be returned.
+     * If the vertex has no edges in the given direction, end_incident_edges() will be
+     * returned.
      */
     incident_edge_iterator begin_incident_edges(vertex_iterator v, EdgeDir dir) {
         if (v == end_vertices()) {
@@ -874,7 +945,8 @@ public:
      * The iterator begins an infinite range which cycles through all the edges incident to
      * `v` in the given incidence direction.
      * 
-     * If the vertex has no edges in the given direction, end_incident_edges() will be returned.
+     * If the vertex has no edges in the given direction, end_incident_edges() will be
+     * returned.
      */
     const_incident_edge_iterator begin_incident_edges(vertex_iterator v, EdgeDir dir) const {
         if (v == end_vertices()) {
@@ -983,7 +1055,10 @@ public:
      * 
      * The direction of the iterator will be such that it is cycling about the smaller vertex.
      */
-    const_incident_edge_iterator find_edge(const_vertex_iterator v0, const_vertex_iterator v1) const {
+    const_incident_edge_iterator find_edge(
+            const_vertex_iterator v0,
+            const_vertex_iterator v1) const
+    {
         if (v0 == end_vertices() or v1 == end_vertices()) {
             return end_incident_edges();
         }
@@ -1034,39 +1109,39 @@ public:
     
     /// Return a reference to the edge with the given id.
     std::optional<edge_ref> edge(EdgeId edge) {
-        auto it = _edges.find(e);
+        auto it = _edges.find(edge);
         if (it == _edges.end()) return std::nullopt;
         return edge_ref{it};
     }
     
     /// Return a const reference to the edge with the given id.
     std::optional<const_edge_ref> edge(EdgeId edge) const {
-        auto it = _edges.find(e);
+        auto it = _edges.find(edge);
         if (it == _edges.end()) return std::nullopt;
         return const_edge_ref{it};
     }
     
     /// Insert a new vertex into the graph, and return an iterator to it.
     vertex_iterator add_vertex() {
-        VertexId v = ((size_t) _free_vertex_id)++;
-        _verts[v] = VertexNode{};
-        return v;
+        VertexId v = _free_vertex_id++;
+        auto out = _verts.insert({v, VertexNode{}});
+        return out;
     }
     
     /// Insert a new vertex into the graph storing the given value, and return
     /// an iterator to it.
     vertex_iterator add_vertex(const V& v) requires (HasVertexValue) {
-        VertexId v = _free_vertex_id++;
-        _verts[v] = VertexNode{.data = v};
-        return v;
+        VertexId vid = _free_vertex_id++;
+        auto out = _verts.insert({vid, VertexNode{.data = v}});
+        return out;
     }
     
     /// Insert a new vertex into the graph storing the given value, and return
     /// an iterator to it.
     vertex_iterator add_vertex(V&& v) requires (HasVertexValue) {
-        VertexId v = _free_vertex_id++;
-        _verts[v] = VertexNode{.data = std::move(v)};
-        return v;
+        VertexId vid = _free_vertex_id++;
+        auto out = _verts.insert({vid, VertexNode{.data = std::move(v)}});
+        return out;
     }
     
     /**
@@ -1080,19 +1155,19 @@ public:
         if (src == end_vertices() or dst == end_vertices()) {
             return end_incident_edges();
         }
-        EdgeId eid = ((size_t) _free_edge_id)++;
+        EdgeId eid = _free_edge_id++;
         Edge edge {src->id(), dst->id()};
         VertexNode& v0 = src.node();
         VertexNode& v1 = dst.node();
         
-        auto [new_edge, std::ignore] = _edges.insert({
+        auto [new_edge, _] = _edges.insert({
             eid,
             EdgeNode{
                 edge, 
                 // point to the head of the incoming and outgoing edge rings.
                 // if this is the first edge in each ring, point to the edge itself.
-                .next_incoming = v1.incoming_edges ? v1.incoming_edges->head : e,
-                .next_outgoing = v0.outgoing_edges ? v0.outgoing_edges->head : e,
+                .next_incoming = v1.incoming_edges ? v1.incoming_edges->head : eid,
+                .next_outgoing = v0.outgoing_edges ? v0.outgoing_edges->head : eid,
             }
         });
     
@@ -1110,7 +1185,7 @@ public:
                 // also, it already points at itself.
                 edge_list = EdgeList{.head = eid, .tail = eid, .size = 1};
             }
-        }
+        };
         
         _append_tail(v0, EdgeDir::Outgoing, eid);
         _append_tail(v1, EdgeDir::Incoming, eid);
@@ -1133,8 +1208,8 @@ public:
             VertexId a,
             VertexId b)
     {
-        incident_edge_iterator e0 = add_directed_edge(a, b);
-        incident_edge_iterator e1 = add_directed_edge(b, a);
+        incident_edge_iterator e0 = insert_directed_edge(a, b);
+        incident_edge_iterator e1 = insert_directed_edge(b, a);
         return {e0, e1};
     }
     
@@ -1145,10 +1220,9 @@ public:
             return std::nullopt;
         }
         EdgeNode& edge_node = edge->node();
-        Edge         e = edge_node.edge;
-        EdgeId     eid = edge->id();
-        vertex_iterator v0 = find_vertex(e.v0);
-        vertex_iterator v1 = find_vertex(e.v1);
+        Edge              e = edge_node.edge;
+        vertex_iterator  v0 = find_vertex(e.v0);
+        vertex_iterator  v1 = find_vertex(e.v1);
         
         auto out_id = _remove_from_ring(v0, EdgeDir::Outgoing, edge);
         auto  in_id = _remove_from_ring(v1, EdgeDir::Incoming, edge);
@@ -1177,10 +1251,10 @@ public:
             for (auto e : begin_incident_edges(v, dir) | std::ranges::views::take(ring.size)) {
                 // remove from the /other/ vertex's ring
                 const Edge& this_edge = e->edge();
-                // if we're iterating over this vertex's incoming edges, then this vertex is the
-                // destination, and the other vertex is the edge's source. Vice versa for
+                // if we're iterating over this vertex's incoming edges, then this vertex is
+                // the destination, and the other vertex is the edge's source. Vice versa for
                 // the other direction.
-                EdgeId other_id = dir == EdgeDir::Incoming ? this_edge.v0 : this_edge.v1;
+                VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
                 vertex_iterator other = find_vertex(other_id);
                 // remove the edge from the other vertex's (opposite-direction) ring
                 _remove_from_ring(other, ~dir, e);

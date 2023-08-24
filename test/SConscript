@@ -1,0 +1,35 @@
+from pathlib import Path
+import itertools
+
+def runUnitTest(env, target, source):
+   import subprocess
+   app = str(source[0].abspath)
+   if not subprocess.call(app):
+      with open(str(target[0]),'w') as f:
+          f.write("PASSED\n")
+
+Import("env")
+
+test_env = env.Clone()
+test_env.Append(LIBS=['gtest', 'gtest_main'])
+
+test_sources = Glob('*.cpp')
+
+wasm_flags = {
+    'ALLOW_MEMORY_GROWTH' : 1,
+}
+
+test_objs = []
+
+for p in test_sources:
+    name = Path(p.path).stem
+    target = f'#/bin/test/{name}'
+    prog = test_env.Program(target, 
+        source=p,
+        depends=['prim'])
+    runtest = test_env.Command(f"{name}.passed", target, runUnitTest)
+    # actually run the test if we're building natively
+    test_objs.append(runtest)
+
+out_target = test_env.Alias('test', test_objs)
+Return('out_target')
