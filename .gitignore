@@ -3,3 +3,5 @@ doc/gen
 build
 .vscode
 bin/
+.sconsign.dblite
+
