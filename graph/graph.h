@@ -4,6 +4,10 @@
 
 #include <ankerl/unordered_dense.h>
 
+// todo: convert the incident edge iterator to be finite instead of cyclical
+//    we can always wrap a finite iterator in a cycle iterator if we want to,
+//    but using cycle iterators is annoying as fuck, and that should not be the default.
+//    (also, unclear how mutation semantics deal with an unwrapped cycle)
 // todo: wbn to be able to index edges/verts by a custom type.
 //   this would mean maintaining a mapping of E -> Edge and V -> VertexId
 //   > subclass and keep a mapping of K -> Id; override mutation methods
@@ -17,6 +21,17 @@
 // todo: add an `incident_edges()` which concats incoming and outgoing edge ranges
 
 namespace graph {
+
+namespace detail {
+
+template <typename Ref>
+struct arrow_proxy {
+    Ref ref;
+    
+    Ref* operator->() { return &ref; }
+};
+
+} // namespace detail
 
 /// @brief Unique identifier for a vertex in a graph.
 enum struct VertexId : size_t {};
@@ -36,6 +51,12 @@ VertexId& operator+=(VertexId& v, size_t n) {
     return v;
 }
 
+VertexId operator++(VertexId& v, int) {
+    VertexId old = v;
+    v = v + 1;
+    return old;
+}
+
 EdgeId operator+(EdgeId e, size_t n) {
     return static_cast<EdgeId>(static_cast<size_t>(e) + n);
 }
@@ -47,6 +68,12 @@ EdgeId operator+(EdgeId e0, EdgeId e1) {
 EdgeId& operator+=(EdgeId& e, size_t n) {
     e = e + n;
     return e;
+}
+
+EdgeId operator++(EdgeId& e, int) {
+    EdgeId old = e;
+    e = e + 1;
+    return old;
 }
 
 /**
@@ -76,6 +103,15 @@ enum struct EdgeDir {
 
 EdgeDir operator~(EdgeDir dir) {
     return dir == EdgeDir::Incoming ? EdgeDir::Outgoing : EdgeDir::Incoming;
+}
+    
+enum struct Constness {
+    Mutable,
+    Const,
+};
+
+constexpr Constness operator~(Constness c) {
+    return (c == Constness::Mutable) ? Constness::Const : Constness::Mutable;
 }
 
 inline size_t hash_combine(size_t h0, size_t h1) {
@@ -203,11 +239,6 @@ private:
     Edges    _edges;
     VertexId _free_vertex_id = static_cast<VertexId>(0);
     EdgeId   _free_edge_id   = static_cast<EdgeId>(0);
-    
-    enum struct Constness {
-        Mutable,
-        Const,
-    };
 
 public:
 
@@ -253,6 +284,8 @@ public:
         
         Iter _i;
         
+        EdgeRef(Iter i): _i(i) {}
+        
         Node& node() const { return _i->second; }
         Iter  inner_iterator() const { return _i; }
         
@@ -267,20 +300,21 @@ public:
         /// Returns `true` if the edge begins and ends at the same vertex.
         bool     is_loop() const { return _i->second.edge.v0 == _i->second.edge.v1;}
         /// The ID of the source vertex.
-        VertexId source()  const { return _i->second.edge.v0; }
+        VertexId source_id()  const { return _i->second.edge.v0; }
         /// The ID of the target vertex.
-        VertexId target()  const { return _i->second.edge.v1; }
+        VertexId target_id()  const { return _i->second.edge.v1; }
         /**
          * @brief Returns the ID of the vertex at the given end of the edge.
          * 
          * The `Outgoing` end is the source vertex, the `Incoming` end is the target.
          */
         VertexId vertex(EdgeDir dir) const { 
-            return dir == EdgeDir::Outgoing ? source() : target();
+            return dir == EdgeDir::Outgoing ? source_id() : target_id();
         }
         
         Value& operator*()  const requires (HasEdgeValue) { return  value(); }
         Value* operator->() const requires (HasEdgeValue) { return &value(); }
+        operator Value&()   const requires (HasEdgeValue) { return  value(); }
         
         /// @brief Implicitly converts to the edge ID.
         operator EdgeId() const { return id(); }
@@ -307,7 +341,9 @@ public:
         
         Iter _i;
         
-        Iter iner_iterator() const { return _i; }
+        Iter inner_iterator() const { return _i; }
+        
+        VertexRef(Iter i): _i(i) {}
         
     public:
         
@@ -330,6 +366,7 @@ public:
         
         Value& operator*()  const requires (HasVertexValue) { return  value(); }
         Value* operator->() const requires (HasVertexValue) { return &value(); }
+        operator Value&()   const requires (HasVertexValue) { return  value(); }
         
         /// Implicit conversion to the vertex ID.
         operator VertexId() const { return id(); }
@@ -355,6 +392,7 @@ public:
             typename Edges::const_iterator,
             typename Edges::iterator
         >;
+        using PointerProxy = detail::arrow_proxy<EdgeRef<Const>>;
         
         friend Graph;
         
@@ -365,8 +403,8 @@ public:
         
     public:
         
-        EdgeRef<Const> operator*()  const { return _i; }
-        EdgeRef<Const> operator->() const { return _i; }
+        EdgeRef<Const> operator*() const { return _i; }
+        PointerProxy  operator->() const { return PointerProxy { EdgeRef<Const>{ _i } }; }
         /// The graph this iterator belongs to.
         Graph& graph() const { return *_graph; }
         
@@ -392,6 +430,10 @@ public:
             return _i == other._i;
         }
         
+        operator EdgeId() const {
+            return _i->first;
+        }
+        
     };
     
 
@@ -412,6 +454,7 @@ public:
             typename Edges::const_iterator,
             typename Edges::iterator
         >;
+        using PointerProxy = detail::arrow_proxy<EdgeRef<Const>>;
         
         friend Graph;
         
@@ -433,12 +476,12 @@ public:
             return IncidentEdgeIterator<Constness::Const>(_graph, _i, _dir);
         }
         
-        EdgeRef<Const> operator*()  const { return _i; }
-        EdgeRef<Const> operator->() const { return _i; }
+        EdgeRef<Const> operator*() const { return _i; }
+        PointerProxy  operator->() const { return PointerProxy { EdgeRef<Const>{_i} }; }
         /// Whether this iterator traverses incoming or outgoing edges.
         EdgeDir traversal_direction()  const { return _dir; }
         /// The graph this iterator belongs to.
-        Graph&  graph()      const { return *_graph; }
+        Graph&  graph() const { return *_graph; }
         
         /// Retrieve a reference to the source vertex of the referenced edge.
         VertexRef<Const> source() const { return {_graph->_verts.find(_i->second.edge.v0)}; }
@@ -470,6 +513,10 @@ public:
         bool operator==(const IncidentEdgeIterator<K>& other) const {
             return _i == other._i;
         }
+        
+        operator EdgeId() const {
+            return _i->first;
+        }
     };
     
     /**
@@ -485,6 +532,7 @@ public:
             typename Verts::const_iterator,
             typename Verts::iterator
         >;
+        using PointerProxy = detail::arrow_proxy<VertexRef<Const>>;
         
         friend Graph;
         
@@ -503,7 +551,7 @@ public:
         }
         
         VertexRef<Const> operator*()  const { return _i; }
-        VertexRef<Const> operator->() const { return _i; }
+        PointerProxy     operator->() const { return PointerProxy { VertexRef<Const>{_i} }; }
         /// The graph this iterator is iterating over.
         Graph& graph() const { return *_graph; }
         
@@ -522,6 +570,10 @@ public:
         template <Constness K>
         bool operator==(const VertexIterator<K>& other) const {
             return _i == other._i;
+        }
+        
+        operator VertexId() const {
+            return _i->first;
         }
     };
     
@@ -721,7 +773,7 @@ public:
     const_vertex_ref operator[](VertexId v) const {
         auto i = _verts.find(v);
         if (i == _verts.end()) throw std::out_of_range("vertex not found");
-        return VertexRef {i};
+        return const_vertex_ref {i};
     }
     
     /**
@@ -730,11 +782,12 @@ public:
      * If the vertex does not exist, it will be created.
      */
     vertex_ref operator[](VertexId v) {
-        auto [i, created] = _verts.insert_or_assign(v, {});
-        if (created) {
+        auto i = _verts.find(v);
+        if (i == _verts.end()) {
+            std::tie(i, std::ignore) = _verts.insert({v, VertexNode{}});
             _free_vertex_id = std::max(_free_vertex_id, v + 1);
         }
-        return VertexRef {i};
+        return vertex_ref {i};
     }
     
     /**
@@ -745,7 +798,7 @@ public:
     const_edge_ref operator[](EdgeId e) const {
         auto i = _edges.find(e);
         if (i == _edges.end()) throw std::out_of_range("edge not found");
-        return EdgeRef {i};
+        return const_edge_ref {i};
     }
     
     /**
@@ -756,7 +809,15 @@ public:
     edge_ref operator[](EdgeId e) {
         auto i = _edges.find(e);
         if (i == _edges.end()) throw std::out_of_range("edge not found");
-        return EdgeRef {i};
+        return edge_ref {i};
+    }
+    
+    bool contains(VertexId vid) const {
+        return _verts.contains(vid);
+    }
+    
+    bool contains(EdgeId eid) const {
+        return _edges.contains(eid);
     }
     
     /// A range of all the vertices in the graph.
@@ -1124,24 +1185,24 @@ public:
     /// Insert a new vertex into the graph, and return an iterator to it.
     vertex_iterator add_vertex() {
         VertexId v = _free_vertex_id++;
-        auto out = _verts.insert({v, VertexNode{}});
-        return out;
+        auto [out, created] = _verts.insert({v, VertexNode{}});
+        return {this, out};
     }
     
     /// Insert a new vertex into the graph storing the given value, and return
     /// an iterator to it.
     vertex_iterator add_vertex(const V& v) requires (HasVertexValue) {
         VertexId vid = _free_vertex_id++;
-        auto out = _verts.insert({vid, VertexNode{.data = v}});
-        return out;
+        auto [out, created] = _verts.insert({vid, VertexNode{.data = v}});
+        return {this, out};
     }
     
     /// Insert a new vertex into the graph storing the given value, and return
     /// an iterator to it.
     vertex_iterator add_vertex(V&& v) requires (HasVertexValue) {
         VertexId vid = _free_vertex_id++;
-        auto out = _verts.insert({vid, VertexNode{.data = std::move(v)}});
-        return out;
+        auto [out, created] = _verts.insert({vid, VertexNode{.data = std::move(v)}});
+        return {this, out};
     }
     
     /**
