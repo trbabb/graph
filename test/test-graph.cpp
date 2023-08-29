@@ -42,4 +42,17 @@ TEST(TEST_MODULE_NAME, test_access) {
     EXPECT_EQ(g.find_vertex(v1_id)->value(), 2);
     EXPECT_EQ(g[v0_id].value(), 1);
     EXPECT_EQ(g[v1_id].value(), 2);
+    
+    auto e0 = g.insert_directed_edge(v0_id, v1_id);
+    e0->value() = 3;
+    EXPECT_EQ(g.edges_size(), 1);
+    EXPECT_EQ(*e0, 3);
+    EdgeId e0_id = e0;
+    
+    EXPECT_TRUE(g.contains(e0_id));
+    // todo: ambiguous overload-- either make explicit overloads for const and non-const
+    // iterators so the 'right one' has no conversion, or remove auto-conversion of iters to other things
+    EXPECT_EQ(g.find_edge(v0_id, v1_id), e0);
+    EXPECT_EQ(g.find_edge(v1_id, v0_id), g.end_edges());
+    EXPECT_EQ(g[e0_id].value(), 3);
 }

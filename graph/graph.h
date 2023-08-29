@@ -341,9 +341,10 @@ public:
         
         Iter _i;
         
-        Iter inner_iterator() const { return _i; }
-        
         VertexRef(Iter i): _i(i) {}
+        
+        Iter inner_iterator() const { return _i; }
+        VertexNode& node() const { return _i->second; }
         
     public:
         
@@ -430,6 +431,11 @@ public:
             return _i == other._i;
         }
         
+        template <Constness K>
+        bool operator==(const IncidentEdgeIterator<K>& other) const {
+            return _i == other._i;
+        }
+        
         operator EdgeId() const {
             return _i->first;
         }
@@ -504,13 +510,18 @@ public:
         
         /// Advances the iterator to the next edge in the current edge direction.  
         IncidentEdgeIterator& operator++() {
-            EdgeId next_id = _i->second.next[_dir];
+            EdgeId next_id = _i->second.next[(int) _dir];
             _i = _graph->_edges.find(next_id);
             return *this;
         }
         
         template <Constness K>
         bool operator==(const IncidentEdgeIterator<K>& other) const {
+            return _i == other._i;
+        }
+        
+        template <Constness K>
+        bool operator==(const EdgeIterator<K>& other) const {
             return _i == other._i;
         }
         
@@ -988,8 +999,8 @@ public:
         if (v == end_vertices()) {
             return end_incident_edges();
         }
-        VertexNode& v_node = v->second;
-        if (not v_node.edges[dir]) {
+        VertexNode& v_node = v._i->second;
+        if (not v_node.edges[(int) dir]) {
             return end_incident_edges();
         }
         return IncidentEdgeIterator<Constness::Mutable> {
@@ -1013,8 +1024,8 @@ public:
         if (v == end_vertices()) {
             return end_incident_edges();
         }
-        VertexNode& v_node = v->second;
-        if (not v_node.edges[dir]) {
+        VertexNode& v_node = v._i->second;
+        if (not v_node.edges[(int) dir]) {
             return end_incident_edges();
         }
         return IncidentEdgeIterator<Constness::Const> {
@@ -1105,6 +1116,10 @@ public:
         } while (edge_it != first_edge_it);
         
         return end_incident_edges();
+    }
+    
+    inline incident_edge_iterator find_edge(vertex_iterator v0, vertex_iterator v1) {
+        return find_edge(const_vertex_iterator(v0), const_vertex_iterator(v1));
     }
     
     /**
@@ -1218,8 +1233,8 @@ public:
         }
         EdgeId eid = _free_edge_id++;
         Edge edge {src->id(), dst->id()};
-        VertexNode& v0 = src.node();
-        VertexNode& v1 = dst.node();
+        VertexNode& v0 = src->node();
+        VertexNode& v1 = dst->node();
         
         auto [new_edge, _] = _edges.insert({
             eid,
