@@ -1001,7 +1001,7 @@ public:
      */
     vertex_iterator erase(vertex_iterator v) {
         if (v == end_vertices()) {
-            return std::nullopt;
+            return end_vertices();
         }
         
         for (EdgeDir dir : {EdgeDir::Incoming, EdgeDir::Outgoing}) {

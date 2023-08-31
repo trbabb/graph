@@ -68,6 +68,11 @@ public:
     using Base::HasEdgeValue;
     
     
+    /**
+     * @brief Returns a const reference to the vertex with the given key.
+     * 
+     * If the key is not present in the graph, a `std::out_of_range` exception is thrown.
+     */
     const_vertex_ref operator[](const Vk& key) const requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
@@ -76,6 +81,12 @@ public:
         return {this, this->_verts.find(i->second)};
     }
     
+    /**
+     * @brief Returns a reference to the vertex with the given key.
+     * 
+     * If the key is not present in the graph, a new vertex is created with the given key
+     * and a reference to it is returned.
+     */
     vertex_ref operator[](const Vk& key) requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
@@ -87,14 +98,25 @@ public:
         }
     }
     
+    /**
+     * @brief Returns a reference to the vertex with the given Id.
+     */
     vertex_ref operator[](VertexId v) {
         return _base()->operator[](v);
     }
     
+    /**
+     * @brief Returns a const reference to the vertex with the given Id.
+     */
     const_vertex_ref operator[](VertexId v) const {
         return _base()->operator[](v);
     }
     
+    /**
+     * @brief Returns a const reference to the edge with the given key.
+     * 
+     * If the key is not present in the graph, a `std::out_of_range` exception is thrown.
+     */
     const_edge_ref operator[](const Ek& key) const requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
@@ -103,6 +125,11 @@ public:
         return {this, this->_edges.find(i->second)};
     }
     
+    /**
+     * @brief Returns a reference to the edge with the given key.
+     * 
+     * If the key is not present in the graph, a `std::out_of_range` exception is thrown.
+     */
     edge_ref operator[](const Ek& key) requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
@@ -112,26 +139,39 @@ public:
         }
     }
     
+    /**
+     * @brief Returns a reference to the edge with the given Id.
+     */
     edge_ref operator[](EdgeId e) {
         return _base()->operator[](e);
     }
     
+    /**
+     * @brief Returns a const reference to the edge with the given Id.
+     */
     const_edge_ref operator[](EdgeId e) const {
         return _base()->operator[](e);
     }
     
     using Base::contains;
     
+    /// Returns true if a vertex with the given key is present in the graph.
     bool contains(const Vk& key) const requires (HasVertKey()) {
         return _vert_ids_by_key.contains(key);
     }
     
+    /// Returns true if an edge with the given key is present in the graph.
     bool contains(const Ek& key) const requires (HasEdgeKey()) {
         return _edge_ids_by_key.contains(key);
     }
     
     using Base::find_vertex;
     
+    /**
+     * @brief Returns an iterator to the vertex with the given key.
+     * 
+     * If the key is not present in the graph, returns `this->end_vertices()`.
+     */
     vertex_iterator find_vertex(const Vk& key) requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
@@ -141,6 +181,11 @@ public:
         }
     }
     
+    /**
+     * @brief Returns a const iterator to the vertex with the given key.
+     * 
+     * If the key is not present in the graph, returns `this->end_vertices()`.
+     */
     const_vertex_iterator find_vertex(const Vk& key) const requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
@@ -152,6 +197,11 @@ public:
     
     using Base::find_edge;
     
+    /**
+     * @brief Returns an iterator to the edge with the given key.
+     * 
+     * If the key is not present in the graph, returns `this->end_edges()`.
+     */
     edge_iterator find_edge(const Ek& key) requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
@@ -161,6 +211,11 @@ public:
         }
     }
     
+    /**
+     * @brief Returns a const iterator to the edge with the given key.
+     * 
+     * If the key is not present in the graph, returns `this->end_edges()`.
+     */
     const_edge_iterator find_edge(const Ek& key) const requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
@@ -172,6 +227,7 @@ public:
     
     using Base::vertex;
     
+    /// Returns a reference to the vertex with the given key, or `std::nullopt` if not found.
     std::optional<vertex_ref> vertex(const Vk& key) requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
@@ -181,6 +237,8 @@ public:
         }
     }
     
+    /// Returns a const reference to the vertex with the given key, or `std::nullopt`
+    /// if not found.
     std::optional<const_vertex_ref> vertex(const Vk& key) const requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
@@ -190,6 +248,7 @@ public:
         }
     }
     
+    /// Returns a reference to the edge with the given key, or `std::nullopt` if not found.
     std::optional<edge_ref> edge(const Ek& key) requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
@@ -199,6 +258,8 @@ public:
         }
     }
     
+    /// Returns a const reference to the edge with the given key, or `std::nullopt` if
+    /// not found.
     std::optional<const_edge_ref> edge(const Ek& key) const requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
@@ -208,21 +269,35 @@ public:
         }
     }
     
-    vertex_iterator erase(const Vk& key) requires (HasVertKey()) {
+    /**
+     * @brief Removes the vertex with the given key from the graph, if present.
+     * 
+     * Returns the number of vertices (0 or 1) removed from the graph.
+     */
+    size_t erase(const Vk& key) requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i != _vert_ids_by_key.end()) {
             _vert_ids_by_key.erase(i);
-            return this->erase(vertex_iterator{this, this->_verts.find(i->second)});
+            this->erase(vertex_iterator{this, this->_verts.find(i->second)});
+            return 1;
+        } else {
+            return 0;
         }
     }
     
-    typename Base::template EdgePair<std::optional<EdgeId>> erase(const Ek& key) requires (HasEdgeKey()) {
+    /**
+     * @brief Removes the edge with the given key from the graph, if present.
+     * 
+     * Returns the number of edges (0 or 1) removed from the graph.
+     */
+    size_t erase(const Ek& key) requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i != _edge_ids_by_key.end()) {
             _edge_ids_by_key.erase(i);
-            return this->erase(edge_iterator{this, this->_edges.find(i->second)});
+            this->erase(edge_iterator{this, this->_edges.find(i->second)});
+            return 1;
         } else {
-            return {std::nullopt, std::nullopt};
+            return 0;
         }
     }
     
@@ -238,6 +313,15 @@ public:
         return _base()->erase(edge);
     }
     
+    /**
+     * @brief Inserts a vertex with the given key into the graph.
+     * 
+     * Returns a pair of an iterator to the vertex with the given key, and a boolean
+     * indicating whether the vertex was inserted (`true`) or already existed (`false`).
+     * 
+     * In the case where the vertex was inserted, the value is default-constructed.
+     * Otherwise, the value is left unchanged.
+     */
     std::pair<vertex_iterator, bool> insert_vertex(const Vk& key) requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i != _vert_ids_by_key.end()) {
@@ -249,6 +333,15 @@ public:
         }
     }
     
+    /**
+     * @brief Inserts a vertex with the given key and value into the graph.
+     * 
+     * Returns a pair of an iterator to the vertex with the given key, and a boolean
+     * indicating whether the vertex was inserted (`true`) or already existed (`false`).
+     * 
+     * In the case where the vertex was inserted, the value is copy-constructed from the
+     * given value. Otherwise, the value is left unchanged.
+     */
     std::pair<vertex_iterator, bool> insert_vertex(const Vk& key, const Vv& value)
         requires (HasVertKey() and HasVertexValue())
     {
@@ -271,6 +364,16 @@ public:
         return _base()->insert_vertex();
     }
     
+    /**
+     * @brief Emplaces a vertex with the given key and value construction arguments
+     * into the graph.
+     * 
+     * Returns a pair of an iterator to the vertex with the given key, and a boolean
+     * indicating whether the vertex was inserted (`true`) or already existed (`false`).
+     * 
+     * In the case where the vertex was inserted, the value is constructed in-place
+     * from the given arguments. Otherwise, the value is left unchanged.
+     */
     template <typename... Args>
     std::pair<vertex_iterator, bool> emplace_vertex(const Vk& key, Args&&... args)
         requires (HasVertKey() and HasVertexValue())
@@ -286,6 +389,10 @@ public:
         }
     }
     
+    /**
+     * @brief Emplaces a vertex with the given value construction arguments into the graph,
+     * returning an iterator to the new vertex.
+     */
     template <typename... Args>
     vertex_iterator emplace_vertex(Args&&... args)
         requires (not HasVertKey() and HasVertexValue())
@@ -293,6 +400,12 @@ public:
         return _base()->emplace_vertex(std::forward<Args>(args)...);
     }
     
+    /**
+     * @brief Inserts a vertex with the given key and value into the graph.
+     * 
+     * Returns a pair of an iterator to the vertex with the given key, and a boolean
+     * indicating whether the vertex was inserted (`true`) or already existed (`false`).
+     */
     std::pair<vertex_iterator, bool> insert_or_assign_vertex(const Vk& key, const Vv& value)
         requires (HasVertKey() and HasVertexValue())
     {
@@ -308,6 +421,15 @@ public:
         }
     }
     
+    /**
+     * @brief Inserts a directed edge with the given key into the graph.
+     * 
+     * Returns a pair of an iterator to the edge with the given key, and a boolean
+     * indicating whether the edge was inserted (`true`) or already existed (`false`).
+     * 
+     * In the case where the edge was inserted, the value is default-constructed.
+     * Otherwise, the value is left unchanged.
+     */
     std::pair<incident_edge_iterator, bool> insert_directed_edge(
             const Ek& new_key,
             vertex_iterator src,
@@ -324,6 +446,15 @@ public:
         return e_i;
     }
     
+    /**
+     * @brief Inserts a directed edge with the given key and value into the graph.
+     * 
+     * Returns a pair of an iterator to the edge with the given key, and a boolean
+     * indicating whether the edge was inserted (`true`) or already existed (`false`).
+     * 
+     * In the case where the edge was inserted, the value is copy-constructed from the
+     * given value. Otherwise, the value is left unchanged.
+     */
     std::pair<incident_edge_iterator, bool> insert_directed_edge(
             const Ek& new_key,
             vertex_iterator src,
@@ -342,6 +473,15 @@ public:
         return e_i;
     }
     
+    /**
+     * @brief Inserts a directed edge with the given key and value into the graph.
+     * 
+     * Returns a pair of an iterator to the edge with the given key, and a boolean
+     * indicating whether the edge was inserted (`true`) or already existed (`false`).
+     * 
+     * Whether or not the edge was newly inserted, the value is copy-constructed or
+     * copy-assigned from the given value.
+     */
     std::pair<incident_edge_iterator, bool> insert_or_assign_directed_edge(
             const Ek& new_key,
             vertex_iterator src,
@@ -369,6 +509,16 @@ public:
         return _base()->insert_directed_edge(src, dst);
     }
     
+    /**
+     * @brief Inserts an undirected edge with the given key and value construction
+     * arguments into the graph.
+     * 
+     * Returns a pair of an iterator to the edge with the given key, and a boolean
+     * indicating whether the edge was inserted (`true`) or already existed (`false`).
+     * 
+     * In the case where the edge was inserted, the value is constructed in-place
+     * from the given arguments. Otherwise, the value is left unchanged.
+     */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
             const Ek& new_key,
