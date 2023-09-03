@@ -2,6 +2,11 @@
 
 #include <ranges>
 
+// todo: convert the incident edge iterator to be finite instead of cyclical
+//    we can always wrap a finite iterator in a cycle iterator if we want to,
+//    but using cycle iterators is annoying as fuck, and that should not be the default.
+//    it will also invite very common infinite-cycle bugs.
+//    (also, unclear how mutation semantics deal with an unwrapped cycle)
 // todo: testing. exercise all the code paths
 // todo: make Digraph and GraphMap inherit from a common [private] base class but not each other.
 //    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
@@ -9,10 +14,6 @@
 //    > consider also the access granted by shared iterator and range classes.
 // todo: wbn to have a pre-built class that indexes edges by Pair<VertexId>
 // todo: subclass of graph_map which can do reverse indexing
-// todo: convert the incident edge iterator to be finite instead of cyclical
-//    we can always wrap a finite iterator in a cycle iterator if we want to,
-//    but using cycle iterators is annoying as fuck, and that should not be the default.
-//    (also, unclear how mutation semantics deal with an unwrapped cycle)
 // todo: expose pseudo-containers for the verts and edges?
 //    would allow disambiguation for operator[], etc; and a lot of
 //    cruft would be teased apart.
@@ -316,6 +317,13 @@ public:
         friend IncidentEdgeIterator<Const>;
         friend IncidentEdgeIterator<~Const>;
         friend Graph;
+        template <
+            typename Vk,
+            typename Vv,
+            typename Ek,
+            typename Ev,
+            template <class...> class M>
+        friend struct DigraphMap;
         
         Iter _i;
         
@@ -437,7 +445,14 @@ public:
         >;
         using PointerProxy = detail::arrow_proxy<EdgeRef<Const>>;
         
-        friend Graph;
+        friend Graph;    
+        template <
+            typename Vk,
+            typename Vv,
+            typename Ek,
+            typename Ev,
+            template <class...> class M>
+        friend struct DigraphMap;
         
         Graph* _graph;
         Iter   _i;
@@ -513,6 +528,13 @@ public:
         using PointerProxy = detail::arrow_proxy<EdgeRef<Const>>;
         
         friend Graph;
+        template <
+            typename Vk,
+            typename Vv,
+            typename Ek,
+            typename Ev,
+            template <class...> class M>
+        friend struct DigraphMap;
         
         Graph*  _graph;
         Iter    _i;
@@ -601,6 +623,14 @@ public:
             typename Verts::iterator
         >;
         using PointerProxy = detail::arrow_proxy<VertexRef<Const>>;
+    
+        template <
+            typename Vk,
+            typename Vv,
+            typename Ek,
+            typename Ev,
+            template <class...> class M>
+        friend struct DigraphMap;
         
         friend Graph;
         
@@ -1053,6 +1083,16 @@ public:
             }
         }
         return {this, _verts.erase(v.inner_iterator())};
+    }
+    
+    /**
+     * @brief Remove the vertex with the given ID, and return an iterator to the following
+     * vertex.
+     * 
+     * Alias for `erase(find_vertex(vid))`.
+     */
+    vertex_iterator erase(VertexId vid) {
+        return erase(find_vertex(vid));
     }
     
     /// @}
@@ -1520,7 +1560,8 @@ public:
      * 
      * This operation is O(k), with k being the degree of the smaller vertex.
      * 
-     * The direction of the iterator will be such that it is cycling about the smaller vertex.
+     * The direction of the iterator will be such that it is cycling about the vertex
+     * with smaller degree.
      */
     incident_edge_iterator find_edge(const_vertex_iterator v0, const_vertex_iterator v1) {
         if (v0 == end_vertices() or v1 == end_vertices()) {
@@ -1558,7 +1599,8 @@ public:
      * 
      * This operation is O(k), with k being the degree of the smaller vertex.
      * 
-     * The direction of the iterator will be such that it is cycling about the smaller vertex.
+     * The direction of the iterator will be such that it is cycling about the
+     * vertex with smaller degree.
      */
     const_incident_edge_iterator find_edge(
             const_vertex_iterator v0,

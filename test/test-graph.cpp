@@ -168,7 +168,23 @@ TEST(TEST_MODULE_NAME, test_vtx_deletion) {
 TEST(TEST_MODULE_NAME, graph_map) {
     DigraphMap<std::string, int, int, float> dgm;
     
-    auto i = dgm["goof"];
+    dgm["goof"].value() = 55;
+    EXPECT_EQ(dgm["goof"], 55);
+    EXPECT_EQ(dgm.vertices_size(), 1);
+    
+    dgm["fleg"].value() = 99;
+    EXPECT_EQ(dgm["fleg"], 99);
+    EXPECT_EQ(dgm.vertices_size(), 2);
+    
+    VertexId v0_id = dgm.find_vertex("goof")->id();
+    VertexId v1_id = dgm.find_vertex("fleg")->id();
+    
+    auto [e, created] = dgm.insert_directed_edge(99, "goof", "fleg");
+    EXPECT_TRUE(created);
+    e->value() = 77;
+    EXPECT_EQ(dgm[99], 77);
+    EXPECT_EQ(e->source_id(), v0_id);
+    EXPECT_EQ(e->target_id(), v1_id);
 }
 
 

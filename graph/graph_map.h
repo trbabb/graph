@@ -132,7 +132,7 @@ public:
         if (i == _edge_ids_by_key.end()) {
             throw std::out_of_range("edge key not found");
         }
-        return {this, this->_edges.find(i->second)};
+        return {this->_edges.find(i->second)};
     }
     
     /**
@@ -145,7 +145,7 @@ public:
         if (i == _edge_ids_by_key.end()) {
             throw std::out_of_range("edge key not found");
         } else {
-            return {this, this->_edges.find(i->second)};
+            return {this->_edges.find(i->second)};
         }
     }
     
@@ -185,7 +185,7 @@ public:
     vertex_iterator find_vertex(const Vk& key) requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
-            return this->end_vertices();
+            return {this, this->_verts.end()};
         } else {
             return {this, this->_verts.find(i->second)};
         }
@@ -199,7 +199,7 @@ public:
     const_vertex_iterator find_vertex(const Vk& key) const requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
-            return this->end_vertices();
+            return {this, this->_verts.end()};
         } else {
             return {this, this->_verts.find(i->second)};
         }
@@ -215,7 +215,7 @@ public:
     edge_iterator find_edge(const Ek& key) requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
-            return this->end_edges();
+            return {this, this->_edges.end()};
         } else {
             return {this, this->_edges.find(i->second)};
         }
@@ -229,7 +229,7 @@ public:
     const_edge_iterator find_edge(const Ek& key) const requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
-            return this->end_edges();
+            return {this, this->_edges.end()};
         } else {
             return {this, this->_edges.find(i->second)};
         }
@@ -449,11 +449,18 @@ public:
         auto i = _edge_ids_by_key.find(new_key);
         if (i != _edge_ids_by_key.end()) {
             // insertion blocked by existing key
-            return {incident_edge_iterator{this, this->_edges.find(i->second)}, false};
+            return {
+                incident_edge_iterator {
+                    this,
+                    this->_edges.find(i->second),
+                    EdgeDir::Outgoing
+                },
+                false
+            };
         }
         auto e_i = _base()->insert_directed_edge(src, dst);
         _edge_ids_by_key.insert({new_key, e_i->id()});
-        return e_i;
+        return { e_i, true };
     }
     
     /**
@@ -475,12 +482,60 @@ public:
         auto i = _edge_ids_by_key.find(new_key);
         if (i != _edge_ids_by_key.end()) {
             // insertion blocked by existing key
-            return {incident_edge_iterator{this, this->_edges.find(i->second)}, false};
+            return {
+                incident_edge_iterator {
+                    this,
+                    this->_edges.find(i->second),
+                    EdgeDir::Outgoing
+                },
+                false
+            };
         }
         auto e_i = _base()->insert_directed_edge(src, dst, value);
         _edge_ids_by_key.insert({new_key, e_i->id()});
         e_i->value() = value;
-        return e_i;
+        return { e_i, true };
+    }
+    
+    std::pair<incident_edge_iterator, bool> insert_directed_edge(
+            const Ek& new_key,
+            const Vk& src_key,
+            const Vk& dst_key,
+            const Ev& value)
+        requires (HasEdgeKey() and HasEdgeValue() and HasVertKey())
+    {
+        return insert_directed_edge(
+            new_key,
+            this->find_vertex(src_key),
+            this->find_vertex(dst_key),
+            value
+        );
+    }
+    
+    std::pair<incident_edge_iterator, bool> insert_directed_edge(
+            const Vk& src_key,
+            const Vk& dst_key,
+            const Ev& value)
+        requires (not HasEdgeKey() and HasEdgeValue() and HasVertKey())
+    {
+        return insert_directed_edge(
+            this->find_vertex(src_key),
+            this->find_vertex(dst_key),
+            value
+        );
+    }
+    
+    std::pair<incident_edge_iterator, bool> insert_directed_edge(
+            const Ek& new_key,
+            const Vk& src_key,
+            const Vk& dst_key)
+        requires (HasEdgeKey() and HasVertKey())
+    {
+        return insert_directed_edge(
+            new_key,
+            this->find_vertex(src_key),
+            this->find_vertex(dst_key)
+        );
     }
     
     incident_edge_iterator insert_directed_edge(
@@ -511,12 +566,35 @@ public:
     {
         auto i = _edge_ids_by_key.find(new_key);
         if (i != _edge_ids_by_key.end()) {
-            // insertion blocked by existing key
-            return {incident_edge_iterator{this, this->_edges.find(i->second)}, false};
+            // key exists; insertion blocked; return existing edge
+            return {
+                incident_edge_iterator {
+                    this,
+                    this->_edges.find(i->second),
+                    EdgeDir::Outgoing
+                },
+                false
+            };
         }
         auto e_i = _base()->emplace_directed_edge(src, dst, std::forward<Args>(args)...);
         _edge_ids_by_key.insert({new_key, e_i->id()});
-        return e_i;
+        return { e_i, true };
+    }
+    
+    template <typename... Args>
+    std::pair<incident_edge_iterator, bool> emplace_directed_edge(
+            const Ek& new_key,
+            const Vk& src_key,
+            const Vk& dst_key,
+            Args&&... args)
+        requires (HasEdgeKey() and HasEdgeValue() and HasVertKey())
+    {
+        return emplace_directed_edge(
+            new_key,
+            this->find_vertex(src_key),
+            this->find_vertex(dst_key),
+            std::forward<Args>(args)...
+        );
     }
     
     template <typename... Args>
@@ -527,6 +605,20 @@ public:
         requires (not HasEdgeKey() and HasEdgeValue())
     {
         return _base()->emplace_directed_edge(src, dst, std::forward<Args>(args)...);
+    }
+    
+    template <typename... Args>
+    std::pair<incident_edge_iterator, bool> emplace_directed_edge(
+            const Vk& src_key,
+            const Vk& dst_key,
+            Args&&... args)
+        requires (not HasEdgeKey() and HasEdgeValue() and HasVertKey())
+    {
+        return _base()->emplace_directed_edge(
+            this->find_vertex(src_key),
+            this->find_vertex(dst_key),
+            std::forward<Args>(args)...
+        );
     }
     
     std::pair<incident_edge_iterator, incident_edge_iterator> insert_undirected_edge(
