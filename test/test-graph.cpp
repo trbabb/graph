@@ -30,6 +30,31 @@ std::ostream& operator<<(std::ostream& os, const VertexId& id) {
     return os;
 }
 
+std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
+    os << (size_t)id;
+    return os;
+}
+
+/// make a 'star' graph with a central vertex and `n_verts` adjacent to it in the
+/// outgoing direction
+auto make_star_graph(Digraph<int,float>& g, size_t n_verts) {
+    auto v0 = g.insert_vertex();
+    v0->value() = 9999;
+    for (int i = 0; i < n_verts; ++i) {
+        auto v = g.insert_vertex();
+        v->value() = i;
+    }
+    // make a 'star' graph
+    EXPECT_EQ(g.vertices_size(), n_verts + 1);
+    for (auto v : g.vertices()) {
+        if (v != *v0) {
+            g.insert_directed_edge(v0, v);
+        }
+    }
+    return v0;
+}
+
+
 TEST(TEST_MODULE_NAME, test_create) {
     Digraph<int, float, Map> g;
     EXPECT_EQ(g.vertices_size(), 0);
@@ -78,24 +103,15 @@ TEST(TEST_MODULE_NAME, test_access) {
 TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
     Digraph<int, float> g;
     size_t n_verts = 10;
-    auto v0 = g.insert_vertex();
-    v0->value() = 9999;
-    for (int i = 0; i < n_verts; ++i) {
-        auto v = g.insert_vertex();
-        v->value() = i;
-    }
-    // make a 'star' graph (plus a self-loop on v0)
-    EXPECT_EQ(g.vertices_size(), n_verts + 1);
-    for (auto v : g.vertices()) {
-        if (v != *v0) {
-            g.insert_directed_edge(v0, v);
-        }
-    }
+    auto v0 = make_star_graph(g, n_verts);
     EXPECT_EQ(g.edges_size(), n_verts);
+    
+    // the source of each edge should be v0
     for (auto e : g.edges()) {
-        // the source of each edge should be v0
         EXPECT_EQ(e.source_id(), *v0);
     }
+    
+    // verify that v0 iterates over all its incident edges
     auto incident = g.incident_edges(v0);
     for (auto e = ++incident.begin(); true; ++e) {
         // the source of each edge should be v0
@@ -104,12 +120,15 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
             break;
         }
     }
+    
+    // verify that we can delete an edge
     auto e0 = g.begin_edges();
     g.erase(e0);
     EXPECT_EQ(g.edges_size(), n_verts - 1);
+    
+    // iteration should still terminate, and touch exactly the remaining edges
     incident = g.incident_edges(v0);
     size_t ct = 0;
-    // iteration should still terminate, and touch exactly the remaining edges
     for (auto e = ++incident.begin(); true; ++e) {
         EXPECT_EQ(e->source_id(), *v0);
         ++ct;
@@ -118,6 +137,7 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
         }
     }
     EXPECT_EQ(ct, n_verts - 1);
+    
     // remove all of the edges incident to v0
     incident = g.incident_edges(v0);
     for (auto e = ++incident.begin(); e != g.end_incident_edges(); ) {
@@ -125,6 +145,18 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
     }
     // there should be no edges left
     EXPECT_EQ(g.edges_size(), 0);
+}
+
+
+TEST(TEST_MODULE_NAME, test_vtx_deletion) {
+    Digraph<int, float> g;
+    size_t n_verts = 10;
+    auto v0 = make_star_graph(g, n_verts);
+    EXPECT_EQ(g.edges_size(), n_verts);
+    EXPECT_EQ(g.vertices_size(), n_verts + 1);
+    g.erase(v0);
+    EXPECT_EQ(g.edges_size(), 0);
+    EXPECT_EQ(g.vertices_size(), n_verts);
 }
 
 

@@ -446,6 +446,12 @@ public:
         Iter   inner_iterator() const { return _i; }
         
     public:
+    
+        using value_type = EdgeRef<Const>;
+        
+        EdgeIterator(const EdgeIterator& other) = default;
+        EdgeIterator& operator=(const EdgeIterator& other) = default;
+        
         
         EdgeRef<Const> operator*() const { return _i; }
         PointerProxy  operator->() const { return PointerProxy { EdgeRef<Const>{ _i } }; }
@@ -519,6 +525,11 @@ public:
         Iter    inner_iterator() const { return _i; }
         
     public:
+    
+        using value_type = EdgeRef<Const>;
+        
+        IncidentEdgeIterator(const IncidentEdgeIterator& other) = default;
+        IncidentEdgeIterator& operator=(const IncidentEdgeIterator& other) = default;
         
         /// Implicit conversion to the edge ID.
         operator IncidentEdgeIterator<Constness::Const>() const
@@ -600,6 +611,11 @@ public:
         Iter   inner_iterator() const { return _i; }
         
     public:
+    
+        using value_type = VertexRef<Const>;
+        
+        VertexIterator(const VertexIterator& other) = default;
+        VertexIterator& operator=(const VertexIterator& other) = default;
     
         /// Implicit conversion to the a const iterator.
         operator VertexIterator<Constness::Const>() const 
@@ -1003,19 +1019,34 @@ public:
         if (v == end_vertices()) {
             return end_vertices();
         }
-        
+        VertexNode& node = v->node();
         for (EdgeDir dir : {EdgeDir::Incoming, EdgeDir::Outgoing}) {
-            EdgeList& ring = v->edges[(int) dir];
-            for (auto e : begin_incident_edges(v, dir) | std::ranges::views::take(ring.size)) {
-                // remove from the /other/ vertex's ring
-                const Edge& this_edge = e->edge();
-                // if we're iterating over this vertex's incoming edges, then this vertex is
-                // the destination, and the other vertex is the edge's source. Vice versa for
-                // the other direction.
-                VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
-                vertex_iterator other = find_vertex(other_id);
-                // remove the edge from the other vertex's (opposite-direction) ring
-                _remove_from_ring(other, ~dir, e.inner_iterator());
+            std::optional<EdgeList>& ring = node.edges[(int) dir];
+            if (ring) {
+                auto e = begin_incident_edges(v, dir);
+                EdgeId begin_id = e->id();
+                for (++e; true; ) {
+                    // remove from the /other/ vertex's ring
+                    const Edge& this_edge = e->edge();
+                    // if we're iterating over this vertex's incoming edges, then this vertex is
+                    // the destination, and the other vertex is the edge's source. Vice versa for
+                    // the other direction.
+                    VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
+                    vertex_iterator other = find_vertex(other_id);
+                    // remove the edge from the other vertex's (opposite-direction) ring
+                    _remove_from_ring(other, ~dir, e.inner_iterator());
+                    
+                    // don't bother removing the edge from the current ring, because we're
+                    // about to erase it anyway. increment the iterator by following its link
+                    // to the next edge now; after we erase the edge, the iterator will
+                    // be invalid.
+                    EdgeId deleted_id = e->id();
+                    auto e_iter = e.inner_iterator();
+                    ++e;
+                    // erase the edge
+                    _edges.erase(e_iter);
+                    if (deleted_id == begin_id) break;
+                }
             }
         }
         return {this, _verts.erase(v.inner_iterator())};
