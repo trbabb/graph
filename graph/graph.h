@@ -188,6 +188,9 @@ namespace graph {
 /**
  * @brief A class representing a directed graph.
  * 
+ * Iterator invalidation follows the same rules as the underlying map type, since
+ * all iterators wrap the iterators of the underlying map.
+ * 
  * @tparam V Type associated with vertices (may be `void`).
  * @tparam E Type associated with edges (may be `void`).
  * @tparam Map Template class of an associative map type used to store the graph.
