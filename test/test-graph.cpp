@@ -75,6 +75,59 @@ TEST(TEST_MODULE_NAME, test_access) {
 }
 
 
+TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
+    Digraph<int, float> g;
+    size_t n_verts = 10;
+    auto v0 = g.insert_vertex();
+    v0->value() = 9999;
+    for (int i = 0; i < n_verts; ++i) {
+        auto v = g.insert_vertex();
+        v->value() = i;
+    }
+    // make a 'star' graph (plus a self-loop on v0)
+    EXPECT_EQ(g.vertices_size(), n_verts + 1);
+    for (auto v : g.vertices()) {
+        if (v != *v0) {
+            g.insert_directed_edge(v0, v);
+        }
+    }
+    EXPECT_EQ(g.edges_size(), n_verts);
+    for (auto e : g.edges()) {
+        // the source of each edge should be v0
+        EXPECT_EQ(e.source_id(), *v0);
+    }
+    auto incident = g.incident_edges(v0);
+    for (auto e = ++incident.begin(); true; ++e) {
+        // the source of each edge should be v0
+        EXPECT_EQ(e->source_id(), *v0);
+        if (e == incident.begin()) {
+            break;
+        }
+    }
+    auto e0 = g.begin_edges();
+    g.erase(e0);
+    EXPECT_EQ(g.edges_size(), n_verts - 1);
+    incident = g.incident_edges(v0);
+    size_t ct = 0;
+    // iteration should still terminate, and touch exactly the remaining edges
+    for (auto e = ++incident.begin(); true; ++e) {
+        EXPECT_EQ(e->source_id(), *v0);
+        ++ct;
+        if (e == incident.begin()) {
+            break;
+        }
+    }
+    EXPECT_EQ(ct, n_verts - 1);
+    // remove all of the edges incident to v0
+    incident = g.incident_edges(v0);
+    for (auto e = ++incident.begin(); e != g.end_incident_edges(); ) {
+        e = g.erase(e, EdgeDir::Outgoing);
+    }
+    // there should be no edges left
+    EXPECT_EQ(g.edges_size(), 0);
+}
+
+
 TEST(TEST_MODULE_NAME, graph_map) {
     DigraphMap<std::string, int, int, float> dgm;
     

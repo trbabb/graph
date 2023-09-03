@@ -2,30 +2,24 @@
 
 #include <ranges>
 
-// todo: expose pseudo-containers for the verts and edges?
-//    would allow disambiguation for operator[], etc; and a lot of
-//    cruft would be teased apart.
-//    concern: you can construct an incident edge iter directly from a vertex_iterator,
-//    but can't construct a range. the former is in some ways more efficient
+// todo: testing. exercise all the code paths
+// todo: make Digraph and GraphMap inherit from a common [private] base class but not each other.
+//    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
+//    invalidate the key-value mapping.
+//    > consider also the access granted by shared iterator and range classes.
+// todo: wbn to have a pre-built class that indexes edges by Pair<VertexId>
+// todo: subclass of graph_map which can do reverse indexing
 // todo: convert the incident edge iterator to be finite instead of cyclical
 //    we can always wrap a finite iterator in a cycle iterator if we want to,
 //    but using cycle iterators is annoying as fuck, and that should not be the default.
 //    (also, unclear how mutation semantics deal with an unwrapped cycle)
-// todo: wbn to be able to index edges/verts by a custom type.
-//   this would mean maintaining a mapping of E -> Edge and V -> VertexId
-//   > subclass and keep a mapping of K -> Id; override mutation methods
-//   > why subclass?
-//     - it would work to have VertexId and EdgeId be templated, however,
-//       those ids would be stored in all the edge nodes to link to other
-//       verts/edges, and if the key is heavy, that will be expensive
-//       > doing key -> id -> val is 30% slower than key -> val
-//       > key -> val is 160% slower than id -> val (for key = str)
-//       > therefore, double indirect is win
-//     - con: double index when looking things up by custom key (k->id, id->element)
-//     - complication: you can auto-allocate keys only in the special case of 
-//       key-unspecified.
-//     - detail: need to implement edge reassignment (assign operator <- Edge)
-//       which will excise/stitch the vtex rings
+// todo: expose pseudo-containers for the verts and edges?
+//    would allow disambiguation for operator[], etc; and a lot of
+//    cruft would be teased apart.
+//    concern: you can construct an incident edge iter directly from a vertex_iterator,
+//      but can't construct a range. the former is in some ways more efficient.
+//      you could make another range around iterators instead of indices, but that raises
+//      subtle questions of invalidation which we'd prefer not to introduce.
 // todo: should it be possible to keep an edge Id but change the endpoints?
 //   > feels like this is something for the K/V thing above
 // todo: other methods:
@@ -447,12 +441,14 @@ public:
         
         EdgeIterator(Graph* graph, Iter i): _graph(graph), _i(i) {}
         
+        /// The graph this iterator belongs to.
+        Graph& graph()          const { return *_graph; }
+        Iter   inner_iterator() const { return _i; }
+        
     public:
         
         EdgeRef<Const> operator*() const { return _i; }
         PointerProxy  operator->() const { return PointerProxy { EdgeRef<Const>{ _i } }; }
-        /// The graph this iterator belongs to.
-        Graph& graph() const { return *_graph; }
         
         /// Retrieve a reference to the source vertex of the referenced edge.
         VertexRef<Const> source() const { return {_graph->_verts.find(_i->second.edge.v0)}; }
@@ -518,6 +514,10 @@ public:
             _i(i),
             _dir(dir) {}
         
+        /// The graph this iterator belongs to.
+        Graph&  graph()          const { return *_graph; }
+        Iter    inner_iterator() const { return _i; }
+        
     public:
         
         /// Implicit conversion to the edge ID.
@@ -531,8 +531,6 @@ public:
         PointerProxy  operator->() const { return PointerProxy { EdgeRef<Const>{_i} }; }
         /// Whether this iterator traverses incoming or outgoing edges.
         EdgeDir traversal_direction()  const { return _dir; }
-        /// The graph this iterator belongs to.
-        Graph&  graph() const { return *_graph; }
         
         /// Retrieve a reference to the source vertex of the referenced edge.
         VertexRef<Const> source() const { return {_graph->_verts.find(_i->second.edge.v0)}; }
@@ -597,6 +595,10 @@ public:
         
         VertexIterator(Graph* graph, Iter i): _graph(graph), _i(i) {}
         
+        /// The graph this iterator is iterating over.
+        Graph& graph()          const { return *_graph; }
+        Iter   inner_iterator() const { return _i; }
+        
     public:
     
         /// Implicit conversion to the a const iterator.
@@ -608,8 +610,6 @@ public:
         
         VertexRef<Const> operator*()  const { return _i; }
         PointerProxy     operator->() const { return PointerProxy { VertexRef<Const>{_i} }; }
-        /// The graph this iterator is iterating over.
-        Graph& graph() const { return *_graph; }
         
         /// Advance this iterator.
         VertexIterator& operator++() {
@@ -866,7 +866,7 @@ private:
     std::optional<EdgeId> _remove_from_ring(
             vertex_iterator v,
             EdgeDir dir, 
-            const_incident_edge_iterator edge)
+            typename Edges::iterator edge)
     {
         std::optional<EdgeList>& ring = v->node().edges[(int) dir];
         if (ring->size == 1) {
@@ -875,11 +875,11 @@ private:
             return std::nullopt;
         } else {
             EdgeId prev_id = ring->tail;
-            EdgeId next_id = edge->node().next[(int) dir];
+            EdgeId next_id = edge->second.next[(int) dir];
             auto prev = _edges.find(prev_id);
             do {
                 EdgeId cur_id = prev->second.next[(int) dir];
-                if (cur_id == edge->id()) {
+                if (cur_id == edge->first) {
                     prev->second.next[(int) dir] = next_id;
                     break;
                 } else {
@@ -888,8 +888,8 @@ private:
                 }
             } while (prev_id != ring->tail);
             
-            if (ring->head == edge->id()) ring->head = next_id; // removed the head
-            if (ring->tail == edge->id()) ring->tail = prev_id; // removed the tail
+            if (ring->head == edge->first) ring->head = next_id; // removed the head
+            if (ring->tail == edge->first) ring->tail = prev_id; // removed the tail
             
             ring->size -= 1;
             return next_id;
@@ -1015,7 +1015,7 @@ public:
                 VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
                 vertex_iterator other = find_vertex(other_id);
                 // remove the edge from the other vertex's (opposite-direction) ring
-                _remove_from_ring(other, ~dir, e);
+                _remove_from_ring(other, ~dir, e.inner_iterator());
             }
         }
         return {this, _verts.erase(v.inner_iterator())};
@@ -1129,14 +1129,15 @@ public:
         incident_edge_iterator e1 = insert_directed_edge(b, a);
         return {e0, e1};
     }
-    
-    /// @brief Remove the given edge, and return the IDs of edges that followed it in the
-    /// incoming and outgoing edge rings.
-    EdgePair<std::optional<EdgeId>> erase(incident_edge_iterator edge) {
-        if (edge == end_incident_edges()) {
-            return {std::nullopt, std::nullopt};
+
+private:
+
+    std::pair<EdgePair<std::optional<EdgeId>>, typename Edges::iterator>
+    _impl_erase_edge(typename Edges::iterator edge) {
+        if (edge == _edges.end()) {
+            return {{std::nullopt, std::nullopt}, _edges.end()};
         }
-        EdgeNode& edge_node = edge->node();
+        EdgeNode& edge_node = edge->second;
         Edge              e = edge_node.edge;
         vertex_iterator  v0 = find_vertex(e.v0);
         vertex_iterator  v1 = find_vertex(e.v1);
@@ -1144,17 +1145,48 @@ public:
         auto out_id = _remove_from_ring(v0, EdgeDir::Outgoing, edge);
         auto  in_id = _remove_from_ring(v1, EdgeDir::Incoming, edge);
         
-        _edges.erase(edge.inner_iterator());
-        return {in_id, out_id};
+        auto next_edge = _edges.erase(edge);
+        return {{in_id, out_id}, next_edge};
+    }
+
+public:
+
+    
+    /**
+     * @brief Remove the given edge, and return the IDs of edges that followed it in the
+     * incoming and outgoing edge rings.
+     * 
+     * This is slightly more efficient than the overload of erase() which returns an
+     * incident_edge_iterator.
+     */
+    EdgePair<std::optional<EdgeId>> erase(incident_edge_iterator edge) {
+        return _impl_erase_edge(edge.inner_iterator()).first;
     }
     
-    /// Remove the edge with the given id, returning an iterator to the following edge.
-    auto erase(EdgeId eid) {
-        return erase(_edges.find(eid));
+    /**
+     * @brief Remove the given edge, and return an iterator to the following edge in the
+     * given direction.
+     */
+    incident_edge_iterator erase(incident_edge_iterator edge, EdgeDir dir) {
+        auto [in_id, out_id] = erase(edge);
+        auto next_id = (dir == EdgeDir::Incoming) ? in_id : out_id;
+        if (next_id) {
+            return find_edge(*next_id, dir);
+        } else {
+            return end_incident_edges();
+        }
     }
     
-    auto erase(edge_iterator edge) {
-        return erase(incident_edge_iterator{this, edge.inner_iterator(), EdgeDir::Outgoing});
+    /// @brief Remove the edge with the given id, returning an iterator to the following edge
+    /// in the graph.
+    edge_iterator erase(EdgeId eid) {
+        return {this, _impl_erase_edge(_edges.find(eid)).second};
+    }
+    
+    /// @brief Remove the given edge, returning an iterator to the following edge
+    /// in the graph.
+    edge_iterator erase(edge_iterator edge) {
+        return {this, _impl_erase_edge(edge.inner_iterator()).second};
     }
     
     /// @}
@@ -1324,7 +1356,10 @@ public:
      * 
      * If the vertex has no edges in the given direction, an empty range will be returned.
      */
-    IncidentEdgeRange<Constness::Mutable> incident_edges(VertexId v, EdgeDir dir) {
+    IncidentEdgeRange<Constness::Mutable> incident_edges(
+            VertexId v,
+            EdgeDir dir=EdgeDir::Outgoing)
+    {
         return IncidentEdgeRange<Constness::Mutable>(v, this, dir);
     }
     
@@ -1334,7 +1369,10 @@ public:
      * 
      * If the vertex has no edges in the given direction, an empty range will be returned.
      */
-    IncidentEdgeRange<Constness::Const> incident_edges(VertexId v, EdgeDir dir) const {
+    IncidentEdgeRange<Constness::Const> incident_edges(
+            VertexId v,
+            EdgeDir dir=EdgeDir::Outgoing) const
+    {
         return IncidentEdgeRange<Constness::Const>(v, this, dir);
     }
     

@@ -5,11 +5,21 @@
 // todo: need inverse lookup somehow for keys
 //   - could we fold it into the base class Value type?
 //   - consider not having special iterators and adding key_for(iter | id)
+// todo: key iteration
+//   - make an iterator which derives from the raw vert_ and edge_iterator types;
+//     have it hold a parallel iterator to the key map; change the increment/decrement
+//     method
+
+// we do a double lookup of key -> id -> value because:
+//   - storing edge keys would be heavy (many duplications)
+//   - a key -> value lookup is 2.5x the cost of a key -> id lookup, with key = std::string.
+//     meaning edge iteration is much faster if edges refer to each other by ID.
 
 namespace graph {
 
 /**
- * @brief A digraph class that allows vertices and/or edges to be indexed by a custom type.
+ * @brief A digraph class that allows vertices and/or edges to be indexed by a custom type
+ * in O(1) time.
  * 
  * Because this is a subclass, verts and edges will also continue to be indexable by VertexId
  * and EdgeId, respectively.
@@ -473,34 +483,6 @@ public:
         return e_i;
     }
     
-    /**
-     * @brief Inserts a directed edge with the given key and value into the graph.
-     * 
-     * Returns a pair of an iterator to the edge with the given key, and a boolean
-     * indicating whether the edge was inserted (`true`) or already existed (`false`).
-     * 
-     * Whether or not the edge was newly inserted, the value is copy-constructed or
-     * copy-assigned from the given value.
-     */
-    std::pair<incident_edge_iterator, bool> insert_or_assign_directed_edge(
-            const Ek& new_key,
-            vertex_iterator src,
-            vertex_iterator dst,
-            const Ev& value)
-        requires (HasEdgeKey() and HasEdgeValue())
-    {
-        auto i = _edge_ids_by_key.find(new_key);
-        if (i != _edge_ids_by_key.end()) {
-            auto j = this->_edges.find(i->second);
-            j->value() = value;
-            return {incident_edge_iterator{this, j}, false};
-        }
-        auto e_i = _base()->insert_directed_edge(src, dst, value);
-        _edge_ids_by_key.insert({new_key, e_i->id()});
-        e_i->value() = value;
-        return e_i;
-    }
-    
     incident_edge_iterator insert_directed_edge(
             vertex_iterator src,
             vertex_iterator dst)
@@ -540,7 +522,7 @@ public:
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
             vertex_iterator src,
-            vertex_iterator dst
+            vertex_iterator dst,
             Args&&... args)
         requires (not HasEdgeKey() and HasEdgeValue())
     {
