@@ -11,7 +11,6 @@
 #include <graph/graph.h>
 #include <graph/graph_map.h>
 
-
 uint64_t rng_seed = 5441962910926078884ULL;
 auto     rng_eng  = pcg64(rng_seed);
 
@@ -37,21 +36,30 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
 
 /// make a 'star' graph with a central vertex and `n_verts` adjacent to it in the
 /// outgoing direction
-auto make_star_graph(Digraph<int,float>& g, size_t n_verts) {
+template <template <typename...> typename Map>
+auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
+    EXPECT_EQ(g.vertices_size(), 0);
     auto v0 = g.insert_vertex();
     v0->value() = 9999;
+    VertexId v0_id = v0;
     for (int i = 0; i < n_verts; ++i) {
         auto v = g.insert_vertex();
         v->value() = i;
     }
-    // make a 'star' graph
     EXPECT_EQ(g.vertices_size(), n_verts + 1);
+    EXPECT_EQ(g[v0_id], 9999);
+    
+    // connect the central vertex to every other vertex
+    size_t ct = 0;
     for (auto v : g.vertices()) {
-        if (v != *v0) {
-            g.insert_directed_edge(v0, v);
+        ++ct;
+        if (v != v0_id) {
+            g.insert_directed_edge(v0_id, v.id());
         }
     }
-    return v0;
+    EXPECT_EQ(ct, n_verts + 1);
+    EXPECT_EQ(g.edges_size(), n_verts);
+    return g.find_vertex(v0_id);
 }
 
 
@@ -63,7 +71,7 @@ TEST(TEST_MODULE_NAME, test_create) {
 
 
 TEST(TEST_MODULE_NAME, test_access) {
-    Digraph<int, float> g;
+    Digraph<int, float, Map> g;
     
     auto v0 = g.insert_vertex();
     v0->value() = 1;
@@ -92,8 +100,6 @@ TEST(TEST_MODULE_NAME, test_access) {
     EdgeId e0_id = e0;
     
     EXPECT_TRUE(g.contains(e0_id));
-    // todo: ambiguous overload-- either make explicit overloads for const and non-const
-    // iterators so the 'right one' has no conversion, or remove auto-conversion of iters to other things
     EXPECT_EQ(g.find_edge(v0_id, v1_id), e0);
     EXPECT_EQ(g.find_edge(v1_id, v0_id), g.end_edges());
     EXPECT_EQ(g[e0_id].value(), 3);
@@ -101,10 +107,9 @@ TEST(TEST_MODULE_NAME, test_access) {
 
 
 TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
-    Digraph<int, float> g;
+    Digraph<int, float, Map> g;
     size_t n_verts = 10;
     auto v0 = make_star_graph(g, n_verts);
-    EXPECT_EQ(g.edges_size(), n_verts);
     
     // the source of each edge should be v0
     for (auto e : g.edges()) {
@@ -149,7 +154,7 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
 
 
 TEST(TEST_MODULE_NAME, test_vtx_deletion) {
-    Digraph<int, float> g;
+    Digraph<int, float, Map> g;
     size_t n_verts = 10;
     auto v0 = make_star_graph(g, n_verts);
     EXPECT_EQ(g.edges_size(), n_verts);
