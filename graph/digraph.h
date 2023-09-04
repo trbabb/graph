@@ -4,12 +4,12 @@
 #include <type_traits>
 
 // todo: testing. exercise all the code paths
-// todo: make Digraph and GraphMap inherit from a common [private] base class but not each other.
+// todo: make Digraph and GraphMap inherit from a common [private] base class but not each
+//    other.
 //    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
 //    invalidate the key-value mapping.
 //    > consider also the access granted by shared iterator and range classes.
 // todo: wbn to have a pre-built class that indexes edges by Pair<VertexId>
-// todo: subclass of graph_map which can do reverse indexing
 // todo: expose pseudo-containers for the verts and edges?
 //    would allow disambiguation for operator[], etc; and a lot of
 //    cruft would be teased apart.
@@ -17,14 +17,9 @@
 //      but can't construct a range. the former is in some ways more efficient.
 //      you could make another range around iterators instead of indices, but that raises
 //      subtle questions of invalidation which we'd prefer not to introduce.
-// todo: should it be possible to keep an edge Id but change the endpoints?
-//   > feels like this is something for the K/V thing above
 // todo: other methods:
 //   - merge(v1, v2)
 //   - split(edge) (adds vert)
-// todo: incident ranges should default to limited; use views::take?
-// todo: add an `edges_repeating()` which returns the kind of range the current one does
-// todo: add an `incident_edges()` which concats incoming and outgoing edge ranges
 
 namespace graph {
 
@@ -249,7 +244,13 @@ private:
     using EdgeData   = std::conditional_t<std::same_as<E, void>, int[0], E>;
     using VertexData = std::conditional_t<std::same_as<V, void>, int[0], V>;
     
-    template <typename VertKey, typename VertVal, typename EdgeKey, typename EdgeVal, template <class...> class M>
+    template <
+        typename VertKey,
+        typename VertVal,
+        typename EdgeKey,
+        typename EdgeVal,
+        template <class...> class M
+    >
     friend struct DigraphMap;
     
     /**
