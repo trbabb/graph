@@ -215,13 +215,14 @@ namespace graph {
  * 
  * Incident edges may be traversed using a c++ range-based for loop:
  *  
- *    Digraph<VertValue, EdgeValue> g = ...;
- *    auto v = g.find_vertex(...);
- *    for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) {
- *       EdgeId eid = e; // implicit conversion to EdgeId; may also call e.id()
- *       EdgeValue& ev = e.value();
- *       // ...
- *    }
+ *     Digraph<VertValue, EdgeValue> g = ...;
+ *     auto v = g.find_vertex(...);
+ *     for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) {
+ *        EdgeId eid = e; // implicit conversion to EdgeId; may also call e.id()
+ *        EdgeValue& ev = e.value();
+ *        ev = ...; // references to values are live and may be mutated
+ *        // ...
+ *     }
  * 
  * The graph is implemented as two maps from IDs to data: One for vertices, and one for edges.
  * Edges belong to linked lists of edges incident to each vertex. An edge belongs to two
