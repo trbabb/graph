@@ -434,9 +434,14 @@ struct graph::Digraph&lt; V, E, Map &gt;</div><p>A class representing a directed
 <p>Indexing by a valid iterator will generally be more performant than indexing by ID.</p>
 <p>Indexing by ID will always be stable, regardless of mutations to other vertices and edges. Indexing by a disused ID will return the corresponding <code>end()</code> iterator.</p>
 <p>Iterators to vertices are independent of iterators to edges; i.e. mutations to the set of edges will not invalidate vertex iterators. Additions to the set of vertices will not invalidate edge iterators; however, deletion of vertices will also delete all edges incident to that vertex, which in turn <em>may</em> invalidate edge iterators (depending on the iterator stability guarantees of the underlying map).</p>
-<p>Incident edges may be traversed using a c++ range-based for loop:</p>
-<p>Digraph&lt;VertValue, EdgeValue&gt; g = ...; auto v = g.find_vertex(...); for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) { EdgeId eid = e; // implicit conversion to EdgeId; may also call e.id() EdgeValue&amp; ev = e.value(); // ... }</p>
-<p>The graph is implemented as two maps from IDs to data: One for vertices, and one for edges. Edges belong to linked lists of edges incident to each vertex. An edge belongs to two such lists: One for incoming edges, and one for outgoing edges. The nodes in each list are connected by their stable IDs, and are sequenced in insertion order.</p>
+<p>Incident edges may be traversed using a c++ range-based for loop: </p><pre class="fragment">Digraph&lt;VertValue, EdgeValue&gt; g = ...;
+auto v = g.find_vertex(...);
+for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) {
+   EdgeId eid = e; // implicit conversion to EdgeId; may also call e.id()
+   EdgeValue&amp; ev = e.value();
+   // ...
+}
+</pre><p> The graph is implemented as two maps from IDs to data: One for vertices, and one for edges. Edges belong to linked lists of edges incident to each vertex. An edge belongs to two such lists: One for incoming edges, and one for outgoing edges. The nodes in each list are connected by their stable IDs, and are sequenced in insertion order.</p>
 <p>The type of map which stores vertices and edges may be passed as a template template parameter. The default map is <code>std::unordered_map</code>, but much better performance may be obtained by using a modern third-party hash map such as <code>absl::flat_hash_map</code> or <code>ankerl::unordered_dense::map</code>. The map parameter is a <b>template template</b> parameter, so you must pass the template name itself without any template arguments, like: <code><a class="el" href="structgraph_1_1_digraph.html" title="A class representing a directed graph.">Digraph</a>&lt;int, int, std::unordered_map&gt;</code>.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">

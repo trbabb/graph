@@ -315,11 +315,15 @@ Indexing by ID will always be stable, regardless of mutations to other vertices 
 
 Iterators to vertices are independent of iterators to edges; i.\+e. mutations to the set of edges will not invalidate vertex iterators. Additions to the set of vertices will not invalidate edge iterators; however, deletion of vertices will also delete all edges incident to that vertex, which in turn {\itshape may} invalidate edge iterators (depending on the iterator stability guarantees of the underlying map).
 
-Incident edges may be traversed using a c++ range-\/based for loop\+:
-
-Digraph$<$\+Vert\+Value, Edge\+Value$>$ g = ...; auto v = g.\+find\+\_\+vertex(...); for (auto e \+: g.\+incident\+\_\+edges(v, Edge\+Dir\+::\+Outgoing)) \{ Edge\+Id eid = e; // implicit conversion to Edge\+Id; may also call e.\+id() Edge\+Value\& ev = e.\+value(); // ... \}
-
-The graph is implemented as two maps from IDs to data\+: One for vertices, and one for edges. Edges belong to linked lists of edges incident to each vertex. An edge belongs to two such lists\+: One for incoming edges, and one for outgoing edges. The nodes in each list are connected by their stable IDs, and are sequenced in insertion order.
+Incident edges may be traversed using a c++ range-\/based for loop\+: \begin{DoxyVerb}Digraph<VertValue, EdgeValue> g = ...;
+auto v = g.find_vertex(...);
+for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) {
+   EdgeId eid = e; // implicit conversion to EdgeId; may also call e.id()
+   EdgeValue& ev = e.value();
+   // ...
+}
+\end{DoxyVerb}
+ The graph is implemented as two maps from IDs to data\+: One for vertices, and one for edges. Edges belong to linked lists of edges incident to each vertex. An edge belongs to two such lists\+: One for incoming edges, and one for outgoing edges. The nodes in each list are connected by their stable IDs, and are sequenced in insertion order.
 
 The type of map which stores vertices and edges may be passed as a template template parameter. The default map is {\ttfamily std\+::unordered\+\_\+map}, but much better performance may be obtained by using a modern third-\/party hash map such as {\ttfamily absl\+::flat\+\_\+hash\+\_\+map} or {\ttfamily ankerl\+::unordered\+\_\+dense\+::map}. The map parameter is a {\bfseries{template template}} parameter, so you must pass the template name itself without any template arguments, like\+: {\ttfamily \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}\texorpdfstring{$<$}{<}int, int, std\+::unordered\+\_\+map\texorpdfstring{$>$}{>}}.
 
