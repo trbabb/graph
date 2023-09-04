@@ -14,6 +14,62 @@
 
 namespace graph {
 
+namespace detail {
+
+#ifdef _GRAPH_TEST_HARNESS_INSTRUMENTATION
+// class Instrumentation is a friend of DigraphMap, and can access its private members.
+// this is used by the test classes to verify invariants about the internal state of
+// the graph.
+struct Instrumentation {
+    template <
+        typename A,
+        typename B,
+        typename C,
+        typename D,
+        template <typename...> typename Map
+    >
+    static auto keys_to_vert_id(const DigraphMap<A,B,C,D,Map>& map) {
+        return map._vert_ids_by_key;
+    }
+    
+    template <
+        typename A,
+        typename B,
+        typename C,
+        typename D,
+        template <typename...> typename Map
+    >
+    static auto keys_to_edge_id(const DigraphMap<A,B,C,D,Map>& map) {
+        return map._edge_ids_by_key;
+    }
+    
+    template <
+        typename A,
+        typename B,
+        typename C,
+        typename D,
+        template <typename...> typename Map
+    >
+    static auto vert_id_to_key(const DigraphMap<A,B,C,D,Map>& map) {
+        return map._vert_keys_by_id;
+    }
+    
+    template <
+        typename A,
+        typename B,
+        typename C,
+        typename D,
+        template <typename...> typename Map
+    >
+    static auto edge_id_to_key(const DigraphMap<A,B,C,D,Map>& map) {
+        return map._edge_keys_by_id;
+    }
+};
+#endif
+
+} // namespace detail
+
+
 /**
  * @brief A digraph class that allows vertices and/or edges to be indexed by a custom type
  * in O(1) time.
@@ -43,6 +99,12 @@ struct DigraphMap : public Digraph<Vv, Ev, Map> {
 private:
     static constexpr bool HasVertKey() { return !std::is_same<Vk, void>::value; }
     static constexpr bool HasEdgeKey() { return !std::is_same<Ek, void>::value; }
+    
+#ifdef _GRAPH_TEST_HARNESS_INSTRUMENTATION
+    
+    friend struct detail::Instrumentation;
+    
+#endif
 
     using Base       = Digraph<Vv, Ev, Map>;
     using VertKeyMap = Map<Vk, VertexId>;

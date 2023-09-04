@@ -8,6 +8,8 @@
 
 #include <ankerl/unordered_dense.h>
 
+#define _GRAPH_TEST_HARNESS_INSTRUMENTATION
+
 #include <graph/graph.h>
 #include <graph/graph_map.h>
 
@@ -23,6 +25,8 @@ using delta_t = std::chrono::duration<double, std::milli>;
 
 template <typename K, typename V>
 using Map = ankerl::unordered_dense::map<K, V>;
+
+using Inspector = detail::Instrumentation;
 
 std::ostream& operator<<(std::ostream& os, const VertexId& id) {
     os << (size_t)id;
@@ -171,10 +175,14 @@ TEST(TEST_MODULE_NAME, graph_map) {
     dgm["goof"].value() = 55;
     EXPECT_EQ(dgm["goof"], 55);
     EXPECT_EQ(dgm.vertices_size(), 1);
+    EXPECT_EQ(Inspector::vert_id_to_key(dgm).size(), 1);
+    EXPECT_EQ(Inspector::keys_to_vert_id(dgm).size(), 1);
     
     dgm["fleg"].value() = 99;
     EXPECT_EQ(dgm["fleg"], 99);
     EXPECT_EQ(dgm.vertices_size(), 2);
+    EXPECT_EQ(Inspector::vert_id_to_key(dgm).size(), 2);
+    EXPECT_EQ(Inspector::keys_to_vert_id(dgm).size(), 2);
     
     VertexId v0_id = dgm.find_vertex("goof")->id();
     VertexId v1_id = dgm.find_vertex("fleg")->id();
@@ -186,11 +194,17 @@ TEST(TEST_MODULE_NAME, graph_map) {
     EXPECT_EQ(e->source_id(), v0_id);
     EXPECT_EQ(e->target_id(), v1_id);
     EXPECT_EQ(dgm.edges_size(), 1);
+    EXPECT_EQ(Inspector::edge_id_to_key(dgm).size(), 1);
+    EXPECT_EQ(Inspector::keys_to_edge_id(dgm).size(), 1);
     
     size_t deleted = dgm.erase("goof");
     EXPECT_EQ(deleted, 1);
     EXPECT_EQ(dgm.vertices_size(), 1);
     EXPECT_EQ(dgm.edges_size(), 0);
+    EXPECT_EQ(Inspector::edge_id_to_key(dgm).size(), 0);
+    EXPECT_EQ(Inspector::keys_to_edge_id(dgm).size(), 0);
+    EXPECT_EQ(Inspector::vert_id_to_key(dgm).size(), 1);
+    EXPECT_EQ(Inspector::keys_to_vert_id(dgm).size(), 1);
     
     EXPECT_EQ(dgm.find_edge(99), dgm.end_edges());
 }
