@@ -6,11 +6,6 @@
 // todo: I don't think we need the tail pointer in the edge list
 // todo: I don't like the in-band signaling of INVALID_{VERTEX, EDGE}.
 //    try moving back to std::optional
-// todo: convert the incident edge iterator to be finite instead of cyclical
-//    we can always wrap a finite iterator in a cycle iterator if we want to,
-//    but using cycle iterators is annoying as fuck, and that should not be the default.
-//    it will also invite very common infinite-cycle bugs.
-//    (also, unclear how mutation semantics deal with an unwrapped cycle)
 // todo: testing. exercise all the code paths
 // todo: make Digraph and GraphMap inherit from a common [private] base class but not each other.
 //    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
@@ -54,22 +49,22 @@ template <typename B, typename T>
 concept Forwardable = std::convertible_to<B, std::remove_reference_t<T>>;
 
 /// @brief Unique identifier for a vertex in a graph.
-enum struct VertexId : size_t {};
+enum struct VertexId : uint64_t {};
 /// @brief Unique identifier for an edge in a graph.
-enum struct EdgeId   : size_t {};
+enum struct EdgeId   : uint64_t {};
 
-constexpr VertexId INVALID_VERTEX = static_cast<VertexId>(~(size_t) 0);
-constexpr EdgeId   INVALID_EDGE   = static_cast<EdgeId>  (~(size_t) 0);
+constexpr VertexId INVALID_VERTEX = static_cast<VertexId>(~(uint64_t) 0);
+constexpr EdgeId   INVALID_EDGE   = static_cast<EdgeId>  (~(uint64_t) 0);
 
-VertexId operator+(VertexId v, size_t n) {
-    return static_cast<VertexId>(static_cast<size_t>(v) + n);
+VertexId operator+(VertexId v, uint64_t n) {
+    return static_cast<VertexId>(static_cast<uint64_t>(v) + n);
 }
 
 VertexId operator+(VertexId v0, VertexId v1) {
-    return static_cast<VertexId>(static_cast<size_t>(v0) + static_cast<size_t>(v1));
+    return static_cast<VertexId>(static_cast<uint64_t>(v0) + static_cast<uint64_t>(v1));
 }
 
-VertexId& operator+=(VertexId& v, size_t n) {
+VertexId& operator+=(VertexId& v, uint64_t n) {
     v = v + n;
     return v;
 }
@@ -80,15 +75,15 @@ VertexId operator++(VertexId& v, int) {
     return old;
 }
 
-EdgeId operator+(EdgeId e, size_t n) {
-    return static_cast<EdgeId>(static_cast<size_t>(e) + n);
+EdgeId operator+(EdgeId e, uint64_t n) {
+    return static_cast<EdgeId>(static_cast<uint64_t>(e) + n);
 }
 
 EdgeId operator+(EdgeId e0, EdgeId e1) {
-    return static_cast<EdgeId>(static_cast<size_t>(e0) + static_cast<size_t>(e1));
+    return static_cast<EdgeId>(static_cast<uint64_t>(e0) + static_cast<uint64_t>(e1));
 }
 
-EdgeId& operator+=(EdgeId& e, size_t n) {
+EdgeId& operator+=(EdgeId& e, uint64_t n) {
     e = e + n;
     return e;
 }
@@ -188,8 +183,8 @@ template <>
 struct hash<graph::Edge> {
     size_t operator()(const graph::Edge& e) const {
         return graph::hash_combine(
-            static_cast<size_t>(e.v0),
-            static_cast<size_t>(e.v1)
+            std::hash<uint64_t>{}(static_cast<uint64_t>(e.v0)),
+            std::hash<uint64_t>{}(static_cast<uint64_t>(e.v1))
         );
     }
 };
@@ -208,16 +203,18 @@ namespace graph {
  * Indexing by a valid iterator will generally be more performant than indexing by ID.
  * 
  * Indexing by ID will always be stable, regardless of mutations to other vertices and edges.
+ * IDs are 64-bit and are never re-used. Indexing by a disused ID will return the corresponding
+ * `end()` iterator.
+ * 
+ * The IDs `graph::INVALID_EDGE` and `graph::INVALID_VERTEX` will never be assigned to
+ * any vertices or edges. Indexing by these IDs, as with any other unassigned ID, will
+ * return the corresponding `end()` iterator.
  * 
  * Iterators to vertices are independent of iterators to edges; i.e. mutations to the set of
- * edgs will not invalidate vertex iterators. Additions to the set of vertices will not
+ * edges will not invalidate vertex iterators. Additions to the set of vertices will not
  * invalidate edge iterators; however, deletion of vertices will also delete all edges
  * incident to that vertex, which in turn *may* invalidate edge iterators (depending on the
  * iterator stability guarantees of the underlying map).
- * 
- * The IDs `graph::INVALID_EDGE` and `graph::INVALID_VERTEX` will never be assigned to
- * any vertices or edges. Indexing by these (or any other unassigned) IDs will
- * return the corresponding `end()` iterator.
  * 
  * @tparam V Type associated with vertices (may be `void`).
  * @tparam E Type associated with edges (may be `void`).
@@ -541,8 +538,6 @@ public:
     /**
      * @brief An iterator over the edges incident to a vertex.
      * 
-     * The iterator is cyclical, so it will wrap around to the first edge after the last.
-     * 
      * @tparam Const Whether the referenced edges are mutable or const.
      */
     template <Constness Const>
@@ -602,7 +597,7 @@ public:
         VertexRef<Const> source() const { return {_graph->_verts.find(_i->second.edge.v0)}; }
         /// Retrieve a reference to the target vertex of the referenced edge.
         VertexRef<Const> target() const { return {_graph->_verts.find(_i->second.edge.v1)}; }
-        /// Retrieve a reference to the vertex about which this iterator is cycling.
+        /// Retrieve a reference to the vertex about which this iterator is traversing.
         VertexRef<Const> pivot()  const {
             EdgeId eid = _dir == EdgeDir::Outgoing ? _i->second.edge.v0 : _i->second.edge.v1;
             return { _graph->_verts.find(eid) };
@@ -610,7 +605,7 @@ public:
         /**
          * @brief Returns an iterator with the given traversal direction.
          * 
-         * Changing the traversal direction causes the iterator to cycle around the edges
+         * Changing the traversal direction causes the iterator to traverse the edges
          * incident to the opposite vertex, changing the pivot.
          */
         IncidentEdgeIterator with_traversal_direction(EdgeDir dir) const {
@@ -748,8 +743,6 @@ public:
     /**
      * @brief A range capturing all the edges incident to a vertex in a given direction.
      * 
-     * The range is cyclical and will eventually return to the starting edge.
-     * 
      * @tparam Const Whether the referenced edges are const or mutable.
      */
     template <Constness Const>
@@ -772,8 +765,8 @@ public:
     public:
         
         /**
-         * @brief An iterator pointing to the first edge in the infinite, cyclical range
-         * of vertices incident to the given vertex.
+         * @brief An iterator pointing to the first edge in the set  of vertices incident
+         * to the given vertex in the current direction.
          * 
          * If the vertex does not exist in the graph, this iterator will be equal to end().
          */
@@ -806,8 +799,8 @@ public:
         }
         
         /**
-         * @brief A const iterator pointing to the first edge in the infinite, cyclical range
-         * of vertices incident to the given vertex.
+         * @brief A const iterator pointing to the first edge in the set  of vertices incident
+         * to the given vertex in the current direction.
          * 
          * If the vertex does not exist in the graph, this iterator will be equal to end().
          */
@@ -1488,8 +1481,11 @@ public:
     /// @{
     
     /**
-     * @brief Return an infinite range of edges which cycles through all the edges
-     * incident to `v` in the given direction.
+     * @brief Return a range of edges which traverses all the edges incident to `v` in the
+     * given direction.
+     * 
+     * This range does not traverse any edges in the opposite incidence direction (excepting
+     * self-loop edges).
      * 
      * If the vertex has no edges in the given direction, an empty range will be returned.
      */
@@ -1501,8 +1497,11 @@ public:
     }
     
     /**
-     * @brief Return an infinite range of immutable edges which cycles through all the edges
-     * incident to `v` in the given direction.
+     * @brief Return a range of immuatble edges which traverses all the edges incident to `v`
+     * in the given direction.
+     * 
+     * This range does not traverse any edges in the opposite incidence direction (excepting
+     * self-loop edges).
      * 
      * If the vertex has no edges in the given direction, an empty range will be returned.
      */
@@ -1517,8 +1516,8 @@ public:
      * @brief Return an iterator pointing to the first edge incident to `v` in the given
      * direction.
      * 
-     * The iterator begins an infinite range which cycles through all the edges incident to
-     * `v` in the given incidence direction.
+     * This iterator will not traverse any edges in the opposite incidence direction
+     * (except for self-loop edges).
      * 
      * If the vertex has no edges in the given direction, end_incident_edges() will be
      * returned.
@@ -1540,8 +1539,8 @@ public:
      * @brief Return a const iterator pointing to the first edge incident to `v` in the given
      * direction.
      * 
-     * The iterator begins an infinite range which cycles through all the edges incident to
-     * `v` in the given incidence direction.
+     * This iterator will not traverse any edges in the opposite incidence direction
+     * (except for self-loop edges).
      * 
      * If the vertex has no edges in the given direction, end_incident_edges() will be
      * returned.
@@ -1619,7 +1618,7 @@ public:
      * 
      * This operation is O(k), with k being the degree of the smaller vertex.
      * 
-     * The direction of the iterator will be such that it is cycling about the vertex
+     * The direction of the iterator will be such that it is traversing the vertex
      * with smaller degree.
      */
     incident_edge_iterator find_edge(const_vertex_iterator v0, const_vertex_iterator v1) {
@@ -1652,7 +1651,7 @@ public:
      * 
      * This operation is O(k), with k being the degree of the smaller vertex.
      * 
-     * The direction of the iterator will be such that it is cycling about the
+     * The direction of the iterator will be such that it is traversing the
      * vertex with smaller degree.
      */
     const_incident_edge_iterator find_edge(
