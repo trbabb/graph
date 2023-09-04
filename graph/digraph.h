@@ -3,8 +3,6 @@
 #include <optional>
 #include <type_traits>
 
-// todo: I don't like the in-band signaling of INVALID_{VERTEX, EDGE}.
-//    try moving back to std::optional
 // todo: testing. exercise all the code paths
 // todo: make Digraph and GraphMap inherit from a common [private] base class but not each other.
 //    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
@@ -51,9 +49,6 @@ concept Forwardable = std::convertible_to<B, std::remove_reference_t<T>>;
 enum struct VertexId : uint64_t {};
 /// @brief Unique identifier for an edge in a graph.
 enum struct EdgeId   : uint64_t {};
-
-constexpr VertexId INVALID_VERTEX = static_cast<VertexId>(~(uint64_t) 0);
-constexpr EdgeId   INVALID_EDGE   = static_cast<EdgeId>  (~(uint64_t) 0);
 
 VertexId operator+(VertexId v, uint64_t n) {
     return static_cast<VertexId>(static_cast<uint64_t>(v) + n);
@@ -205,10 +200,6 @@ namespace graph {
  * IDs are 64-bit and are never re-used. Indexing by a disused ID will return the corresponding
  * `end()` iterator.
  * 
- * The IDs `graph::INVALID_EDGE` and `graph::INVALID_VERTEX` will never be assigned to
- * any vertices or edges. Indexing by these IDs, as with any other unassigned ID, will
- * return the corresponding `end()` iterator.
- * 
  * Iterators to vertices are independent of iterators to edges; i.e. mutations to the set of
  * edges will not invalidate vertex iterators. Additions to the set of vertices will not
  * invalidate edge iterators; however, deletion of vertices will also delete all edges
@@ -251,10 +242,10 @@ private:
     struct EdgeNode {
         Edge edge;
         union {
-            EdgeId next[2] = {INVALID_EDGE, INVALID_EDGE};
+            std::optional<EdgeId> next[2] = {std::nullopt, std::nullopt};
             struct {
-                EdgeId next_incoming;
-                EdgeId next_outgoing;
+                std::optional<EdgeId> next_incoming;
+                std::optional<EdgeId> next_outgoing;
             };
         };
         EdgeData data;
@@ -264,7 +255,7 @@ private:
      * @brief The head and size of a linked list of edges.
      */
     struct EdgeList {
-        EdgeId head;
+        std::optional<EdgeId> head;
         size_t size;
     };
     
@@ -274,7 +265,7 @@ private:
      * Each vertex node carries the head and size of two linked lists of edges:
      * One of the incoming edges around the vertex, and one of the outgoing edges.
      * 
-     * If there are no edges in a list, the head points to `INVALID_EDGE`.
+     * If there are no edges in a list, the head points to `std::nullopt`.
      * 
      * If this graph stores vertex values, the vertex data is stored in `data`.
      */
@@ -289,8 +280,8 @@ private:
         VertexData data;
         
         VertexNode():
-            incoming_edges{INVALID_EDGE, 0},
-            outgoing_edges{INVALID_EDGE, 0} {}
+            incoming_edges{std::nullopt, 0},
+            outgoing_edges{std::nullopt, 0} {}
         
         template <typename... Args>
         VertexNode(Args... args): VertexNode(), data(std::forward<Args>(args)...) {}
@@ -612,9 +603,9 @@ public:
         
         /// Advances the iterator to the next edge in the current edge direction.  
         IncidentEdgeIterator& operator++() {
-            EdgeId next_id = _i->second.next[(int) _dir];
-            _i = (next_id != INVALID_EDGE)
-                ? _graph->_edges.find(next_id)
+            std::optional<EdgeId> next_id = _i->second.next[(int) _dir];
+            _i = next_id
+                ? _graph->_edges.find(*next_id)
                 : _graph->_edges.end();
             return *this;
         }
@@ -774,13 +765,13 @@ public:
                 return end();
             } else {
                 const EdgeList& edges = i->second.edges[(int) _dir];
-                EdgeId head_id = edges.head;
-                if (head_id == INVALID_EDGE) {
+                std::optional<EdgeId> head_id = edges.head;
+                if (not head_id) {
                     return end();
                 } else {
                     return IncidentEdgeIterator<Const>(
                         _graph,
-                        _graph->_edges.find(head_id),
+                        _graph->_edges.find(*head_id),
                         _dir
                     );
                 }
@@ -935,7 +926,7 @@ private:
     
     // assumes the given edge is definitely in the ring.
     // returns the next edge ID in the ring.
-    EdgeId _remove_from_list(
+    std::optional<EdgeId> _remove_from_list(
             vertex_iterator v,
             EdgeDir dir, 
             typename Edges::iterator edge)
@@ -943,21 +934,22 @@ private:
         EdgeList& list = v->node().edges[(int) dir];
         if (list.size == 1) {
             // removing the only edge
-            list.head = INVALID_EDGE;
+            list.head = std::nullopt;
             list.size = 0;
-            return INVALID_EDGE;
+            return std::nullopt;
         } else {
             EdgeList& list = v->node().edges[(int) dir];
-            EdgeId edge_id = edge->first;
-            EdgeId prev_id = INVALID_EDGE;
-            EdgeId cur_id  = list.head;
+            std::optional<EdgeId> edge_id = edge->first;
+            std::optional<EdgeId> prev_id = std::nullopt;
+            std::optional<EdgeId> cur_id  = list.head;
             auto e_prev = _edges.end();
-            for (auto e = _edges.find(list.head); cur_id != INVALID_EDGE; ) {
-                e = _edges.find(cur_id);
-                EdgeId next_id = e->second.next[(int) dir];
+            auto e_cur  = e_prev;
+            while(cur_id.has_value()) {
+                e_cur = _edges.find(*cur_id);
+                std::optional<EdgeId> next_id = e_cur->second.next[(int) dir];
                 if (cur_id == edge_id) {
                     // found the edge to remove; excise it from the list
-                    if (prev_id == INVALID_EDGE) {
+                    if (not prev_id) {
                         // removing the head
                         list.head = next_id;
                     } else {
@@ -971,7 +963,7 @@ private:
                 } else {
                     prev_id = cur_id;
                     cur_id  = next_id;
-                    e_prev  = e;
+                    e_prev  = e_cur;
                 }
             }
             return cur_id;
@@ -1111,11 +1103,11 @@ public:
                 // to the next edge now; after we erase the edge, the iterator will
                 // be invalid.
                 auto e_iter = e.inner_iterator();
-                EdgeId next_id = e_iter->second.next[(int) dir];
+                std::optional<EdgeId> next_id = e_iter->second.next[(int) dir];
                 // erase the edge
                 _edges.erase(e_iter);
-                if (next_id == INVALID_EDGE) break;
-                e = incident_edge_iterator {this, _edges.find(next_id), dir};
+                if (not next_id) break;
+                e = incident_edge_iterator {this, _edges.find(*next_id), dir};
             }
         }
         return {this, _verts.erase(v.inner_iterator())};
@@ -1256,18 +1248,18 @@ public:
 
 private:
 
-    std::pair<EdgePair<EdgeId>, typename Edges::iterator>
+    std::pair<EdgePair<std::optional<EdgeId>>, typename Edges::iterator>
     _impl_erase_edge(typename Edges::iterator edge) {
         if (edge == _edges.end()) {
-            return {{INVALID_EDGE, INVALID_EDGE}, _edges.end()};
+            return {{std::nullopt, std::nullopt}, _edges.end()};
         }
         EdgeNode& edge_node = edge->second;
         Edge              e = edge_node.edge;
         vertex_iterator  v0 = find_vertex(e.v0);
         vertex_iterator  v1 = find_vertex(e.v1);
         
-        EdgeId out_id = _remove_from_list(v0, EdgeDir::Outgoing, edge);
-        EdgeId  in_id = _remove_from_list(v1, EdgeDir::Incoming, edge);
+        std::optional<EdgeId> out_id = _remove_from_list(v0, EdgeDir::Outgoing, edge);
+        std::optional<EdgeId>  in_id = _remove_from_list(v1, EdgeDir::Incoming, edge);
         
         auto next_edge = _edges.erase(edge);
         return {{in_id, out_id}, next_edge};
@@ -1283,7 +1275,7 @@ public:
      * This is slightly more efficient than the overload of erase() which returns an
      * incident_edge_iterator.
      */
-    EdgePair<EdgeId> erase(incident_edge_iterator edge) {
+    EdgePair<std::optional<EdgeId>> erase(incident_edge_iterator edge) {
         return _impl_erase_edge(edge.inner_iterator()).first;
     }
     
@@ -1294,8 +1286,8 @@ public:
     incident_edge_iterator erase(incident_edge_iterator edge, EdgeDir dir) {
         auto [in_id, out_id] = erase(edge);
         auto next_id = (dir == EdgeDir::Incoming) ? in_id : out_id;
-        if (next_id != INVALID_EDGE) {
-            return find_edge(next_id, dir);
+        if (next_id) {
+            return find_edge(*next_id, dir);
         } else {
             return end_incident_edges();
         }
@@ -1521,10 +1513,10 @@ public:
             return end_incident_edges();
         }
         const VertexNode& v_node = v._i->second;
-        EdgeId first_edge_id = v_node.edges[(int) dir].head;
+        std::optional<EdgeId> first_edge_id = v_node.edges[(int) dir].head;
         return {
             this,
-            first_edge_id != INVALID_EDGE ? _edges.find(first_edge_id) : _edges.end(),
+            first_edge_id ? _edges.find(*first_edge_id) : _edges.end(),
             dir
         };
     }
@@ -1544,10 +1536,10 @@ public:
             return end_incident_edges();
         }
         const VertexNode& v_node = v._i->second;
-        EdgeId first_edge_id = v_node.edges[(int) dir].head;
+        std::optional<EdgeId> first_edge_id = v_node.edges[(int) dir].head;
         return {
             this,
-            first_edge_id != INVALID_EDGE ? _edges.find(first_edge_id) : _edges.end(),
+            first_edge_id ? _edges.find(*first_edge_id) : _edges.end(),
             dir
         };
     }
