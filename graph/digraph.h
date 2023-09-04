@@ -3,7 +3,6 @@
 #include <optional>
 #include <type_traits>
 
-// todo: I don't think we need the tail pointer in the edge list
 // todo: I don't like the in-band signaling of INVALID_{VERTEX, EDGE}.
 //    try moving back to std::optional
 // todo: testing. exercise all the code paths
@@ -262,21 +261,20 @@ private:
     };
     
     /**
-     * @brief The head and tail of a linked list of edges.
+     * @brief The head and size of a linked list of edges.
      */
     struct EdgeList {
         EdgeId head;
-        EdgeId tail;
         size_t size;
     };
     
     /**
      * @brief A node holding information about a vertex.
      * 
-     * Each vertex node carries the head and tail of two linked lists of edges:
+     * Each vertex node carries the head and size of two linked lists of edges:
      * One of the incoming edges around the vertex, and one of the outgoing edges.
      * 
-     * If there are no edges in a list, the head and tail point to `std::nullopt`.
+     * If there are no edges in a list, the head points to `INVALID_EDGE`.
      * 
      * If this graph stores vertex values, the vertex data is stored in `data`.
      */
@@ -291,8 +289,8 @@ private:
         VertexData data;
         
         VertexNode():
-            incoming_edges{INVALID_EDGE, INVALID_EDGE, 0},
-            outgoing_edges{INVALID_EDGE, INVALID_EDGE, 0} {}
+            incoming_edges{INVALID_EDGE, 0},
+            outgoing_edges{INVALID_EDGE, 0} {}
         
         template <typename... Args>
         VertexNode(Args... args): VertexNode(), data(std::forward<Args>(args)...) {}
@@ -946,7 +944,6 @@ private:
         if (list.size == 1) {
             // removing the only edge
             list.head = INVALID_EDGE;
-            list.tail = INVALID_EDGE;
             list.size = 0;
             return INVALID_EDGE;
         } else {
@@ -967,10 +964,6 @@ private:
                         // removing an interior or tail edge.
                         // make the previous edge skip the deleted one.
                         e_prev->second.next[(int) dir] = next_id;
-                    }
-                    if (list.tail == edge_id) {
-                        // removed the tail
-                        list.tail = prev_id;
                     }
                     list.size -= 1;
                     cur_id = next_id;
@@ -1170,7 +1163,6 @@ private:
         auto _prepend_head = [](VertexNode& v, EdgeDir dir, EdgeId eid) {
             EdgeList& edge_list = v.edges[(int) dir];
             edge_list.head = eid;
-            if (edge_list.tail == INVALID_EDGE) edge_list.tail = eid;
             edge_list.size += 1;
         };
         

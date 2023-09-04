@@ -7,6 +7,8 @@
 //     have it hold a parallel iterator to the key map; change the increment/decrement
 //     method
 
+// todo: we store the keys in two places. a careful implementation might be able to share them
+
 // we do a double lookup of key -> id -> value because:
 //   - storing edge keys would be heavy (many duplications)
 //   - a key -> value lookup is 2.5x the cost of a key -> id lookup, with key = std::string.
