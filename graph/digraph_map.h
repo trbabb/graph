@@ -101,9 +101,7 @@ private:
     static constexpr bool HasEdgeKey() { return !std::is_same<EdgeKey, void>::value; }
     
 #ifdef _GRAPH_TEST_HARNESS_INSTRUMENTATION
-    
     friend struct detail::Instrumentation;
-    
 #endif
 
     using Base       = Digraph<VertVal, EdgeVal, Map>;
@@ -156,13 +154,11 @@ private:
         if constexpr (HasEdgeKey()) {
             // delete the keys for all edges incident to the deleted vert
             for (EdgeDir dir : {EdgeDir::Incoming, EdgeDir::Outgoing}) {
-                auto e0 = this->begin_incident_edges({this, v_iter}, dir);
-                if (e0 == this->end_incident_edges()) continue;
-                EdgeId e0_id = e0;
-                for (auto e = ++e0; true; ++e) {
-                    EdgeId e_id = e;
-                    _unregister_edge(e_id);
-                    if (e_id == e0_id) break;
+                for (auto e = this->begin_incident_edges({this, v_iter}, dir);
+                     e != this->end_incident_edges();
+                     ++e)
+                {
+                    _unregister_edge(e->id());
                 }
             }
         }

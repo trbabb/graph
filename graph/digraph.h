@@ -1,7 +1,11 @@
 #pragma once
 
+#include <optional>
 #include <type_traits>
 
+// todo: I don't think we need the tail pointer in the edge list
+// todo: I don't like the in-band signaling of INVALID_{VERTEX, EDGE}.
+//    try moving back to std::optional
 // todo: convert the incident edge iterator to be finite instead of cyclical
 //    we can always wrap a finite iterator in a cycle iterator if we want to,
 //    but using cycle iterators is annoying as fuck, and that should not be the default.
@@ -53,6 +57,9 @@ concept Forwardable = std::convertible_to<B, std::remove_reference_t<T>>;
 enum struct VertexId : size_t {};
 /// @brief Unique identifier for an edge in a graph.
 enum struct EdgeId   : size_t {};
+
+constexpr VertexId INVALID_VERTEX = static_cast<VertexId>(~(size_t) 0);
+constexpr EdgeId   INVALID_EDGE   = static_cast<EdgeId>  (~(size_t) 0);
 
 VertexId operator+(VertexId v, size_t n) {
     return static_cast<VertexId>(static_cast<size_t>(v) + n);
@@ -208,6 +215,10 @@ namespace graph {
  * incident to that vertex, which in turn *may* invalidate edge iterators (depending on the
  * iterator stability guarantees of the underlying map).
  * 
+ * The IDs `graph::INVALID_EDGE` and `graph::INVALID_VERTEX` will never be assigned to
+ * any vertices or edges. Indexing by these (or any other unassigned) IDs will
+ * return the corresponding `end()` iterator.
+ * 
  * @tparam V Type associated with vertices (may be `void`).
  * @tparam E Type associated with edges (may be `void`).
  * @tparam Map Template class of an associative map type used to store the graph.
@@ -244,7 +255,7 @@ private:
     struct EdgeNode {
         Edge edge;
         union {
-            EdgeId next[2];
+            EdgeId next[2] = {INVALID_EDGE, INVALID_EDGE};
             struct {
                 EdgeId next_incoming;
                 EdgeId next_outgoing;
@@ -274,13 +285,20 @@ private:
      */
     struct VertexNode {
         union {
-            std::optional<EdgeList> edges[2];
+            EdgeList edges[2];
             struct {
-                std::optional<EdgeList> incoming_edges;
-                std::optional<EdgeList> outgoing_edges;
+                EdgeList incoming_edges;
+                EdgeList outgoing_edges;
             };
         };
         VertexData data;
+        
+        VertexNode():
+            incoming_edges{INVALID_EDGE, INVALID_EDGE, 0},
+            outgoing_edges{INVALID_EDGE, INVALID_EDGE, 0} {}
+        
+        template <typename... Args>
+        VertexNode(Args... args): VertexNode(), data(std::forward<Args>(args)...) {}
     };
     
     using Edges = Map<EdgeId,   EdgeNode>;
@@ -420,11 +438,7 @@ public:
         Value&   value() const requires (HasVertexValue()) { return _i->second.data; }
         /// The number of edges incident to this vertex in the given direction.
         size_t   degree(EdgeDir dir) const {
-            if (auto edge_list = _i->second.edges[(int) dir]) {
-                return edge_list->size;
-            } else {
-                return 0;
-            }
+            return _i->second.edges[(int) dir].size;
         }
         /// The total number of edges incident to this vertex.
         size_t degree() const {
@@ -606,7 +620,9 @@ public:
         /// Advances the iterator to the next edge in the current edge direction.  
         IncidentEdgeIterator& operator++() {
             EdgeId next_id = _i->second.next[(int) _dir];
-            _i = _graph->_edges.find(next_id);
+            _i = (next_id != INVALID_EDGE)
+                ? _graph->_edges.find(next_id)
+                : _graph->_edges.end();
             return *this;
         }
         
@@ -766,13 +782,17 @@ public:
             if (i == _graph->_verts.end()) {
                 return end();
             } else {
-                const std::optional<EdgeList>& edges = i->second.edges[(int) _dir];
-                if (not edges) return end();
-                return IncidentEdgeIterator<Const>(
-                    _graph,
-                    _graph->_edges.find(edges->head),
-                    _dir
-                );
+                const EdgeList& edges = i->second.edges[(int) _dir];
+                EdgeId head_id = edges.head;
+                if (head_id == INVALID_EDGE) {
+                    return end();
+                } else {
+                    return IncidentEdgeIterator<Const>(
+                        _graph,
+                        _graph->_edges.find(head_id),
+                        _dir
+                    );
+                }
             }
         }
         
@@ -782,11 +802,7 @@ public:
          * This iterator can never be reached by incrementing a valid iterator.
          */
         IncidentEdgeIterator<Const> end() const {
-            return IncidentEdgeIterator<Const>(
-                _graph,
-                _graph->_edges.end(),
-                EdgeDir::Outgoing
-            );
+            return _graph->end_incident_edges();
         }
         
         /**
@@ -928,36 +944,51 @@ private:
     
     // assumes the given edge is definitely in the ring.
     // returns the next edge ID in the ring.
-    std::optional<EdgeId> _remove_from_ring(
+    EdgeId _remove_from_list(
             vertex_iterator v,
             EdgeDir dir, 
             typename Edges::iterator edge)
     {
-        std::optional<EdgeList>& ring = v->node().edges[(int) dir];
-        if (ring->size == 1) {
+        EdgeList& list = v->node().edges[(int) dir];
+        if (list.size == 1) {
             // removing the only edge
-            ring = std::nullopt;
-            return std::nullopt;
+            list.head = INVALID_EDGE;
+            list.tail = INVALID_EDGE;
+            list.size = 0;
+            return INVALID_EDGE;
         } else {
-            EdgeId prev_id = ring->tail;
-            EdgeId next_id = edge->second.next[(int) dir];
-            auto prev = _edges.find(prev_id);
-            do {
-                EdgeId cur_id = prev->second.next[(int) dir];
-                if (cur_id == edge->first) {
-                    prev->second.next[(int) dir] = next_id;
+            EdgeList& list = v->node().edges[(int) dir];
+            EdgeId edge_id = edge->first;
+            EdgeId prev_id = INVALID_EDGE;
+            EdgeId cur_id  = list.head;
+            auto e_prev = _edges.end();
+            for (auto e = _edges.find(list.head); cur_id != INVALID_EDGE; ) {
+                e = _edges.find(cur_id);
+                EdgeId next_id = e->second.next[(int) dir];
+                if (cur_id == edge_id) {
+                    // found the edge to remove; excise it from the list
+                    if (prev_id == INVALID_EDGE) {
+                        // removing the head
+                        list.head = next_id;
+                    } else {
+                        // removing an interior or tail edge.
+                        // make the previous edge skip the deleted one.
+                        e_prev->second.next[(int) dir] = next_id;
+                    }
+                    if (list.tail == edge_id) {
+                        // removed the tail
+                        list.tail = prev_id;
+                    }
+                    list.size -= 1;
+                    cur_id = next_id;
                     break;
                 } else {
                     prev_id = cur_id;
-                    prev = _edges.find(cur_id);
+                    cur_id  = next_id;
+                    e_prev  = e;
                 }
-            } while (prev_id != ring->tail);
-            
-            if (ring->head == edge->first) ring->head = next_id; // removed the head
-            if (ring->tail == edge->first) ring->tail = prev_id; // removed the tail
-            
-            ring->size -= 1;
-            return next_id;
+            }
+            return cur_id;
         }
     }
 
@@ -1043,7 +1074,7 @@ public:
             {
                 vid, 
                 VertexNode {
-                    .data {std::forward<T>(v)}
+                    std::forward<T>(v)
                 }
             }
         );
@@ -1055,7 +1086,14 @@ public:
     template <typename... Args>
     vertex_iterator emplace_vertex(Args&&... args) requires (HasVertexValue()) {
         VertexId vid = _free_vertex_id++;
-        auto [out, created] = _verts.insert({vid, VertexNode{.data = V(std::forward<Args>(args)...) }});
+        auto [out, created] = _verts.insert(
+            {
+                vid,
+                VertexNode {
+                    std::forward<Args>(args)...
+                }
+            }
+        );
         return {this, out};
     }
     
@@ -1068,34 +1106,28 @@ public:
         if (v == end_vertices()) {
             return end_vertices();
         }
-        VertexNode& node = v->node();
         for (EdgeDir dir : {EdgeDir::Incoming, EdgeDir::Outgoing}) {
-            std::optional<EdgeList>& ring = node.edges[(int) dir];
-            if (ring) {
-                auto e = begin_incident_edges(v, dir);
-                EdgeId begin_id = e->id();
-                for (++e; true; ) {
-                    // remove from the /other/ vertex's ring
-                    const Edge& this_edge = e->edge();
-                    // if we're iterating over this vertex's incoming edges, then this vertex is
-                    // the destination, and the other vertex is the edge's source. Vice versa for
-                    // the other direction.
-                    VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
-                    vertex_iterator other = find_vertex(other_id);
-                    // remove the edge from the other vertex's (opposite-direction) ring
-                    _remove_from_ring(other, ~dir, e.inner_iterator());
-                    
-                    // don't bother removing the edge from the current ring, because we're
-                    // about to erase it anyway. increment the iterator by following its link
-                    // to the next edge now; after we erase the edge, the iterator will
-                    // be invalid.
-                    EdgeId deleted_id = e->id();
-                    auto e_iter = e.inner_iterator();
-                    ++e;
-                    // erase the edge
-                    _edges.erase(e_iter);
-                    if (deleted_id == begin_id) break;
-                }
+            for (auto e = begin_incident_edges(v, dir); e != end_incident_edges(); ) {
+                // remove the edge from the other vertex's ring
+                const Edge& this_edge = e->edge();
+                // if we're iterating over this vertex's incoming edges, then this vertex is
+                // the destination, and the other vertex is the edge's source. Vice versa for
+                // the other direction.
+                VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
+                vertex_iterator other = find_vertex(other_id);
+                // remove the edge from the other vertex's (opposite-direction) ring
+                _remove_from_list(other, ~dir, e.inner_iterator());
+                
+                // don't bother removing the edge from the current ring, because we're
+                // about to erase it anyway. increment the iterator by following its link
+                // to the next edge now; after we erase the edge, the iterator will
+                // be invalid.
+                auto e_iter = e.inner_iterator();
+                EdgeId next_id = e_iter->second.next[(int) dir];
+                // erase the edge
+                _edges.erase(e_iter);
+                if (next_id == INVALID_EDGE) break;
+                e = incident_edge_iterator {this, _edges.find(next_id), dir};
             }
         }
         return {this, _verts.erase(v.inner_iterator())};
@@ -1131,34 +1163,24 @@ private:
         
         auto [new_edge, _] = _edges.insert({
             eid,
-            EdgeNode{
+            EdgeNode {
                 edge,
                 // point to the head of the incoming and outgoing edge rings.
-                // if this is the first edge in each ring, point to the edge itself.
-                .next_incoming = v1.incoming_edges ? v1.incoming_edges->head : eid,
-                .next_outgoing = v0.outgoing_edges ? v0.outgoing_edges->head : eid,
+                .next_incoming = v1.incoming_edges.head,
+                .next_outgoing = v0.outgoing_edges.head,
                 .data { std::forward<Args>(args)... }
             }
         });
     
-        auto _append_tail = [this](VertexNode& v, EdgeDir dir, EdgeId eid) {
-            std::optional<EdgeList>& edge_list = v.edges[(int) dir];
-            if (edge_list) {
-                // point the tail at the inserted edge
-                auto tail = this->_edges.find(edge_list->tail);
-                tail->second.next[(int) dir] = eid;
-                // the new edge is the new tail
-                edge_list->tail  = eid;
-                edge_list->size += 1;
-            } else {
-                // there were no edges in the ring, so this new edge is the only one.
-                // also, it already points at itself.
-                edge_list = EdgeList{.head = eid, .tail = eid, .size = 1};
-            }
+        auto _prepend_head = [](VertexNode& v, EdgeDir dir, EdgeId eid) {
+            EdgeList& edge_list = v.edges[(int) dir];
+            edge_list.head = eid;
+            if (edge_list.tail == INVALID_EDGE) edge_list.tail = eid;
+            edge_list.size += 1;
         };
         
-        _append_tail(v0, EdgeDir::Outgoing, eid);
-        _append_tail(v1, EdgeDir::Incoming, eid);
+        _prepend_head(v0, EdgeDir::Outgoing, eid);
+        _prepend_head(v1, EdgeDir::Incoming, eid);
         
         return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing};
     }
@@ -1247,18 +1269,18 @@ public:
 
 private:
 
-    std::pair<EdgePair<std::optional<EdgeId>>, typename Edges::iterator>
+    std::pair<EdgePair<EdgeId>, typename Edges::iterator>
     _impl_erase_edge(typename Edges::iterator edge) {
         if (edge == _edges.end()) {
-            return {{std::nullopt, std::nullopt}, _edges.end()};
+            return {{INVALID_EDGE, INVALID_EDGE}, _edges.end()};
         }
         EdgeNode& edge_node = edge->second;
         Edge              e = edge_node.edge;
         vertex_iterator  v0 = find_vertex(e.v0);
         vertex_iterator  v1 = find_vertex(e.v1);
         
-        auto out_id = _remove_from_ring(v0, EdgeDir::Outgoing, edge);
-        auto  in_id = _remove_from_ring(v1, EdgeDir::Incoming, edge);
+        EdgeId out_id = _remove_from_list(v0, EdgeDir::Outgoing, edge);
+        EdgeId  in_id = _remove_from_list(v1, EdgeDir::Incoming, edge);
         
         auto next_edge = _edges.erase(edge);
         return {{in_id, out_id}, next_edge};
@@ -1274,7 +1296,7 @@ public:
      * This is slightly more efficient than the overload of erase() which returns an
      * incident_edge_iterator.
      */
-    EdgePair<std::optional<EdgeId>> erase(incident_edge_iterator edge) {
+    EdgePair<EdgeId> erase(incident_edge_iterator edge) {
         return _impl_erase_edge(edge.inner_iterator()).first;
     }
     
@@ -1285,8 +1307,8 @@ public:
     incident_edge_iterator erase(incident_edge_iterator edge, EdgeDir dir) {
         auto [in_id, out_id] = erase(edge);
         auto next_id = (dir == EdgeDir::Incoming) ? in_id : out_id;
-        if (next_id) {
-            return find_edge(*next_id, dir);
+        if (next_id != INVALID_EDGE) {
+            return find_edge(next_id, dir);
         } else {
             return end_incident_edges();
         }
@@ -1464,7 +1486,7 @@ public:
     
     /// @name Incident edge iteration
     /// @{
-        
+    
     /**
      * @brief Return an infinite range of edges which cycles through all the edges
      * incident to `v` in the given direction.
@@ -1505,13 +1527,11 @@ public:
         if (v == end_vertices()) {
             return end_incident_edges();
         }
-        VertexNode& v_node = v._i->second;
-        if (not v_node.edges[(int) dir]) {
-            return end_incident_edges();
-        }
-        return IncidentEdgeIterator<Constness::Mutable> {
+        const VertexNode& v_node = v._i->second;
+        EdgeId first_edge_id = v_node.edges[(int) dir].head;
+        return {
             this,
-            _edges.find(v_node.outgoing_edges->head),
+            first_edge_id != INVALID_EDGE ? _edges.find(first_edge_id) : _edges.end(),
             dir
         };
     }
@@ -1530,13 +1550,11 @@ public:
         if (v == end_vertices()) {
             return end_incident_edges();
         }
-        VertexNode& v_node = v._i->second;
-        if (not v_node.edges[(int) dir]) {
-            return end_incident_edges();
-        }
-        return IncidentEdgeIterator<Constness::Const> {
+        const VertexNode& v_node = v._i->second;
+        EdgeId first_edge_id = v_node.edges[(int) dir].head;
+        return {
             this,
-            _edges.find(v_node.outgoing_edges->head),
+            first_edge_id != INVALID_EDGE ? _edges.find(first_edge_id) : _edges.end(),
             dir
         };
     }
@@ -1614,18 +1632,12 @@ public:
             dir = EdgeDir::Incoming;
             std::swap(v0, v1);
         }
-        auto first_edge_it = begin_incident_edges(v0, dir);
-        if (first_edge_it == end_incident_edges()) {
-            return end_incident_edges();
-        }
-        auto edge_it = first_edge_it;
-        do {
-            if (edge_it->vertex(~dir) == v1) {
-                return edge_it;
+        for (auto e = begin_incident_edges(v0, dir); e != end_incident_edges(); ++e) {
+            // we're iterating around v0, we've found our edge when it connects to v1:
+            if (e->vertex(~dir) == v1) {
+                return e;
             }
-            ++edge_it;
-        } while (edge_it != first_edge_it);
-        
+        }
         return end_incident_edges();
     }
     
@@ -1656,18 +1668,12 @@ public:
             dir = EdgeDir::Incoming;
             std::swap(v0, v1);
         }
-        auto first_edge_it = begin_incident_edges(v0, dir);
-        if (first_edge_it == end_incident_edges()) {
-            return end_incident_edges();
-        }
-        auto edge_it = first_edge_it;
-        do {
-            if (edge_it->vertex(~dir) == v1) {
-                return edge_it;
+        for (auto e = begin_incident_edges(v0, dir); e != end_incident_edges(); ++e) {
+            // we're iterating around v0, we've found our edge when it connects to v1:
+            if (e->vertex(~dir) == v1) {
+                return e;
             }
-            ++edge_it;
-        } while (edge_it != first_edge_it);
-        
+        }
         return end_incident_edges();
     }
     

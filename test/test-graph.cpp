@@ -127,13 +127,9 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
     }
     
     // verify that v0 iterates over all its incident edges
-    auto incident = g.incident_edges(v0);
-    for (auto e = ++incident.begin(); true; ++e) {
+    for (auto e : g.incident_edges(v0)) {
         // the source of each edge should be v0
-        EXPECT_EQ(e->source_id(), *v0);
-        if (e == incident.begin()) {
-            break;
-        }
+        EXPECT_EQ(e.source_id(), *v0);
     }
     
     // verify that we can delete an edge
@@ -142,22 +138,22 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
     EXPECT_EQ(g.edges_size(), n_verts - 1);
     
     // iteration should still terminate, and touch exactly the remaining edges
-    incident = g.incident_edges(v0);
     size_t ct = 0;
-    for (auto e = ++incident.begin(); true; ++e) {
-        EXPECT_EQ(e->source_id(), *v0);
+    for (auto e : g.incident_edges(v0, EdgeDir::Outgoing)) {
+        EXPECT_EQ(e.source_id(), *v0);
         ++ct;
-        if (e == incident.begin()) {
-            break;
-        }
     }
     EXPECT_EQ(ct, n_verts - 1);
     
     // remove all of the edges incident to v0
-    incident = g.incident_edges(v0);
-    for (auto e = ++incident.begin(); e != g.end_incident_edges(); ) {
+    ct = 0;
+    for (auto e = g.begin_incident_edges(v0, EdgeDir::Outgoing);
+         e != g.end_incident_edges(); )
+    {
         e = g.erase(e, EdgeDir::Outgoing);
+        ++ct;
     }
+    EXPECT_EQ(ct, n_verts - 1);
     // there should be no edges left
     EXPECT_EQ(g.edges_size(), 0);
 }
