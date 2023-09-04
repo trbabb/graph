@@ -185,6 +185,14 @@ TEST(TEST_MODULE_NAME, graph_map) {
     EXPECT_EQ(dgm[99], 77);
     EXPECT_EQ(e->source_id(), v0_id);
     EXPECT_EQ(e->target_id(), v1_id);
+    EXPECT_EQ(dgm.edges_size(), 1);
+    
+    size_t deleted = dgm.erase("goof");
+    EXPECT_EQ(deleted, 1);
+    EXPECT_EQ(dgm.vertices_size(), 1);
+    EXPECT_EQ(dgm.edges_size(), 0);
+    
+    EXPECT_EQ(dgm.find_edge(99), dgm.end_edges());
 }
 
 

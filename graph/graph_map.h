@@ -50,15 +50,80 @@ private:
     using Base       = Digraph<Vv, Ev, Map>;
     using VertKeyMap = Map<Vk, VertexId>;
     using EdgeKeyMap = Map<Ek, EdgeId>;
+    using KeyVertMap = Map<VertexId, Vk>;
+    using KeyEdgeMap = Map<EdgeId,   Ek>;
     
     using StoredVertKeyMap = std::conditional_t<HasVertKey(), VertKeyMap, int[0]>;
     using StoredEdgeKeyMap = std::conditional_t<HasEdgeKey(), EdgeKeyMap, int[0]>;
+    using StoredKeyVertMap = std::conditional_t<HasVertKey(), KeyVertMap, int[0]>;
+    using StoredKeyEdgeMap = std::conditional_t<HasEdgeKey(), KeyEdgeMap, int[0]>;
     
     StoredVertKeyMap _vert_ids_by_key;
     StoredEdgeKeyMap _edge_ids_by_key;
     
+    StoredKeyVertMap _vert_keys_by_id;
+    StoredKeyEdgeMap _edge_keys_by_id;
+    
     Base*       _base()       { return static_cast<Base*>(this); }
     const Base* _base() const { return static_cast<const Base*>(this); }
+    
+    void _register_vert(VertexId v_id, const Vk& key) requires (HasVertKey()) {
+        _vert_ids_by_key.insert({key, v_id});
+        _vert_keys_by_id.insert({v_id, key});
+    }
+    
+    void _register_edge(EdgeId e_id, const Ek& key) requires (HasEdgeKey()) {
+        _edge_ids_by_key.insert({key, e_id});
+        _edge_keys_by_id.insert({e_id, key});
+    }
+    
+    void _unregister_vert(VertexId v_id) requires (HasVertKey()) {
+        auto i = _vert_keys_by_id.find(v_id);
+        if (i != _vert_keys_by_id.end()) {
+            _vert_ids_by_key.erase(i->second);
+            _vert_keys_by_id.erase(i);
+        }
+    }
+    
+    void _unregister_vert(const Ek& key) requires (HasEdgeKey()) {
+        auto i = _vert_ids_by_key.find(key);
+        if (i != _vert_ids_by_key.end()) {
+            _vert_keys_by_id.erase(i->second);
+            _vert_ids_by_key.erase(i);
+        }
+    }
+    
+    void _unregister_edge(EdgeId e_id) requires (HasEdgeKey()) {
+        auto i = _edge_keys_by_id.find(e_id);
+        if (i != _edge_keys_by_id.end()) {
+            _edge_ids_by_key.erase(i->second);
+            _edge_keys_by_id.erase(i);
+        }
+    }
+    
+    void _unregister_edge(const Ek& key) requires (HasEdgeKey()) {
+        auto i = _edge_ids_by_key.find(key);
+        if (i != _edge_ids_by_key.end()) {
+            _edge_keys_by_id.erase(i->second);
+            _edge_ids_by_key.erase(i);
+        }
+    }
+    
+    void _unregister_incident_edges(typename Base::Verts::iterator v_iter) {
+        if constexpr (HasEdgeKey()) {
+            // delete the keys for all edges incident to the deleted vert
+            for (EdgeDir dir : {EdgeDir::Incoming, EdgeDir::Outgoing}) {
+                auto e0 = this->begin_incident_edges({this, v_iter}, dir);
+                if (e0 == this->end_incident_edges()) continue;
+                EdgeId e0_id = e0;
+                for (auto e = ++e0; true; ++e) {
+                    EdgeId e_id = e;
+                    _unregister_edge(e_id);
+                    if (e_id == e0_id) break;
+                }
+            }
+        }
+    }
     
 public:
 
@@ -101,7 +166,7 @@ public:
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
             auto v_i = _base()->insert_vertex();
-            _vert_ids_by_key.insert({key, v_i->id()});
+            _register_vert(v_i->id(), key);
             return v_i->_i;
         } else {
             return this->_verts.find(i->second);
@@ -173,6 +238,14 @@ public:
     /// Returns true if an edge with the given key is present in the graph.
     bool contains(const Ek& key) const requires (HasEdgeKey()) {
         return _edge_ids_by_key.contains(key);
+    }
+    
+    const Vk& key_for(VertexId v) const requires (HasVertKey()) {
+        return _vert_keys_by_id.at(v);
+    }
+    
+    const Ek& key_for(EdgeId e) const requires (HasEdgeKey()) {
+        return _edge_keys_by_id.at(e);
     }
     
     using Base::find_vertex;
@@ -287,12 +360,30 @@ public:
     size_t erase(const Vk& key) requires (HasVertKey()) {
         auto i = _vert_ids_by_key.find(key);
         if (i != _vert_ids_by_key.end()) {
+            auto v_iter = this->_verts.find(i->second);
+            _unregister_incident_edges(v_iter);
+            // delete the key for this vert
+            VertexId v_id = i->second;
             _vert_ids_by_key.erase(i);
-            this->erase(vertex_iterator{this, this->_verts.find(i->second)});
+            _vert_keys_by_id.erase(v_id);
+            // delete the vert
+            _base()->erase(vertex_iterator{this, v_iter});
             return 1;
         } else {
             return 0;
         }
+    }
+    
+    auto erase(vertex_iterator vert) {
+        _unregister_incident_edges(vert.inner_iterator());
+        if constexpr (HasVertKey()) {
+            _unregister_vert(vert->id());
+        }
+        return _base()->erase(vert);
+    }
+    
+    auto erase(VertexId vert) {
+        return this->erase(find_vertex(vert));
     }
     
     /**
@@ -303,24 +394,32 @@ public:
     size_t erase(const Ek& key) requires (HasEdgeKey()) {
         auto i = _edge_ids_by_key.find(key);
         if (i != _edge_ids_by_key.end()) {
+            EdgeId e_id = i->second;
+            _edge_keys_by_id.erase(e_id);
             _edge_ids_by_key.erase(i);
-            this->erase(edge_iterator{this, this->_edges.find(i->second)});
+            this->erase(edge_iterator{this, this->_edges.find(e_id)});
             return 1;
         } else {
             return 0;
         }
     }
     
-    auto erase(incident_edge_iterator edge) requires (not HasEdgeKey()) {
+    auto erase(incident_edge_iterator edge) {
+        if constexpr (HasEdgeKey()) {
+            _unregister_edge(edge->id());
+        }
         return _base()->erase(edge);
     }
     
-    auto erase(edge_iterator edge) requires (not HasEdgeKey()) {
+    auto erase(edge_iterator edge) {
+        if constexpr (HasEdgeKey()) {
+            _unregister_edge(edge->id());
+        }
         return _base()->erase(edge);
     }
     
-    auto erase(EdgeId edge) requires (not HasEdgeKey()) {
-        return _base()->erase(edge);
+    auto erase(EdgeId edge) {
+        return this->erase(find_edge(edge));
     }
     
     /**
@@ -338,7 +437,7 @@ public:
             return {vertex_iterator{this, this->_verts.find(i->second)}, false};
         } else {
             auto v_i = _base()->insert_vertex();
-            _vert_ids_by_key.insert({key, v_i->id()});
+            _register_vert(v_i->id(), key);
             return {v_i, true};
         }
     }
@@ -361,7 +460,7 @@ public:
             return {vertex_iterator{this, j}, false};
         } else {
             auto v_i = _base()->insert_vertex(value);
-            _vert_ids_by_key.insert({key, v_i->id()});
+            _register_vert(v_i->id(), key);
             return {v_i, true};
         }
     }
@@ -394,7 +493,7 @@ public:
             return {vertex_iterator{this, j}, false};
         } else {
             auto v_i = _base()->emplace_vertex(std::forward<Args>(args)...);
-            _vert_ids_by_key.insert({key, v_i->id()});
+            _register_vert(v_i->id(), key);
             return {v_i, true};
         }
     }
@@ -426,7 +525,7 @@ public:
             return {vertex_iterator{this, j}, false};
         } else {
             auto v_i = _base()->insert_vertex(value);
-            _vert_ids_by_key.insert({key, v_i->id()});
+            _register_vert(v_i->id(), key);
             return {v_i, true};
         }
     }
@@ -459,7 +558,7 @@ public:
             };
         }
         auto e_i = _base()->insert_directed_edge(src, dst);
-        _edge_ids_by_key.insert({new_key, e_i->id()});
+        _register_edge(e_i->id(), new_key);
         return { e_i, true };
     }
     
@@ -492,7 +591,7 @@ public:
             };
         }
         auto e_i = _base()->insert_directed_edge(src, dst, value);
-        _edge_ids_by_key.insert({new_key, e_i->id()});
+        _register_edge(e_i->id(), new_key);
         e_i->value() = value;
         return { e_i, true };
     }
@@ -577,7 +676,7 @@ public:
             };
         }
         auto e_i = _base()->emplace_directed_edge(src, dst, std::forward<Args>(args)...);
-        _edge_ids_by_key.insert({new_key, e_i->id()});
+        _register_edge(e_i->id(), new_key);
         return { e_i, true };
     }
     
