@@ -10,8 +10,8 @@
 
 #define _GRAPH_TEST_HARNESS_INSTRUMENTATION
 
-#include <graph/graph.h>
-#include <graph/graph_map.h>
+#include <graph/digraph.h>
+#include <graph/digraph_map.h>
 
 uint64_t rng_seed = 5441962910926078884ULL;
 auto     rng_eng  = pcg64(rng_seed);

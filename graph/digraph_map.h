@@ -1,6 +1,6 @@
 #pragma once
 
-#include <graph/graph.h>
+#include <graph/digraph.h>
 
 // todo: key iteration
 //   - make an iterator which derives from the raw vert_ and edge_iterator types;
