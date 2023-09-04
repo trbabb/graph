@@ -15,7 +15,7 @@ Iterator invalidation rules are inherited from the underlying hash map implement
 
 ## Documentation
 
-[`graph` documentation](http://trbabb.github.io/graph/html/annotated.html)
+[API Documentation](http://trbabb.github.io/graph/html/annotated.html)
 
 ## Building
 
