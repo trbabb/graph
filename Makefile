@@ -1,5 +1,3 @@
-CC        = clang++
-AR        = ar
 PREFIX    = /usr/local
 INCLUDE_DIR = graph
 
