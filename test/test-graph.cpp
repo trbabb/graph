@@ -38,6 +38,12 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
     return os;
 }
 
+// todo: make a test with multiple edges between two vertices; try to delete some of them
+// todo: test self-loop edges
+// todo: test with each of the value types as void
+// todo: test DigraphMap with each of the key types equal to void
+
+
 /// make a 'star' graph with a central vertex and `n_verts` adjacent to it in the
 /// outgoing direction
 template <template <typename...> typename Map>

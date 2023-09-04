@@ -165,10 +165,10 @@ inline size_t hash_combine(size_t h0, size_t h1) {
 
 
 template <
-        typename Vk,
-        typename Vv,
-        typename Ek,
-        typename Ev,
+        typename VertKey,
+        typename VertVal,
+        typename EdgeKey,
+        typename EdgeVal,
         template <class...> class Map>
 struct DigraphMap;
 
@@ -227,7 +227,7 @@ private:
     using EdgeData   = std::conditional_t<std::same_as<E, void>, int[0], E>;
     using VertexData = std::conditional_t<std::same_as<V, void>, int[0], V>;
     
-    template <typename Vk, typename Vv, typename Ek, typename Ev, template <class...> class M>
+    template <typename VertKey, typename VertVal, typename EdgeKey, typename EdgeVal, template <class...> class M>
     friend struct DigraphMap;
     
     /**
@@ -334,10 +334,10 @@ public:
         friend IncidentEdgeIterator<~Const>;
         friend Graph;
         template <
-            typename Vk,
-            typename Vv,
-            typename Ek,
-            typename Ev,
+            typename VertKey,
+            typename VertVal,
+            typename EdgeKey,
+            typename EdgeVal,
             template <class...> class M>
         friend struct DigraphMap;
         
@@ -398,10 +398,10 @@ public:
         friend VertexIterator<Const>;
         friend VertexIterator<~Const>;
         template <
-            typename Vk,
-            typename Vv,
-            typename Ek,
-            typename Ev,
+            typename VertKey,
+            typename VertVal,
+            typename EdgeKey,
+            typename EdgeVal,
             template <class...> class M>
         friend struct DigraphMap;
         
@@ -463,10 +463,10 @@ public:
         
         friend Graph;    
         template <
-            typename Vk,
-            typename Vv,
-            typename Ek,
-            typename Ev,
+            typename VertKey,
+            typename VertVal,
+            typename EdgeKey,
+            typename EdgeVal,
             template <class...> class M>
         friend struct DigraphMap;
         
@@ -545,10 +545,10 @@ public:
         
         friend Graph;
         template <
-            typename Vk,
-            typename Vv,
-            typename Ek,
-            typename Ev,
+            typename VertKey,
+            typename VertVal,
+            typename EdgeKey,
+            typename EdgeVal,
             template <class...> class M>
         friend struct DigraphMap;
         
@@ -641,10 +641,10 @@ public:
         using PointerProxy = detail::arrow_proxy<VertexRef<Const>>;
     
         template <
-            typename Vk,
-            typename Vv,
-            typename Ek,
-            typename Ev,
+            typename VertKey,
+            typename VertVal,
+            typename EdgeKey,
+            typename EdgeVal,
             template <class...> class M>
         friend struct DigraphMap;
         
