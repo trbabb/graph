@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ranges>
+#include <type_traits>
 
 // todo: convert the incident edge iterator to be finite instead of cyclical
 //    we can always wrap a finite iterator in a cycle iterator if we want to,
@@ -42,6 +42,12 @@ struct arrow_proxy {
 };
 
 } // namespace detail
+
+
+    
+// concepts
+template <typename B, typename T>
+concept Forwardable = std::convertible_to<B, std::remove_reference_t<T>>;
 
 /// @brief Unique identifier for a vertex in a graph.
 enum struct VertexId : size_t {};
@@ -191,6 +197,16 @@ namespace graph {
  * 
  * Iterator invalidation follows the same rules as the underlying map type, since
  * all iterators wrap the iterators of the underlying map.
+ * 
+ * Indexing by a valid iterator will generally be more performant than indexing by ID.
+ * 
+ * Indexing by ID will always be stable, regardless of mutations to other vertices and edges.
+ * 
+ * Iterators to vertices are independent of iterators to edges; i.e. mutations to the set of
+ * edgs will not invalidate vertex iterators. Additions to the set of vertices will not
+ * invalidate edge iterators; however, deletion of vertices will also delete all edges
+ * incident to that vertex, which in turn *may* invalidate edge iterators (depending on the
+ * iterator stability guarantees of the underlying map).
  * 
  * @tparam V Type associated with vertices (may be `void`).
  * @tparam E Type associated with edges (may be `void`).
@@ -1020,17 +1036,17 @@ public:
     
     /// Insert a new vertex into the graph storing the given value, and return
     /// an iterator to it.
-    vertex_iterator insert_vertex(const V& v) requires (HasVertexValue()) {
+    template <Forwardable<V> T>
+    vertex_iterator insert_vertex(T&& v) requires (HasVertexValue()) {
         VertexId vid = _free_vertex_id++;
-        auto [out, created] = _verts.insert({vid, VertexNode{.data = v}});
-        return {this, out};
-    }
-    
-    /// Insert a new vertex into the graph storing the given value, and return
-    /// an iterator to it.
-    vertex_iterator insert_vertex(V&& v) requires (HasVertexValue()) {
-        VertexId vid = _free_vertex_id++;
-        auto [out, created] = _verts.insert({vid, VertexNode{.data = std::move(v)}});
+        auto [out, created] = _verts.insert(
+            {
+                vid, 
+                VertexNode {
+                    .data {std::forward<T>(v)}
+                }
+            }
+        );
         return {this, out};
     }
     
@@ -1121,7 +1137,7 @@ private:
                 // if this is the first edge in each ring, point to the edge itself.
                 .next_incoming = v1.incoming_edges ? v1.incoming_edges->head : eid,
                 .next_outgoing = v0.outgoing_edges ? v0.outgoing_edges->head : eid,
-                .data = E(std::forward<Args>(args)...)
+                .data { std::forward<Args>(args)... }
             }
         });
     
@@ -1168,6 +1184,36 @@ public:
     
     /**
      * @brief Insert a new edge into the graph connecting the two given vertices,
+     * storing the given value, and return an iterator to it.
+     * 
+     * Edges may be duplicated; a new edge will be created whether or not one between
+     * the two vertices already exists.
+     */
+    template <Forwardable<E> T>
+    incident_edge_iterator insert_directed_edge(
+            vertex_iterator src,
+            vertex_iterator dst,
+            T&& e)
+        requires (HasEdgeValue())
+    {
+        return _emplace_directed_edge(src, dst, std::forward<T>(e));
+    }
+    
+    /// Alias for `insert_directed_edge(find_vertex(src), find_vertex(dst))`.
+    incident_edge_iterator insert_directed_edge(VertexId src, VertexId dst) {
+        return insert_directed_edge(find_vertex(src), find_vertex(dst));
+    }
+    
+    /// Alias for `insert_directed_edge(find_vertex(src), find_vertex(dst), e)`.
+    template <Forwardable<E> T>
+    incident_edge_iterator insert_directed_edge(VertexId src, VertexId dst, T&& e)
+        requires (HasEdgeValue())
+    {
+        return insert_directed_edge(find_vertex(src), find_vertex(dst), std::forward<T>(e));
+    }
+    
+    /**
+     * @brief Insert a new edge into the graph connecting the two given vertices,
      * constructing a new edge value in-place with the given arguments, and return
      * an iterator to it.
      * 
@@ -1181,11 +1227,6 @@ public:
             Args&&... args)
     {
         return _emplace_directed_edge(src, dst, std::forward<Args>(args)...);
-    }
-    
-    /// Alias for `insert_directed_edge(find_vertex(src), find_vertex(dst))`.
-    incident_edge_iterator insert_directed_edge(VertexId src, VertexId dst) {
-        return insert_directed_edge(find_vertex(src), find_vertex(dst));
     }
     
     /**

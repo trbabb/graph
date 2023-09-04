@@ -2,9 +2,6 @@
 
 #include <graph/graph.h>
 
-// todo: need inverse lookup somehow for keys
-//   - could we fold it into the base class Value type?
-//   - consider not having special iterators and adding key_for(iter | id)
 // todo: key iteration
 //   - make an iterator which derives from the raw vert_ and edge_iterator types;
 //     have it hold a parallel iterator to the key map; change the increment/decrement
@@ -141,7 +138,6 @@ public:
     
     using Base::HasVertexValue;
     using Base::HasEdgeValue;
-    
     
     /**
      * @brief Returns a const reference to the vertex with the given key.
@@ -451,7 +447,8 @@ public:
      * In the case where the vertex was inserted, the value is copy-constructed from the
      * given value. Otherwise, the value is left unchanged.
      */
-    std::pair<vertex_iterator, bool> insert_vertex(const Vk& key, const Vv& value)
+    template <Forwardable<Vv> T>
+    std::pair<vertex_iterator, bool> insert_vertex(const Vk& key, T&& value)
         requires (HasVertKey() and HasVertexValue())
     {
         auto i = _vert_ids_by_key.find(key);
@@ -459,14 +456,20 @@ public:
             auto j = this->_verts.find(i->second);
             return {vertex_iterator{this, j}, false};
         } else {
-            auto v_i = _base()->insert_vertex(value);
+            auto v_i = _base()->insert_vertex(std::forward<T>(value));
             _register_vert(v_i->id(), key);
             return {v_i, true};
         }
     }
     
-    vertex_iterator insert_vertex(const Vv& value) requires (not HasVertKey() and HasVertexValue()) {
-        return _base()->insert_vertex(value);
+    /**
+     * @brief Inserts a vertex with the given value into the graph.
+     * 
+     * Returns an iterator to the new vertex.
+     */
+    template <Forwardable<Vv> T>
+    vertex_iterator insert_vertex(T&& value) requires (not HasVertKey() and HasVertexValue()) {
+        return _base()->insert_vertex(std::forward<T>(value));
     }
     
     vertex_iterator insert_vertex() requires (not HasVertKey() and not HasVertexValue()) {
@@ -515,7 +518,8 @@ public:
      * Returns a pair of an iterator to the vertex with the given key, and a boolean
      * indicating whether the vertex was inserted (`true`) or already existed (`false`).
      */
-    std::pair<vertex_iterator, bool> insert_or_assign_vertex(const Vk& key, const Vv& value)
+    template <Forwardable<Vv> T>
+    std::pair<vertex_iterator, bool> insert_or_assign_vertex(const Vk& key, T&& value)
         requires (HasVertKey() and HasVertexValue())
     {
         auto i = _vert_ids_by_key.find(key);
@@ -524,7 +528,7 @@ public:
             j->value() = value;
             return {vertex_iterator{this, j}, false};
         } else {
-            auto v_i = _base()->insert_vertex(value);
+            auto v_i = _base()->insert_vertex(std::forward<T>(value));
             _register_vert(v_i->id(), key);
             return {v_i, true};
         }
@@ -571,11 +575,12 @@ public:
      * In the case where the edge was inserted, the value is copy-constructed from the
      * given value. Otherwise, the value is left unchanged.
      */
+    template <Forwardable<Ev> T>
     std::pair<incident_edge_iterator, bool> insert_directed_edge(
             const Ek& new_key,
             vertex_iterator src,
             vertex_iterator dst,
-            const Ev& value)
+            T&& value)
         requires (HasEdgeKey() and HasEdgeValue())
     {
         auto i = _edge_ids_by_key.find(new_key);
@@ -590,37 +595,38 @@ public:
                 false
             };
         }
-        auto e_i = _base()->insert_directed_edge(src, dst, value);
+        auto e_i = _base()->insert_directed_edge(src, dst, std::forward<T>(value));
         _register_edge(e_i->id(), new_key);
-        e_i->value() = value;
         return { e_i, true };
     }
     
+    template <Forwardable<Ev> T>
     std::pair<incident_edge_iterator, bool> insert_directed_edge(
             const Ek& new_key,
             const Vk& src_key,
             const Vk& dst_key,
-            const Ev& value)
+            T&& value)
         requires (HasEdgeKey() and HasEdgeValue() and HasVertKey())
     {
         return insert_directed_edge(
             new_key,
             this->find_vertex(src_key),
             this->find_vertex(dst_key),
-            value
+            std::forward<T>(value)
         );
     }
     
+    template <Forwardable<Ev> T>
     std::pair<incident_edge_iterator, bool> insert_directed_edge(
             const Vk& src_key,
             const Vk& dst_key,
-            const Ev& value)
+            T&& value)
         requires (not HasEdgeKey() and HasEdgeValue() and HasVertKey())
     {
         return insert_directed_edge(
             this->find_vertex(src_key),
             this->find_vertex(dst_key),
-            value
+            std::forward<T>(value)
         );
     }
     
