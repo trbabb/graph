@@ -82,27 +82,11 @@ private:
         }
     }
     
-    void _unregister_vert(const Ek& key) requires (HasEdgeKey()) {
-        auto i = _vert_ids_by_key.find(key);
-        if (i != _vert_ids_by_key.end()) {
-            _vert_keys_by_id.erase(i->second);
-            _vert_ids_by_key.erase(i);
-        }
-    }
-    
     void _unregister_edge(EdgeId e_id) requires (HasEdgeKey()) {
         auto i = _edge_keys_by_id.find(e_id);
         if (i != _edge_keys_by_id.end()) {
             _edge_ids_by_key.erase(i->second);
             _edge_keys_by_id.erase(i);
-        }
-    }
-    
-    void _unregister_edge(const Ek& key) requires (HasEdgeKey()) {
-        auto i = _edge_ids_by_key.find(key);
-        if (i != _edge_ids_by_key.end()) {
-            _edge_keys_by_id.erase(i->second);
-            _edge_ids_by_key.erase(i);
         }
     }
     
