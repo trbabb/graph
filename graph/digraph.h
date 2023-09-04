@@ -1093,6 +1093,8 @@ public:
     /**
      * @brief Remove the given vertex, and return an iterator to the following vertex.
      * 
+     * This operation is `O(degree(v))`.
+     * 
      * All edges incident to the vertex will also be removed.
      */
     vertex_iterator erase(vertex_iterator v) {

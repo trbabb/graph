@@ -393,6 +393,8 @@ public:
     /**
      * @brief Removes the vertex with the given key from the graph, if present.
      * 
+     * This operation is `O(degree(v))`, where `v` is the vertex indexed by `key`.
+     * 
      * Returns the number of vertices (0 or 1) removed from the graph.
      */
     size_t erase(const VertKey& key) requires (HasVertKey()) {
