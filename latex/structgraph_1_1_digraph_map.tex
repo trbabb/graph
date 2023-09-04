@@ -1,0 +1,852 @@
+\hypertarget{structgraph_1_1_digraph_map}{}\doxysection{graph\+::Digraph\+Map\texorpdfstring{$<$}{<} Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map \texorpdfstring{$>$}{>} Struct Template Reference}
+\label{structgraph_1_1_digraph_map}\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+
+
+A digraph class that allows vertices and/or edges to be indexed by a custom type in O(1) time.  
+
+
+
+
+{\ttfamily \#include $<$digraph\+\_\+map.\+h$>$}
+
+Inheritance diagram for graph\+::Digraph\+Map\texorpdfstring{$<$}{<} Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map \texorpdfstring{$>$}{>}\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{structgraph_1_1_digraph_map}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a7e1adadbe5507bb6883c1a222b42e6fd}\label{structgraph_1_1_digraph_map_a7e1adadbe5507bb6883c1a222b42e6fd}} 
+using {\bfseries vertex\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_ab4c1f69a8162fb57ed1a67ddfe1d61a3}\label{structgraph_1_1_digraph_map_ab4c1f69a8162fb57ed1a67ddfe1d61a3}} 
+using {\bfseries const\+\_\+vertex\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a8fcf928b1091dfd6a7b38ce3767fcaaa}\label{structgraph_1_1_digraph_map_a8fcf928b1091dfd6a7b38ce3767fcaaa}} 
+using {\bfseries edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_abe168f294b8bcbfac4681350771beb83}\label{structgraph_1_1_digraph_map_abe168f294b8bcbfac4681350771beb83}} 
+using {\bfseries const\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a502601c837cd50a57475d7170c0dfad1}\label{structgraph_1_1_digraph_map_a502601c837cd50a57475d7170c0dfad1}} 
+using {\bfseries incident\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_ac96e6fa371b27a1e6599f5389e19b8a0}\label{structgraph_1_1_digraph_map_ac96e6fa371b27a1e6599f5389e19b8a0}} 
+using {\bfseries const\+\_\+incident\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a4e4539705f7b79273ea3681f7f8bf6b1}\label{structgraph_1_1_digraph_map_a4e4539705f7b79273ea3681f7f8bf6b1}} 
+using {\bfseries vertex\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a930b150bd3641193d94d88045726a11f}\label{structgraph_1_1_digraph_map_a930b150bd3641193d94d88045726a11f}} 
+using {\bfseries const\+\_\+vertex\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a12fb580792550f7ae911bc808e94a256}\label{structgraph_1_1_digraph_map_a12fb580792550f7ae911bc808e94a256}} 
+using {\bfseries edge\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{Edge\+Ref}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a985959e1242e88857f3d47a5cf8c2f35}\label{structgraph_1_1_digraph_map_a985959e1242e88857f3d47a5cf8c2f35}} 
+using {\bfseries const\+\_\+edge\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{Edge\+Ref}}$<$ Constness\+::\+Const $>$
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Types inherited from \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph$<$ V, E, Map $>$}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a7e1adadbe5507bb6883c1a222b42e6fd}\label{structgraph_1_1_digraph_a7e1adadbe5507bb6883c1a222b42e6fd}} 
+using {\bfseries vertex\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_ab4c1f69a8162fb57ed1a67ddfe1d61a3}\label{structgraph_1_1_digraph_ab4c1f69a8162fb57ed1a67ddfe1d61a3}} 
+using {\bfseries const\+\_\+vertex\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a8fcf928b1091dfd6a7b38ce3767fcaaa}\label{structgraph_1_1_digraph_a8fcf928b1091dfd6a7b38ce3767fcaaa}} 
+using {\bfseries edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_abe168f294b8bcbfac4681350771beb83}\label{structgraph_1_1_digraph_abe168f294b8bcbfac4681350771beb83}} 
+using {\bfseries const\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a502601c837cd50a57475d7170c0dfad1}\label{structgraph_1_1_digraph_a502601c837cd50a57475d7170c0dfad1}} 
+using {\bfseries incident\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_ac96e6fa371b27a1e6599f5389e19b8a0}\label{structgraph_1_1_digraph_ac96e6fa371b27a1e6599f5389e19b8a0}} 
+using {\bfseries const\+\_\+incident\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a7544512439f6b7d32b8117f8716469a0}\label{structgraph_1_1_digraph_a7544512439f6b7d32b8117f8716469a0}} 
+using {\bfseries vertex\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a4c85c6c68327a7fa2c44401373394734}\label{structgraph_1_1_digraph_a4c85c6c68327a7fa2c44401373394734}} 
+using {\bfseries const\+\_\+vertex\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_af000f14c0cc10487971110555684246d}\label{structgraph_1_1_digraph_af000f14c0cc10487971110555684246d}} 
+using {\bfseries edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a6724bca2ecc2f4f0d04fbf74dbb88bc7}\label{structgraph_1_1_digraph_a6724bca2ecc2f4f0d04fbf74dbb88bc7}} 
+using {\bfseries const\+\_\+edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a88ac2dc037a7130aea427e86bd3fb0bc}\label{structgraph_1_1_digraph_a88ac2dc037a7130aea427e86bd3fb0bc}} 
+using {\bfseries incident\+\_\+edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a616b4f18681cd5da578c121c4bd7d189}\label{structgraph_1_1_digraph_a616b4f18681cd5da578c121c4bd7d189}} 
+using {\bfseries const\+\_\+incident\+\_\+edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a4e4539705f7b79273ea3681f7f8bf6b1}\label{structgraph_1_1_digraph_a4e4539705f7b79273ea3681f7f8bf6b1}} 
+using {\bfseries vertex\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a930b150bd3641193d94d88045726a11f}\label{structgraph_1_1_digraph_a930b150bd3641193d94d88045726a11f}} 
+using {\bfseries const\+\_\+vertex\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a12fb580792550f7ae911bc808e94a256}\label{structgraph_1_1_digraph_a12fb580792550f7ae911bc808e94a256}} 
+using {\bfseries edge\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{Edge\+Ref}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a985959e1242e88857f3d47a5cf8c2f35}\label{structgraph_1_1_digraph_a985959e1242e88857f3d47a5cf8c2f35}} 
+using {\bfseries const\+\_\+edge\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{Edge\+Ref}}$<$ Constness\+::\+Const $>$
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a99a9050535e715622bdfbb1b3f103232}{operator\mbox{[}$\,$\mbox{]}}} (const Vert\+Key \&key) const
+\begin{DoxyCompactList}\small\item\em Returns a const reference to the vertex with the given key. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map_acb2530573805615e994757ae920e1d54}{operator\mbox{[}$\,$\mbox{]}}} (const Vert\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Returns a reference to the vertex with the given key. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a7d5b4a65b2dcddb5cfb548b9335050c5}\label{structgraph_1_1_digraph_map_a7d5b4a65b2dcddb5cfb548b9335050c5}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} {\bfseries operator\mbox{[}$\,$\mbox{]}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Returns a reference to the vertex with the given Id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_ac5b923977d404a9cf9e9782300487a47}\label{structgraph_1_1_digraph_map_ac5b923977d404a9cf9e9782300487a47}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} {\bfseries operator\mbox{[}$\,$\mbox{]}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Returns a const reference to the vertex with the given Id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a56e5459342f2d747a6af42fbdd5114dc}{operator\mbox{[}$\,$\mbox{]}}} (const Edge\+Key \&key) const
+\begin{DoxyCompactList}\small\item\em Returns a const reference to the edge with the given key. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map_aca82b75251516cc0eb79e45b9151da63}{operator\mbox{[}$\,$\mbox{]}}} (const Edge\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Returns a reference to the edge with the given key. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_acdb56db8814020ad8930e56adc520560}\label{structgraph_1_1_digraph_map_acdb56db8814020ad8930e56adc520560}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\+\_\+ref}} {\bfseries operator\mbox{[}$\,$\mbox{]}} (Edge\+Id e)
+\begin{DoxyCompactList}\small\item\em Returns a reference to the edge with the given Id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a2721630675f865298615f6e30e9db0dd}\label{structgraph_1_1_digraph_map_a2721630675f865298615f6e30e9db0dd}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} {\bfseries operator\mbox{[}$\,$\mbox{]}} (Edge\+Id e) const
+\begin{DoxyCompactList}\small\item\em Returns a const reference to the edge with the given Id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_ab65b39da5436dff285ac5fc1af5c99df}\label{structgraph_1_1_digraph_map_ab65b39da5436dff285ac5fc1af5c99df}} 
+bool {\bfseries contains} (const Vert\+Key \&key) const
+\begin{DoxyCompactList}\small\item\em Returns true if a vertex with the given key is present in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_af1b44b47361617651816891fb981ff3a}\label{structgraph_1_1_digraph_map_af1b44b47361617651816891fb981ff3a}} 
+bool {\bfseries contains} (const Edge\+Key \&key) const
+\begin{DoxyCompactList}\small\item\em Returns true if an edge with the given key is present in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a3fdc45156388185a02feac132d74c1f1}\label{structgraph_1_1_digraph_map_a3fdc45156388185a02feac132d74c1f1}} 
+const Vert\+Key \& {\bfseries key\+\_\+for} (Vertex\+Id v) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a518c5c74898607db589dd06771783dd6}\label{structgraph_1_1_digraph_map_a518c5c74898607db589dd06771783dd6}} 
+const Edge\+Key \& {\bfseries key\+\_\+for} (Edge\+Id e) const
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a9f57037d24892bf7ec4d881f9f7925d5}{find\+\_\+vertex}} (const Vert\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Returns an iterator to the vertex with the given key. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a7dde2cb54cfc31f9bc9dcca0453bf7d9}{find\+\_\+vertex}} (const Vert\+Key \&key) const
+\begin{DoxyCompactList}\small\item\em Returns a const iterator to the vertex with the given key. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a91d6ec1e440386100c4d6b45ac8d3f2c}{find\+\_\+edge}} (const Edge\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Returns an iterator to the edge with the given key. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a5cb586e07f97607424b008498df8397d}{find\+\_\+edge}} (const Edge\+Key \&key) const
+\begin{DoxyCompactList}\small\item\em Returns a const iterator to the edge with the given key. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a72942f1ace36e9f968acfb0744805856}\label{structgraph_1_1_digraph_map_a72942f1ace36e9f968acfb0744805856}} 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} $>$ {\bfseries vertex} (const Vert\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Returns a reference to the vertex with the given key, or {\ttfamily std\+::nullopt} if not found. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_a5820206eaab128abb7ce31bdac4a51fb}{vertex}} (const Vert\+Key \&key) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_ab6baa46dfd4a24aefa673d31df72d3c8}\label{structgraph_1_1_digraph_map_ab6baa46dfd4a24aefa673d31df72d3c8}} 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\+\_\+ref}} $>$ {\bfseries edge} (const Edge\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Returns a reference to the edge with the given key, or {\ttfamily std\+::nullopt} if not found. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_a729b388524bdbeef3e1316fdfdea304a}{edge}} (const Edge\+Key \&key) const
+\item 
+size\+\_\+t \mbox{\hyperlink{structgraph_1_1_digraph_map_a0527acc39fdda480a70dcbf704561851}{erase}} (const Vert\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Removes the vertex with the given key from the graph, if present. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_ab233861ac2bedfdc9ffc6edd6498b1c4}\label{structgraph_1_1_digraph_map_ab233861ac2bedfdc9ffc6edd6498b1c4}} 
+auto {\bfseries erase} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} vert)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_ac25150490298a7314937d994e2b2cdd3}\label{structgraph_1_1_digraph_map_ac25150490298a7314937d994e2b2cdd3}} 
+auto {\bfseries erase} (Vertex\+Id vert)
+\item 
+size\+\_\+t \mbox{\hyperlink{structgraph_1_1_digraph_map_a53ff770e1e919bf661abed7891675cbc}{erase}} (const Edge\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Removes the edge with the given key from the graph, if present. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a5d091457c0ab48d887c11ef17c75c2da}\label{structgraph_1_1_digraph_map_a5d091457c0ab48d887c11ef17c75c2da}} 
+auto {\bfseries erase} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_ab6baa46dfd4a24aefa673d31df72d3c8}{edge}})
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_af5312f6d82b4773942c47c4897778b50}\label{structgraph_1_1_digraph_map_af5312f6d82b4773942c47c4897778b50}} 
+auto {\bfseries erase} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_ab6baa46dfd4a24aefa673d31df72d3c8}{edge}})
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a1d2dde39243a8dab580115c16a1e15b1}\label{structgraph_1_1_digraph_map_a1d2dde39243a8dab580115c16a1e15b1}} 
+auto {\bfseries erase} (Edge\+Id \mbox{\hyperlink{structgraph_1_1_digraph_map_ab6baa46dfd4a24aefa673d31df72d3c8}{edge}})
+\item 
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_ac27ac0f031564032199e2b8702e54a9b}{insert\+\_\+vertex}} (const Vert\+Key \&key)
+\begin{DoxyCompactList}\small\item\em Inserts a vertex with the given key into the graph. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Forwardable$<$ Vert\+Val $>$ T$>$ \newline
+requires (Has\+Vert\+Key() and Has\+Vertex\+Value())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_a8790d76a9bb598b8fa190d422f4cd01d}{insert\+\_\+vertex}} (const Vert\+Key \&key, T \&\&value)
+\begin{DoxyCompactList}\small\item\em Inserts a vertex with the given key and value into the graph. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Forwardable$<$ Vert\+Val $>$ T$>$ \newline
+requires (not Has\+Vert\+Key() and Has\+Vertex\+Value())}\\\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a0b0c4e18c3ae0ddb040eb3f32bbd447e}{insert\+\_\+vertex}} (T \&\&value)
+\begin{DoxyCompactList}\small\item\em Inserts a vertex with the given value into the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_aeb988b27bf2c50963fcdc177e4dec20c}\label{structgraph_1_1_digraph_map_aeb988b27bf2c50963fcdc177e4dec20c}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} {\bfseries insert\+\_\+vertex} ()
+\item 
+{\footnotesize template$<$typename... Args$>$ \newline
+requires (Has\+Vert\+Key() and Has\+Vertex\+Value())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_ada345428a50d8e94fbf6a1df879d7548}{emplace\+\_\+vertex}} (const Vert\+Key \&key, Args \&\&... args)
+\begin{DoxyCompactList}\small\item\em Emplaces a vertex with the given key and value construction arguments into the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a4e99f5145459cf57a0031909bdc2cda9}\label{structgraph_1_1_digraph_map_a4e99f5145459cf57a0031909bdc2cda9}} 
+{\footnotesize template$<$typename... Args$>$ \newline
+requires (not Has\+Vert\+Key() and Has\+Vertex\+Value())}\\\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} {\bfseries emplace\+\_\+vertex} (Args \&\&... args)
+\begin{DoxyCompactList}\small\item\em Emplaces a vertex with the given value construction arguments into the graph, returning an iterator to the new vertex. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Forwardable$<$ Vert\+Val $>$ T$>$ \newline
+requires (Has\+Vert\+Key() and Has\+Vertex\+Value())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_aedf48fefe379fcc852865dfdc6bf8a14}{insert\+\_\+or\+\_\+assign\+\_\+vertex}} (const Vert\+Key \&key, T \&\&value)
+\begin{DoxyCompactList}\small\item\em Inserts a vertex with the given key and value into the graph. \end{DoxyCompactList}\item 
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_ad060154294d2690a50fc5e110b3776c6}{insert\+\_\+directed\+\_\+edge}} (const Edge\+Key \&new\+\_\+key, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst)
+\begin{DoxyCompactList}\small\item\em Inserts a directed edge with the given key into the graph. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Forwardable$<$ Edge\+Val $>$ T$>$ \newline
+requires (Has\+Edge\+Key() and Has\+Edge\+Value())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_a73ab3daba158b682575cc548ed6d7cd6}{insert\+\_\+directed\+\_\+edge}} (const Edge\+Key \&new\+\_\+key, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst, T \&\&value)
+\begin{DoxyCompactList}\small\item\em Inserts a directed edge with the given key and value into the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a083342ac4199095c4f07755d57711a2f}\label{structgraph_1_1_digraph_map_a083342ac4199095c4f07755d57711a2f}} 
+{\footnotesize template$<$Forwardable$<$ Edge\+Val $>$ T$>$ \newline
+requires (Has\+Edge\+Key() and Has\+Edge\+Value() and Has\+Vert\+Key())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ {\bfseries insert\+\_\+directed\+\_\+edge} (const Edge\+Key \&new\+\_\+key, const Vert\+Key \&src\+\_\+key, const Vert\+Key \&dst\+\_\+key, T \&\&value)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_aa852a8cdbe17f4ab95edfc1cf844f617}\label{structgraph_1_1_digraph_map_aa852a8cdbe17f4ab95edfc1cf844f617}} 
+{\footnotesize template$<$Forwardable$<$ Edge\+Val $>$ T$>$ \newline
+requires (not Has\+Edge\+Key() and Has\+Edge\+Value() and Has\+Vert\+Key())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ {\bfseries insert\+\_\+directed\+\_\+edge} (const Vert\+Key \&src\+\_\+key, const Vert\+Key \&dst\+\_\+key, T \&\&value)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_aa916d67c59bf06937bd424bf811eb2e8}\label{structgraph_1_1_digraph_map_aa916d67c59bf06937bd424bf811eb2e8}} 
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ {\bfseries insert\+\_\+directed\+\_\+edge} (const Edge\+Key \&new\+\_\+key, const Vert\+Key \&src\+\_\+key, const Vert\+Key \&dst\+\_\+key)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_abe279d77253f9e6ad8db3e2644ca4f8c}\label{structgraph_1_1_digraph_map_abe279d77253f9e6ad8db3e2644ca4f8c}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries insert\+\_\+directed\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst)
+\item 
+{\footnotesize template$<$typename... Args$>$ \newline
+requires (Has\+Edge\+Key() and Has\+Edge\+Value())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_af59ae655e599ef0c6ec49aa9a90a26a7}{emplace\+\_\+directed\+\_\+edge}} (const Edge\+Key \&new\+\_\+key, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst, Args \&\&... args)
+\begin{DoxyCompactList}\small\item\em Inserts an undirected edge with the given key and value construction arguments into the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a19b03649b894ebfa5f4c4f7b386e0aac}\label{structgraph_1_1_digraph_map_a19b03649b894ebfa5f4c4f7b386e0aac}} 
+{\footnotesize template$<$typename... Args$>$ \newline
+requires (Has\+Edge\+Key() and Has\+Edge\+Value() and Has\+Vert\+Key())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ {\bfseries emplace\+\_\+directed\+\_\+edge} (const Edge\+Key \&new\+\_\+key, const Vert\+Key \&src\+\_\+key, const Vert\+Key \&dst\+\_\+key, Args \&\&... args)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_abc5596d0a0de12baa06aca741bdbe76d}\label{structgraph_1_1_digraph_map_abc5596d0a0de12baa06aca741bdbe76d}} 
+{\footnotesize template$<$typename... Args$>$ \newline
+requires (not Has\+Edge\+Key() and Has\+Edge\+Value())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ {\bfseries emplace\+\_\+directed\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst, Args \&\&... args)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a3ad41d8ab6ad380072be5d9a2014a3d9}\label{structgraph_1_1_digraph_map_a3ad41d8ab6ad380072be5d9a2014a3d9}} 
+{\footnotesize template$<$typename... Args$>$ \newline
+requires (not Has\+Edge\+Key() and Has\+Edge\+Value() and Has\+Vert\+Key())}\\std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ {\bfseries emplace\+\_\+directed\+\_\+edge} (const Vert\+Key \&src\+\_\+key, const Vert\+Key \&dst\+\_\+key, Args \&\&... args)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a517e2191b023dbaa24955755cbf11dca}\label{structgraph_1_1_digraph_map_a517e2191b023dbaa24955755cbf11dca}} 
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} $>$ {\bfseries insert\+\_\+undirected\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst)
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a04ffa3bdc586e66bd90b92fdeb3176d3}\label{structgraph_1_1_digraph_map_a04ffa3bdc586e66bd90b92fdeb3176d3}} 
+bool {\bfseries contains} (Vertex\+Id vid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains a vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a1b12879230ce2ebb30363c4de8a29808}\label{structgraph_1_1_digraph_map_a1b12879230ce2ebb30363c4de8a29808}} 
+bool {\bfseries contains} (Edge\+Id eid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains an edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\+\_\+vertex}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Find the vertex with the given id and return a mutable iterator to it. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a2083cc486407e88f43afc54010dc1cf1}{find\+\_\+vertex}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Find the vertex with the given id and return a const iterator to it. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_aa51033fff8c4dcab66007bec179c2e50}{find\+\_\+edge}} (Edge\+Id e, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing)
+\begin{DoxyCompactList}\small\item\em Return an iterator pointing to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_a72d6728dca23fc72667089d763fe953b}{find\+\_\+edge}} (Edge\+Id e, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing) const
+\begin{DoxyCompactList}\small\item\em Return a const iterator pointing to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_ae805ed41f16480845c0b8c080d89fb7b}{find\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v1)
+\begin{DoxyCompactList}\small\item\em Find the edge connecting the two given vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_aa170b72190d6a1bee2189fc14015a5bc}\label{structgraph_1_1_digraph_map_aa170b72190d6a1bee2189fc14015a5bc}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v1)
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map_af7e8e34c1ddde1c701fb1f5320775c7e}{find\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v1) const
+\begin{DoxyCompactList}\small\item\em Find the edge connecting the two given vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a672dc9fa3b145759db6bfa8bb1b891d6}\label{structgraph_1_1_digraph_map_a672dc9fa3b145759db6bfa8bb1b891d6}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (Vertex\+Id v0, Vertex\+Id v1)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(find\+\_\+vertex(v0), find\+\_\+vertex(v1))}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a9c55b2e7fe82a49fcde3ca05a121c707}\label{structgraph_1_1_digraph_map_a9c55b2e7fe82a49fcde3ca05a121c707}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (Vertex\+Id v0, Vertex\+Id v1) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(find\+\_\+vertex(v0), find\+\_\+vertex(v1))}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a883da5c3b15937b7e53c49ff34e8434b}\label{structgraph_1_1_digraph_map_a883da5c3b15937b7e53c49ff34e8434b}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} e)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(e.\+v0, e.\+v1)}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_aa9130f92722890203ce3e3f20c1d3950}\label{structgraph_1_1_digraph_map_aa9130f92722890203ce3e3f20c1d3950}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} e) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(e.\+v0, e.\+v1)}. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_a291b3fcfc3dce1e8a0bf00489c66c4be}{vertex}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Return a reference to the vertex with the given id, if it exists. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map_af6f560df464a4c711f6182e3f344a064}{vertex}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Return a const reference to the vertex with the given id, if it exists. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions inherited from \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph$<$ V, E, Map $>$}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_afc76c059d8c510e7ddd115d386c45e72}{operator\mbox{[}$\,$\mbox{]}}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Retrieve a const reference to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_af8204ccba579f1f814836f1479b126b1}{operator\mbox{[}$\,$\mbox{]}}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_a573685de7e8d6324f90e3f02ecf61bea}{operator\mbox{[}$\,$\mbox{]}}} (Edge\+Id e) const
+\begin{DoxyCompactList}\small\item\em Retrieve a const reference to the edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_ac8a238f097f3c7665a12fff755dd95f3}{operator\mbox{[}$\,$\mbox{]}}} (Edge\+Id e)
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a04ffa3bdc586e66bd90b92fdeb3176d3}\label{structgraph_1_1_digraph_a04ffa3bdc586e66bd90b92fdeb3176d3}} 
+bool {\bfseries contains} (Vertex\+Id vid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains a vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a1b12879230ce2ebb30363c4de8a29808}\label{structgraph_1_1_digraph_a1b12879230ce2ebb30363c4de8a29808}} 
+bool {\bfseries contains} (Edge\+Id eid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains an edge with the given id. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_af052c89504e5ef4f121410647d7ac865}\label{structgraph_1_1_digraph_af052c89504e5ef4f121410647d7ac865}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} {\bfseries insert\+\_\+vertex} ()
+\begin{DoxyCompactList}\small\item\em Insert a new vertex into the graph, and return an iterator to it. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Forwardable$<$ V $>$ T$>$ \newline
+requires (Has\+Vertex\+Value())}\\\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a72c766be3a5d8e65ce72bd811482d37f}{insert\+\_\+vertex}} (T \&\&v)
+\item 
+{\footnotesize template$<$typename... Args$>$ \newline
+requires (Has\+Vertex\+Value())}\\\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a308f3ed01474186bf8f37f822a3f57d3}{emplace\+\_\+vertex}} (Args \&\&... args)
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a11e04e2f0d5a38577b3ca3ca5640322a}{erase}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v)
+\begin{DoxyCompactList}\small\item\em Remove the given vertex, and return an iterator to the following vertex. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a54c6a7d8c1e8358a6dac4c04103332ff}{erase}} (Vertex\+Id vid)
+\begin{DoxyCompactList}\small\item\em Remove the vertex with the given ID, and return an iterator to the following vertex. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a62d66bc2cc6099934368b859cd12ea0a}\label{structgraph_1_1_digraph_a62d66bc2cc6099934368b859cd12ea0a}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Mutable $>$ {\bfseries vertices} ()
+\begin{DoxyCompactList}\small\item\em A range of all the vertices in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a1cfc2534b42a9e77169361c22c8f1f42}\label{structgraph_1_1_digraph_a1cfc2534b42a9e77169361c22c8f1f42}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Const $>$ {\bfseries vertices} () const
+\begin{DoxyCompactList}\small\item\em An immutable range of all the vertices in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a13290ba8d07cc281487e09328c6dc803}{begin\+\_\+vertices}} ()
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}\label{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} {\bfseries end\+\_\+vertices} ()
+\begin{DoxyCompactList}\small\item\em A sentinel iterator pointing beyond the end of the range of vertices. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a9c8b671c032c844c02fd2fd2f8056ccb}{begin\+\_\+vertices}} () const
+\begin{DoxyCompactList}\small\item\em A const iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_afec9d19219f488e7c15f8b5b06c1b6dd}\label{structgraph_1_1_digraph_afec9d19219f488e7c15f8b5b06c1b6dd}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} {\bfseries end\+\_\+vertices} () const
+\begin{DoxyCompactList}\small\item\em A const sentinel iterator pointing beyond the end of the range of vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a7794317dca2c5b157ecb20b4194638f6}\label{structgraph_1_1_digraph_a7794317dca2c5b157ecb20b4194638f6}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} {\bfseries cbegin\+\_\+vertices} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_ab981dca5d3858d6fd8bd0ae136734b23}\label{structgraph_1_1_digraph_ab981dca5d3858d6fd8bd0ae136734b23}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} {\bfseries cend\+\_\+vertices} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a9121bd6cd3bdf2657400943acc4b4314}\label{structgraph_1_1_digraph_a9121bd6cd3bdf2657400943acc4b4314}} 
+size\+\_\+t {\bfseries vertices\+\_\+size} () const
+\begin{DoxyCompactList}\small\item\em Return the number of vertices in the graph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a208d46dcca7fa0f4fadc42720efa10f6}\label{structgraph_1_1_digraph_a208d46dcca7fa0f4fadc42720efa10f6}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Mutable $>$ {\bfseries edges} ()
+\begin{DoxyCompactList}\small\item\em A range of all the edges in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a7211a982588e79a0025bcd2996997d59}\label{structgraph_1_1_digraph_a7211a982588e79a0025bcd2996997d59}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Const $>$ {\bfseries edges} () const
+\begin{DoxyCompactList}\small\item\em An immutable range of all the edges in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a178df2c954b82cb9c94db2fc6b6cad00}{begin\+\_\+edges}} ()
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the first edge in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_af246167edd4ec5c4bac29f81969f4b2b}\label{structgraph_1_1_digraph_af246167edd4ec5c4bac29f81969f4b2b}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} {\bfseries end\+\_\+edges} ()
+\begin{DoxyCompactList}\small\item\em A sentinel iterator pointing beyond the end of the range of edges. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a42854027cafca6577d5c1230857a5a0e}{begin\+\_\+edges}} () const
+\begin{DoxyCompactList}\small\item\em A const iterator pointing to the first edge in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_aae3eb784540e7abc4d391ef670a17dea}\label{structgraph_1_1_digraph_aae3eb784540e7abc4d391ef670a17dea}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\+\_\+edge\+\_\+iterator}} {\bfseries end\+\_\+edges} () const
+\begin{DoxyCompactList}\small\item\em A const sentinel iterator pointing beyond the end of the range of edges. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a62036a949a11e641a53bbb2b1c8a0b51}\label{structgraph_1_1_digraph_a62036a949a11e641a53bbb2b1c8a0b51}} 
+size\+\_\+t {\bfseries edges\+\_\+size} () const
+\begin{DoxyCompactList}\small\item\em Return the number of edges in the graph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\+\_\+vertex}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Find the vertex with the given id and return a mutable iterator to it. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a2083cc486407e88f43afc54010dc1cf1}{find\+\_\+vertex}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Find the vertex with the given id and return a const iterator to it. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_a291b3fcfc3dce1e8a0bf00489c66c4be}{vertex}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Return a reference to the vertex with the given id, if it exists. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_af6f560df464a4c711f6182e3f344a064}{vertex}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Return a const reference to the vertex with the given id, if it exists. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Mutable $>$ \mbox{\hyperlink{structgraph_1_1_digraph_a1412d78dea33431034af24655489b275}{incident\+\_\+edges}} (Vertex\+Id v, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing)
+\begin{DoxyCompactList}\small\item\em Return a range of edges which traverses all the edges incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph_a319c9e8ee9680933c7d35f30f7f86ec3}{incident\+\_\+edges}} (Vertex\+Id v, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing) const
+\begin{DoxyCompactList}\small\item\em Return a range of immuatble edges which traverses all the edges incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\+\_\+incident\+\_\+edges}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v, Edge\+Dir dir)
+\begin{DoxyCompactList}\small\item\em Return an iterator pointing to the first edge incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a74e719835402104804e4d28366f3f8ce}{begin\+\_\+incident\+\_\+edges}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v, Edge\+Dir dir) const
+\begin{DoxyCompactList}\small\item\em Return a const iterator pointing to the first edge incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_abffa05252d8cad2593b5001e622e6d5e}\label{structgraph_1_1_digraph_abffa05252d8cad2593b5001e622e6d5e}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries begin\+\_\+incident\+\_\+edges} (Vertex\+Id v, Edge\+Dir dir)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily begin\+\_\+incident\+\_\+edges(find\+\_\+vertex(v), dir)}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a688ddbb552213a9dca3b475512c754b6}\label{structgraph_1_1_digraph_a688ddbb552213a9dca3b475512c754b6}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries begin\+\_\+incident\+\_\+edges} (Vertex\+Id v, Edge\+Dir dir) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily begin\+\_\+incident\+\_\+edges(find\+\_\+vertex(v), dir)}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\+\_\+incident\+\_\+edges}} ()
+\begin{DoxyCompactList}\small\item\em A sentinel iterator indicating an empty incident edge range. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a6fecfb88d8359c66c042529c1ebdf8af}\label{structgraph_1_1_digraph_a6fecfb88d8359c66c042529c1ebdf8af}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries end\+\_\+incident\+\_\+edges} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a89b83ce9d1bc446da311feecc621e266}\label{structgraph_1_1_digraph_a89b83ce9d1bc446da311feecc621e266}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries cbegin\+\_\+incident\+\_\+edges} (Vertex\+Id v, Edge\+Dir dir) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_ad4276b1d50856e4a61c73daa056807f7}\label{structgraph_1_1_digraph_ad4276b1d50856e4a61c73daa056807f7}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries cend\+\_\+incident\+\_\+edges} () const
+\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\+\_\+edge}} (Edge\+Id e, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing)
+\begin{DoxyCompactList}\small\item\em Return an iterator pointing to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a72d6728dca23fc72667089d763fe953b}{find\+\_\+edge}} (Edge\+Id e, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing) const
+\begin{DoxyCompactList}\small\item\em Return a const iterator pointing to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_ae805ed41f16480845c0b8c080d89fb7b}{find\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v1)
+\begin{DoxyCompactList}\small\item\em Find the edge connecting the two given vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_aa170b72190d6a1bee2189fc14015a5bc}\label{structgraph_1_1_digraph_aa170b72190d6a1bee2189fc14015a5bc}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v1)
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_af7e8e34c1ddde1c701fb1f5320775c7e}{find\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v1) const
+\begin{DoxyCompactList}\small\item\em Find the edge connecting the two given vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a672dc9fa3b145759db6bfa8bb1b891d6}\label{structgraph_1_1_digraph_a672dc9fa3b145759db6bfa8bb1b891d6}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (Vertex\+Id v0, Vertex\+Id v1)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(find\+\_\+vertex(v0), find\+\_\+vertex(v1))}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a9c55b2e7fe82a49fcde3ca05a121c707}\label{structgraph_1_1_digraph_a9c55b2e7fe82a49fcde3ca05a121c707}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (Vertex\+Id v0, Vertex\+Id v1) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(find\+\_\+vertex(v0), find\+\_\+vertex(v1))}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a883da5c3b15937b7e53c49ff34e8434b}\label{structgraph_1_1_digraph_a883da5c3b15937b7e53c49ff34e8434b}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} e)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(e.\+v0, e.\+v1)}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_aa9130f92722890203ce3e3f20c1d3950}\label{structgraph_1_1_digraph_aa9130f92722890203ce3e3f20c1d3950}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} e) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(e.\+v0, e.\+v1)}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}\label{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}} 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\+\_\+ref}} $>$ {\bfseries edge} (Edge\+Id edge)
+\begin{DoxyCompactList}\small\item\em Return a reference to the edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a8f10850e7edd1b74a7f4be8b2dee5b0e}\label{structgraph_1_1_digraph_a8f10850e7edd1b74a7f4be8b2dee5b0e}} 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} $>$ {\bfseries edge} (Edge\+Id edge) const
+\begin{DoxyCompactList}\small\item\em Return a const reference to the edge with the given id. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a047c99700140d76912584824255a21b9}{insert\+\_\+directed\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst)
+\begin{DoxyCompactList}\small\item\em Insert a new edge into the graph connecting the two given vertices, and return an iterator to it. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$Forwardable$<$ E $>$ T$>$ \newline
+requires (Has\+Edge\+Value())}\\\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_aedc9f411cced006d473413b608383f39}{insert\+\_\+directed\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst, T \&\&e)
+\begin{DoxyCompactList}\small\item\em Insert a new edge into the graph connecting the two given vertices, storing the given value, and return an iterator to it. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a2661b5974e81d8a0150292c3b409ff19}\label{structgraph_1_1_digraph_a2661b5974e81d8a0150292c3b409ff19}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries insert\+\_\+directed\+\_\+edge} (Vertex\+Id src, Vertex\+Id dst)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily insert\+\_\+directed\+\_\+edge(find\+\_\+vertex(src), find\+\_\+vertex(dst))}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a66dd049e97547dd21cf1f593e8d58858}\label{structgraph_1_1_digraph_a66dd049e97547dd21cf1f593e8d58858}} 
+{\footnotesize template$<$Forwardable$<$ E $>$ T$>$ \newline
+requires (Has\+Edge\+Value())}\\\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries insert\+\_\+directed\+\_\+edge} (Vertex\+Id src, Vertex\+Id dst, T \&\&e)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily insert\+\_\+directed\+\_\+edge(find\+\_\+vertex(src), find\+\_\+vertex(dst), e)}. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+{\footnotesize template$<$typename... Args$>$ }\\\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_a106798dd4433d287d473a7f1b3d9ca95}{emplace\+\_\+directed\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst, Args \&\&... args)
+\begin{DoxyCompactList}\small\item\em Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-\/place with the given arguments, and return an iterator to it. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_af851493b2f6a927bab78662a8c9be090}{insert\+\_\+undirected\+\_\+edge}} (Vertex\+Id a, Vertex\+Id b)
+\begin{DoxyCompactList}\small\item\em Insert an undirected edge between the two given vertices by inserting two directed edges in opposing directions. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_pair}{Edge\+Pair}}$<$ std\+::optional$<$ Edge\+Id $>$ $>$ \mbox{\hyperlink{structgraph_1_1_digraph_a117266a0fcb2b72fad411377551b6524}{erase}} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})
+\begin{DoxyCompactList}\small\item\em Remove the given edge, and return the IDs of edges that followed it in the incoming and outgoing edge sequences. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a6d4afdacd5785fc87e4a93212545f7ee}\label{structgraph_1_1_digraph_a6d4afdacd5785fc87e4a93212545f7ee}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries erase} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}, Edge\+Dir dir)
+\begin{DoxyCompactList}\small\item\em Remove the given edge, and return an iterator to the following edge in the given direction. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a82b069fcdc9063498357ac8d029f9983}\label{structgraph_1_1_digraph_a82b069fcdc9063498357ac8d029f9983}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} {\bfseries erase} (Edge\+Id eid)
+\begin{DoxyCompactList}\small\item\em Remove the edge with the given id, returning an iterator to the following edge in the graph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a3605392c9b72bcbd0bd7ad680a235953}\label{structgraph_1_1_digraph_a3605392c9b72bcbd0bd7ad680a235953}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} {\bfseries erase} (\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})
+\begin{DoxyCompactList}\small\item\em Remove the given edge, returning an iterator to the following edge in the graph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a7530bb5563e1e0c83e19732182bc083a}\label{structgraph_1_1_digraph_map_a7530bb5563e1e0c83e19732182bc083a}} 
+static constexpr bool {\bfseries Has\+Vertex\+Value} ()
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a6826706590749b2c490020070be7fa36}\label{structgraph_1_1_digraph_map_a6826706590749b2c490020070be7fa36}} 
+static constexpr bool {\bfseries Has\+Edge\+Value} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions inherited from \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph$<$ V, E, Map $>$}}}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a7530bb5563e1e0c83e19732182bc083a}\label{structgraph_1_1_digraph_a7530bb5563e1e0c83e19732182bc083a}} 
+static constexpr bool {\bfseries Has\+Vertex\+Value} ()
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_a6826706590749b2c490020070be7fa36}\label{structgraph_1_1_digraph_a6826706590749b2c490020070be7fa36}} 
+static constexpr bool {\bfseries Has\+Edge\+Value} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename Vert\+Key, typename Vert\+Val, typename Edge\+Key, typename Edge\+Val, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$\newline
+struct graph\+::\+Digraph\+Map$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$}
+A digraph class that allows vertices and/or edges to be indexed by a custom type in O(1) time. 
+
+\begin{DoxyVerb}#include <graph/digraph_map.h>
+\end{DoxyVerb}
+ It is permitted for one of the key types to be void, in which case the corresponding indexing methods will not be available.
+
+Vertices and edges will additionally be indexable by Vertex\+Id and Edge\+Id, respectively.
+
+As in the base class, value types for vertices and edges may each be void / omitted.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Vert\+Key} & Key type for vertices. \\
+\hline
+{\em Vert\+Val} & Value type for vertices. \\
+\hline
+{\em Edge\+Key} & Key type for edges. \\
+\hline
+{\em Edge\+Val} & Value type for edges. \\
+\hline
+{\em Map} & Map type to use for storing vertices and edges. Must support the same interface as std\+::unordered\+\_\+map. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structgraph_1_1_digraph_map_a729b388524bdbeef3e1316fdfdea304a}\label{structgraph_1_1_digraph_map_a729b388524bdbeef3e1316fdfdea304a}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!edge@{edge}}
+\index{edge@{edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{edge()}{edge()}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::edge (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{key }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Returns a const reference to the edge with the given key, or {\ttfamily std\+::nullopt} if not found. \mbox{\Hypertarget{structgraph_1_1_digraph_map_af59ae655e599ef0c6ec49aa9a90a26a7}\label{structgraph_1_1_digraph_map_af59ae655e599ef0c6ec49aa9a90a26a7}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!emplace\_directed\_edge@{emplace\_directed\_edge}}
+\index{emplace\_directed\_edge@{emplace\_directed\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{emplace\_directed\_edge()}{emplace\_directed\_edge()}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$typename... Args$>$ \newline
+requires (Has\+Edge\+Key() and Has\+Edge\+Value())\\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::emplace\+\_\+directed\+\_\+edge (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{new\+\_\+key,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{src,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{dst,  }\item[{Args \&\&...}]{args }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Inserts an undirected edge with the given key and value construction arguments into the graph. 
+
+Returns a pair of an iterator to the edge with the given key, and a boolean indicating whether the edge was inserted ({\ttfamily true}) or already existed ({\ttfamily false}).
+
+In the case where the edge was inserted, the value is constructed in-\/place from the given arguments. Otherwise, the value is left unchanged. \mbox{\Hypertarget{structgraph_1_1_digraph_map_ada345428a50d8e94fbf6a1df879d7548}\label{structgraph_1_1_digraph_map_ada345428a50d8e94fbf6a1df879d7548}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!emplace\_vertex@{emplace\_vertex}}
+\index{emplace\_vertex@{emplace\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{emplace\_vertex()}{emplace\_vertex()}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$typename... Args$>$ \newline
+requires (Has\+Vert\+Key() and Has\+Vertex\+Value())\\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::emplace\+\_\+vertex (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key,  }\item[{Args \&\&...}]{args }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Emplaces a vertex with the given key and value construction arguments into the graph. 
+
+Returns a pair of an iterator to the vertex with the given key, and a boolean indicating whether the vertex was inserted ({\ttfamily true}) or already existed ({\ttfamily false}).
+
+In the case where the vertex was inserted, the value is constructed in-\/place from the given arguments. Otherwise, the value is left unchanged. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a53ff770e1e919bf661abed7891675cbc}\label{structgraph_1_1_digraph_map_a53ff770e1e919bf661abed7891675cbc}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!erase@{erase}}
+\index{erase@{erase}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{erase()}{erase()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+size\+\_\+t \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::erase (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Removes the edge with the given key from the graph, if present. 
+
+Returns the number of edges (0 or 1) removed from the graph. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a0527acc39fdda480a70dcbf704561851}\label{structgraph_1_1_digraph_map_a0527acc39fdda480a70dcbf704561851}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!erase@{erase}}
+\index{erase@{erase}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{erase()}{erase()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+size\+\_\+t \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::erase (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Removes the vertex with the given key from the graph, if present. 
+
+This operation is {\ttfamily O(degree(v))}, where {\ttfamily v} is the vertex indexed by {\ttfamily key}.
+
+Returns the number of vertices (0 or 1) removed from the graph. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a91d6ec1e440386100c4d6b45ac8d3f2c}\label{structgraph_1_1_digraph_map_a91d6ec1e440386100c4d6b45ac8d3f2c}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [1/6]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns an iterator to the edge with the given key. 
+
+If the key is not present in the graph, returns {\ttfamily this-\/\texorpdfstring{$>$}{>}\mbox{\hyperlink{structgraph_1_1_digraph_af246167edd4ec5c4bac29f81969f4b2b}{end\+\_\+edges()}}}. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a5cb586e07f97607424b008498df8397d}\label{structgraph_1_1_digraph_map_a5cb586e07f97607424b008498df8397d}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [2/6]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{key }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a const iterator to the edge with the given key. 
+
+If the key is not present in the graph, returns {\ttfamily this-\/\texorpdfstring{$>$}{>}\mbox{\hyperlink{structgraph_1_1_digraph_af246167edd4ec5c4bac29f81969f4b2b}{end\+\_\+edges()}}}. \mbox{\Hypertarget{structgraph_1_1_digraph_map_ae805ed41f16480845c0b8c080d89fb7b}\label{structgraph_1_1_digraph_map_ae805ed41f16480845c0b8c080d89fb7b}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [3/6]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v0,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v1 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the edge connecting the two given vertices. 
+
+If no such edge exists, \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\+\_\+incident\+\_\+edges()}} will be returned.
+
+This operation is O(k), with k being the degree of the smaller vertex.
+
+The direction of the iterator will be such that it is traversing the vertex with smaller degree. \mbox{\Hypertarget{structgraph_1_1_digraph_map_af7e8e34c1ddde1c701fb1f5320775c7e}\label{structgraph_1_1_digraph_map_af7e8e34c1ddde1c701fb1f5320775c7e}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [4/6]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v0,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v1 }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the edge connecting the two given vertices. 
+
+If no such edge exists, \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\+\_\+incident\+\_\+edges()}} will be returned.
+
+This operation is O(k), with k being the degree of the smaller vertex.
+
+The direction of the iterator will be such that it is traversing the vertex with smaller degree. \mbox{\Hypertarget{structgraph_1_1_digraph_map_aa51033fff8c4dcab66007bec179c2e50}\label{structgraph_1_1_digraph_map_aa51033fff8c4dcab66007bec179c2e50}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [5/6]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{Edge\+Id}]{e,  }\item[{Edge\+Dir}]{dir = {\ttfamily EdgeDir\+:\+:Outgoing} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return an iterator pointing to the vertex with the given id. 
+
+{\ttfamily dir} determines the direction of the iterator. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a72d6728dca23fc72667089d763fe953b}\label{structgraph_1_1_digraph_map_a72d6728dca23fc72667089d763fe953b}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [6/6]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{Edge\+Id}]{e,  }\item[{Edge\+Dir}]{dir = {\ttfamily EdgeDir\+:\+:Outgoing} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return a const iterator pointing to the vertex with the given id. 
+
+{\ttfamily dir} determines the direction of the iterator. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a9f57037d24892bf7ec4d881f9f7925d5}\label{structgraph_1_1_digraph_map_a9f57037d24892bf7ec4d881f9f7925d5}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_vertex@{find\_vertex}}
+\index{find\_vertex@{find\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_vertex()}{find\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::find\+\_\+vertex (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns an iterator to the vertex with the given key. 
+
+If the key is not present in the graph, returns {\ttfamily this-\/\texorpdfstring{$>$}{>}\mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\+\_\+vertices()}}}. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a7dde2cb54cfc31f9bc9dcca0453bf7d9}\label{structgraph_1_1_digraph_map_a7dde2cb54cfc31f9bc9dcca0453bf7d9}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_vertex@{find\_vertex}}
+\index{find\_vertex@{find\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_vertex()}{find\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::find\+\_\+vertex (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a const iterator to the vertex with the given key. 
+
+If the key is not present in the graph, returns {\ttfamily this-\/\texorpdfstring{$>$}{>}\mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\+\_\+vertices()}}}. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a7bdd6d25f2ef79bc80d4f18a97cb8a00}\label{structgraph_1_1_digraph_map_a7bdd6d25f2ef79bc80d4f18a97cb8a00}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_vertex@{find\_vertex}}
+\index{find\_vertex@{find\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_vertex()}{find\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::find\+\_\+vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the vertex with the given id and return a mutable iterator to it. 
+
+If the vertex does not exist, \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\+\_\+vertices()}} will be returned. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a2083cc486407e88f43afc54010dc1cf1}\label{structgraph_1_1_digraph_map_a2083cc486407e88f43afc54010dc1cf1}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!find\_vertex@{find\_vertex}}
+\index{find\_vertex@{find\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{find\_vertex()}{find\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::find\+\_\+vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the vertex with the given id and return a const iterator to it. 
+
+If the vertex does not exist, \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\+\_\+vertices()}} will be returned. \mbox{\Hypertarget{structgraph_1_1_digraph_map_ad060154294d2690a50fc5e110b3776c6}\label{structgraph_1_1_digraph_map_ad060154294d2690a50fc5e110b3776c6}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!insert\_directed\_edge@{insert\_directed\_edge}}
+\index{insert\_directed\_edge@{insert\_directed\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_directed\_edge()}{insert\_directed\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::insert\+\_\+directed\+\_\+edge (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{new\+\_\+key,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{src,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{dst }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Inserts a directed edge with the given key into the graph. 
+
+Returns a pair of an iterator to the edge with the given key, and a boolean indicating whether the edge was inserted ({\ttfamily true}) or already existed ({\ttfamily false}).
+
+In the case where the edge was inserted, the value is default-\/constructed. Otherwise, the value is left unchanged. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a73ab3daba158b682575cc548ed6d7cd6}\label{structgraph_1_1_digraph_map_a73ab3daba158b682575cc548ed6d7cd6}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!insert\_directed\_edge@{insert\_directed\_edge}}
+\index{insert\_directed\_edge@{insert\_directed\_edge}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_directed\_edge()}{insert\_directed\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$Forwardable$<$ Edge\+Val $>$ T$>$ \newline
+requires (Has\+Edge\+Key() and Has\+Edge\+Value())\\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::insert\+\_\+directed\+\_\+edge (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{new\+\_\+key,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{src,  }\item[{\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{dst,  }\item[{T \&\&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Inserts a directed edge with the given key and value into the graph. 
+
+Returns a pair of an iterator to the edge with the given key, and a boolean indicating whether the edge was inserted ({\ttfamily true}) or already existed ({\ttfamily false}).
+
+In the case where the edge was inserted, the value is copy-\/constructed from the given value. Otherwise, the value is left unchanged. \mbox{\Hypertarget{structgraph_1_1_digraph_map_aedf48fefe379fcc852865dfdc6bf8a14}\label{structgraph_1_1_digraph_map_aedf48fefe379fcc852865dfdc6bf8a14}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!insert\_or\_assign\_vertex@{insert\_or\_assign\_vertex}}
+\index{insert\_or\_assign\_vertex@{insert\_or\_assign\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_or\_assign\_vertex()}{insert\_or\_assign\_vertex()}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$Forwardable$<$ Vert\+Val $>$ T$>$ \newline
+requires (Has\+Vert\+Key() and Has\+Vertex\+Value())\\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::insert\+\_\+or\+\_\+assign\+\_\+vertex (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key,  }\item[{T \&\&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Inserts a vertex with the given key and value into the graph. 
+
+Returns a pair of an iterator to the vertex with the given key, and a boolean indicating whether the vertex was inserted ({\ttfamily true}) or already existed ({\ttfamily false}). \mbox{\Hypertarget{structgraph_1_1_digraph_map_ac27ac0f031564032199e2b8702e54a9b}\label{structgraph_1_1_digraph_map_ac27ac0f031564032199e2b8702e54a9b}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!insert\_vertex@{insert\_vertex}}
+\index{insert\_vertex@{insert\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_vertex()}{insert\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::insert\+\_\+vertex (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Inserts a vertex with the given key into the graph. 
+
+Returns a pair of an iterator to the vertex with the given key, and a boolean indicating whether the vertex was inserted ({\ttfamily true}) or already existed ({\ttfamily false}).
+
+In the case where the vertex was inserted, the value is default-\/constructed. Otherwise, the value is left unchanged. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a8790d76a9bb598b8fa190d422f4cd01d}\label{structgraph_1_1_digraph_map_a8790d76a9bb598b8fa190d422f4cd01d}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!insert\_vertex@{insert\_vertex}}
+\index{insert\_vertex@{insert\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_vertex()}{insert\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$Forwardable$<$ Vert\+Val $>$ T$>$ \newline
+requires (Has\+Vert\+Key() and Has\+Vertex\+Value())\\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}}, bool $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::insert\+\_\+vertex (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key,  }\item[{T \&\&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Inserts a vertex with the given key and value into the graph. 
+
+Returns a pair of an iterator to the vertex with the given key, and a boolean indicating whether the vertex was inserted ({\ttfamily true}) or already existed ({\ttfamily false}).
+
+In the case where the vertex was inserted, the value is copy-\/constructed from the given value. Otherwise, the value is left unchanged. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a0b0c4e18c3ae0ddb040eb3f32bbd447e}\label{structgraph_1_1_digraph_map_a0b0c4e18c3ae0ddb040eb3f32bbd447e}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!insert\_vertex@{insert\_vertex}}
+\index{insert\_vertex@{insert\_vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_vertex()}{insert\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$Forwardable$<$ Vert\+Val $>$ T$>$ \newline
+requires (not Has\+Vert\+Key() and Has\+Vertex\+Value())\\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::insert\+\_\+vertex (\begin{DoxyParamCaption}\item[{T \&\&}]{value }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Inserts a vertex with the given value into the graph. 
+
+Returns an iterator to the new vertex. \mbox{\Hypertarget{structgraph_1_1_digraph_map_aca82b75251516cc0eb79e45b9151da63}\label{structgraph_1_1_digraph_map_aca82b75251516cc0eb79e45b9151da63}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a reference to the edge with the given key. 
+
+If the key is not present in the graph, a {\ttfamily std\+::out\+\_\+of\+\_\+range} exception is thrown. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a56e5459342f2d747a6af42fbdd5114dc}\label{structgraph_1_1_digraph_map_a56e5459342f2d747a6af42fbdd5114dc}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{const Edge\+Key \&}]{key }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a const reference to the edge with the given key. 
+
+If the key is not present in the graph, a {\ttfamily std\+::out\+\_\+of\+\_\+range} exception is thrown. \mbox{\Hypertarget{structgraph_1_1_digraph_map_acb2530573805615e994757ae920e1d54}\label{structgraph_1_1_digraph_map_acb2530573805615e994757ae920e1d54}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a reference to the vertex with the given key. 
+
+If the key is not present in the graph, a new vertex is created with the given key and a reference to it is returned. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a99a9050535e715622bdfbb1b3f103232}\label{structgraph_1_1_digraph_map_a99a9050535e715622bdfbb1b3f103232}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns a const reference to the vertex with the given key. 
+
+If the key is not present in the graph, a {\ttfamily std\+::out\+\_\+of\+\_\+range} exception is thrown. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a5820206eaab128abb7ce31bdac4a51fb}\label{structgraph_1_1_digraph_map_a5820206eaab128abb7ce31bdac4a51fb}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!vertex@{vertex}}
+\index{vertex@{vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{vertex()}{vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [1/3]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph_map}{graph\+::\+Digraph\+Map}}$<$ Vert\+Key, Vert\+Val, Edge\+Key, Edge\+Val, Map $>$\+::vertex (\begin{DoxyParamCaption}\item[{const Vert\+Key \&}]{key }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+Returns a const reference to the vertex with the given key, or {\ttfamily std\+::nullopt} if not found. \mbox{\Hypertarget{structgraph_1_1_digraph_map_a291b3fcfc3dce1e8a0bf00489c66c4be}\label{structgraph_1_1_digraph_map_a291b3fcfc3dce1e8a0bf00489c66c4be}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!vertex@{vertex}}
+\index{vertex@{vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{vertex()}{vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [2/3]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return a reference to the vertex with the given id, if it exists. 
+
+If the vertex does not exist, std\+::nullopt will be returned. \mbox{\Hypertarget{structgraph_1_1_digraph_map_af6f560df464a4c711f6182e3f344a064}\label{structgraph_1_1_digraph_map_af6f560df464a4c711f6182e3f344a064}} 
+\index{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}!vertex@{vertex}}
+\index{vertex@{vertex}!graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$@{graph::DigraphMap$<$ VertKey, VertVal, EdgeKey, EdgeVal, Map $>$}}
+\doxysubsubsection{\texorpdfstring{vertex()}{vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [3/3]}}
+{\footnotesize\ttfamily template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return a const reference to the vertex with the given id, if it exists. 
+
+If the vertex does not exist, std\+::nullopt will be returned. 
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+graph/digraph.\+h\item 
+graph/digraph\+\_\+map.\+h\end{DoxyCompactItemize}

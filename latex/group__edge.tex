@@ -1,0 +1,64 @@
+\hypertarget{group__edge}{}\doxysection{Edge}
+\label{group__edge}\index{Edge@{Edge}}
+
+
+\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} methods.  
+
+
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} \mbox{\hyperlink{group__edge_ga5ba6e9948b741207cc9b974fca9b0199}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]}}} (Edge\+Id e) const
+\begin{DoxyCompactList}\small\item\em Retrieve a const reference to the edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{edge\+\_\+ref}} \mbox{\hyperlink{group__edge_gabb33fe03c7f5ffa64e85cd15667755f6}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]}}} (Edge\+Id e)
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the edge with the given id. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group__edge_ga18356fc4e319469b3ad513ab25a6202a}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::contains}} (Edge\+Id eid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains an edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group__edge_gabb7b7d3c6401dd556994e35345ce0408}\label{group__edge_gabb7b7d3c6401dd556994e35345ce0408}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Mutable $>$ {\bfseries graph\+::\+Directed\+Graph$<$ V, E $>$\+::edges} ()
+\begin{DoxyCompactList}\small\item\em A range of all the edges in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group__edge_ga59490dbb3543776e7efb63ad5eafb43b}\label{group__edge_ga59490dbb3543776e7efb63ad5eafb43b}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Const $>$ {\bfseries graph\+::\+Directed\+Graph$<$ V, E $>$\+::edges} () const
+\begin{DoxyCompactList}\small\item\em An immutable range of all the edges in the graph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} methods. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{group__edge_ga18356fc4e319469b3ad513ab25a6202a}\label{group__edge_ga18356fc4e319469b3ad513ab25a6202a}} 
+\index{Edge@{Edge}!contains@{contains}}
+\index{contains@{contains}!Edge@{Edge}}
+\doxysubsubsection{\texorpdfstring{contains()}{contains()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+bool \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::contains (\begin{DoxyParamCaption}\item[{Edge\+Id}]{eid }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Whether the graph contains an edge with the given id. 
+
+\mbox{\Hypertarget{group__edge_gabb33fe03c7f5ffa64e85cd15667755f6}\label{group__edge_gabb33fe03c7f5ffa64e85cd15667755f6}} 
+\index{Edge@{Edge}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!Edge@{Edge}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{Edge\+Id}]{e }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve a reference to the edge with the given id. 
+
+If the edge does not exist, {\ttfamily std\+::out\+\_\+of\+\_\+range} will be thrown. \mbox{\Hypertarget{group__edge_ga5ba6e9948b741207cc9b974fca9b0199}\label{group__edge_ga5ba6e9948b741207cc9b974fca9b0199}} 
+\index{Edge@{Edge}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!Edge@{Edge}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{Edge\+Id}]{e }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve a const reference to the edge with the given id. 
+
+If the edge does not exist, {\ttfamily std\+::out\+\_\+of\+\_\+range} will be thrown. 

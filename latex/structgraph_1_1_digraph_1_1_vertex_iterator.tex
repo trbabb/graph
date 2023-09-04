@@ -1,0 +1,64 @@
+\hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator}{}\doxysection{graph\+::Digraph\texorpdfstring{$<$}{<} V, E, Map \texorpdfstring{$>$}{>}\+::Vertex\+Iterator\texorpdfstring{$<$}{<} Const \texorpdfstring{$>$}{>} Struct Template Reference}
+\label{structgraph_1_1_digraph_1_1_vertex_iterator}\index{graph::Digraph$<$ V, E, Map $>$::VertexIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::VertexIterator$<$ Const $>$}}
+
+
+An iterator over the vertices in a graph.  
+
+
+
+
+{\ttfamily \#include $<$digraph.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_af2277c4a076a1cec12e8e4380888c2c8}\label{structgraph_1_1_digraph_1_1_vertex_iterator_af2277c4a076a1cec12e8e4380888c2c8}} 
+using {\bfseries value\+\_\+type} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_a03496ee0227f9464d7e72871cc73c2b2}\label{structgraph_1_1_digraph_1_1_vertex_iterator_a03496ee0227f9464d7e72871cc73c2b2}} 
+{\bfseries Vertex\+Iterator} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}} \&other)=default
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_a481134d3bbd2ca8e23206c09b406f558}\label{structgraph_1_1_digraph_1_1_vertex_iterator_a481134d3bbd2ca8e23206c09b406f558}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}} \& {\bfseries operator=} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}} \&other)=default
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_adf54a60b8f4cfe74b292f4fd791ac41f}\label{structgraph_1_1_digraph_1_1_vertex_iterator_adf54a60b8f4cfe74b292f4fd791ac41f}} 
+{\bfseries operator Vertex\+Iterator$<$ Constness\+::\+Const $>$} () const
+\begin{DoxyCompactList}\small\item\em Implicit conversion to the a const iterator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_a4592fae2a9af08fff15bcda066a087ca}\label{structgraph_1_1_digraph_1_1_vertex_iterator_a4592fae2a9af08fff15bcda066a087ca}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries operator$\ast$} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_a81fe8e8badeaa5695267ae78f6b14e7b}\label{structgraph_1_1_digraph_1_1_vertex_iterator_a81fe8e8badeaa5695267ae78f6b14e7b}} 
+\mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{Pointer\+Proxy}} {\bfseries operator-\/$>$} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_aaa6ca21de3ec77081766f399bf451ce6}\label{structgraph_1_1_digraph_1_1_vertex_iterator_aaa6ca21de3ec77081766f399bf451ce6}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}} \& {\bfseries operator++} ()
+\begin{DoxyCompactList}\small\item\em Advance this iterator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_a537b2a79603ced6ac5313ae355159061}\label{structgraph_1_1_digraph_1_1_vertex_iterator_a537b2a79603ced6ac5313ae355159061}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}} \& {\bfseries operator-\/-\/} ()
+\begin{DoxyCompactList}\small\item\em Decrement this iterator. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_a9881eac0d1748a06e553fa9fdd952dd0}\label{structgraph_1_1_digraph_1_1_vertex_iterator_a9881eac0d1748a06e553fa9fdd952dd0}} 
+{\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ K $>$ \&other) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_afcdaedbb7ceebc03445c98d5680a4af9}\label{structgraph_1_1_digraph_1_1_vertex_iterator_afcdaedbb7ceebc03445c98d5680a4af9}} 
+{\bfseries operator Vertex\+Id} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_iterator_a3f5f04861e9fe4dbf9d24d988fb9b105}\label{structgraph_1_1_digraph_1_1_vertex_iterator_a3f5f04861e9fe4dbf9d24d988fb9b105}} 
+{\footnotesize template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class M$>$ }\\struct {\bfseries Digraph\+Map}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename V = void, typename E = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$\newline
+template$<$Constness Const$>$\newline
+struct graph\+::\+Digraph$<$ V, E, Map $>$\+::\+Vertex\+Iterator$<$ Const $>$}
+An iterator over the vertices in a graph. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/digraph.\+h\end{DoxyCompactItemize}

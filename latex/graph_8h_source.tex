@@ -1,0 +1,1292 @@
+\hypertarget{graph_8h_source}{}\doxysection{graph.\+h}
+\label{graph_8h_source}\index{graph/graph.h@{graph/graph.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <type\_traits>}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{comment}{//\ todo:\ convert\ the\ incident\ edge\ iterator\ to\ be\ finite\ instead\ of\ cyclical}}
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ \ \ \ we\ can\ always\ wrap\ a\ finite\ iterator\ in\ a\ cycle\ iterator\ if\ we\ want\ to,}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//\ \ \ \ but\ using\ cycle\ iterators\ is\ annoying\ as\ fuck,\ and\ that\ should\ not\ be\ the\ default.}}
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ \ \ \ it\ will\ also\ invite\ very\ common\ infinite-\/cycle\ bugs.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ \ \ \ (also,\ unclear\ how\ mutation\ semantics\ deal\ with\ an\ unwrapped\ cycle)}}
+\DoxyCodeLine{00010\ \textcolor{comment}{//\ todo:\ testing.\ exercise\ all\ the\ code\ paths}}
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ todo:\ make\ Digraph\ and\ GraphMap\ inherit\ from\ a\ common\ [private]\ base\ class\ but\ not\ each\ other.}}
+\DoxyCodeLine{00012\ \textcolor{comment}{//\ \ \ \ it\ must\ not\ be\ possible\ to\ slice\ a\ GraphMap\ to\ a\ Digraph\ and\ edit\ it;\ as\ this\ would}}
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ \ \ \ invalidate\ the\ key-\/value\ mapping.}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//\ \ \ \ >\ consider\ also\ the\ access\ granted\ by\ shared\ iterator\ and\ range\ classes.}}
+\DoxyCodeLine{00015\ \textcolor{comment}{//\ todo:\ wbn\ to\ have\ a\ pre-\/built\ class\ that\ indexes\ edges\ by\ Pair<VertexId>}}
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ todo:\ subclass\ of\ graph\_map\ which\ can\ do\ reverse\ indexing}}
+\DoxyCodeLine{00017\ \textcolor{comment}{//\ todo:\ expose\ pseudo-\/containers\ for\ the\ verts\ and\ edges?}}
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ \ \ \ would\ allow\ disambiguation\ for\ operator[],\ etc;\ and\ a\ lot\ of}}
+\DoxyCodeLine{00019\ \textcolor{comment}{//\ \ \ \ cruft\ would\ be\ teased\ apart.}}
+\DoxyCodeLine{00020\ \textcolor{comment}{//\ \ \ \ concern:\ you\ can\ construct\ an\ incident\ edge\ iter\ directly\ from\ a\ vertex\_iterator,}}
+\DoxyCodeLine{00021\ \textcolor{comment}{//\ \ \ \ \ \ but\ can't\ construct\ a\ range.\ the\ former\ is\ in\ some\ ways\ more\ efficient.}}
+\DoxyCodeLine{00022\ \textcolor{comment}{//\ \ \ \ \ \ you\ could\ make\ another\ range\ around\ iterators\ instead\ of\ indices,\ but\ that\ raises}}
+\DoxyCodeLine{00023\ \textcolor{comment}{//\ \ \ \ \ \ subtle\ questions\ of\ invalidation\ which\ we'd\ prefer\ not\ to\ introduce.}}
+\DoxyCodeLine{00024\ \textcolor{comment}{//\ todo:\ should\ it\ be\ possible\ to\ keep\ an\ edge\ Id\ but\ change\ the\ endpoints?}}
+\DoxyCodeLine{00025\ \textcolor{comment}{//\ \ \ >\ feels\ like\ this\ is\ something\ for\ the\ K/V\ thing\ above}}
+\DoxyCodeLine{00026\ \textcolor{comment}{//\ todo:\ other\ methods:}}
+\DoxyCodeLine{00027\ \textcolor{comment}{//\ \ \ -\/\ merge(v1,\ v2)}}
+\DoxyCodeLine{00028\ \textcolor{comment}{//\ \ \ -\/\ split(edge)\ (adds\ vert)}}
+\DoxyCodeLine{00029\ \textcolor{comment}{//\ todo:\ incident\ ranges\ should\ default\ to\ limited;\ use\ views::take?}}
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ todo:\ add\ an\ `edges\_repeating()`\ which\ returns\ the\ kind\ of\ range\ the\ current\ one\ does}}
+\DoxyCodeLine{00031\ \textcolor{comment}{//\ todo:\ add\ an\ `incident\_edges()`\ which\ concats\ incoming\ and\ outgoing\ edge\ ranges}}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \textcolor{keyword}{namespace\ }graph\ \{}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \textcolor{keyword}{namespace\ }detail\ \{}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ Ref>}
+\DoxyCodeLine{00038\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{arrow\_proxy}}\ \{}
+\DoxyCodeLine{00039\ \ \ \ \ Ref\ ref;}
+\DoxyCodeLine{00040\ \ \ \ \ }
+\DoxyCodeLine{00041\ \ \ \ \ Ref*\ operator-\/>()\ \{\ \textcolor{keywordflow}{return}\ \&ref;\ \}}
+\DoxyCodeLine{00042\ \};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \}\ \textcolor{comment}{//\ namespace\ detail}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ }
+\DoxyCodeLine{00047\ \ \ \ \ }
+\DoxyCodeLine{00048\ \textcolor{comment}{//\ concepts}}
+\DoxyCodeLine{00049\ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ B,\ \textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00050\ \textcolor{keyword}{concept\ }\mbox{\hyperlink{conceptgraph_1_1_forwardable}{Forwardable}}\ =\ std::convertible\_to<B,\ std::remove\_reference\_t<T>>;}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00053\ \textcolor{keyword}{enum\ struct}\ VertexId\ :\ \textcolor{keywordtype}{size\_t}\ \{\};}
+\DoxyCodeLine{00055\ \textcolor{keyword}{enum\ struct}\ EdgeId\ \ \ :\ \textcolor{keywordtype}{size\_t}\ \{\};}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ VertexId\ operator+(VertexId\ v,\ \textcolor{keywordtype}{size\_t}\ n)\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}VertexId\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(v)\ +\ n);}
+\DoxyCodeLine{00059\ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ VertexId\ operator+(VertexId\ v0,\ VertexId\ v1)\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}VertexId\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(v0)\ +\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(v1));}
+\DoxyCodeLine{00063\ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ VertexId\&\ operator+=(VertexId\&\ v,\ \textcolor{keywordtype}{size\_t}\ n)\ \{}
+\DoxyCodeLine{00066\ \ \ \ \ v\ =\ v\ +\ n;}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{keywordflow}{return}\ v;}
+\DoxyCodeLine{00068\ \}}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ VertexId\ operator++(VertexId\&\ v,\ \textcolor{keywordtype}{int})\ \{}
+\DoxyCodeLine{00071\ \ \ \ \ VertexId\ old\ =\ v;}
+\DoxyCodeLine{00072\ \ \ \ \ v\ =\ v\ +\ 1;}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keywordflow}{return}\ old;}
+\DoxyCodeLine{00074\ \}}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ EdgeId\ operator+(EdgeId\ e,\ \textcolor{keywordtype}{size\_t}\ n)\ \{}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}EdgeId\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(e)\ +\ n);}
+\DoxyCodeLine{00078\ \}}
+\DoxyCodeLine{00079\ }
+\DoxyCodeLine{00080\ EdgeId\ operator+(EdgeId\ e0,\ EdgeId\ e1)\ \{}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{static\_cast<}EdgeId\textcolor{keyword}{>}(\textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(e0)\ +\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(e1));}
+\DoxyCodeLine{00082\ \}}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ EdgeId\&\ operator+=(EdgeId\&\ e,\ \textcolor{keywordtype}{size\_t}\ n)\ \{}
+\DoxyCodeLine{00085\ \ \ \ \ e\ =\ e\ +\ n;}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keywordflow}{return}\ e;}
+\DoxyCodeLine{00087\ \}}
+\DoxyCodeLine{00088\ }
+\DoxyCodeLine{00089\ EdgeId\ operator++(EdgeId\&\ e,\ \textcolor{keywordtype}{int})\ \{}
+\DoxyCodeLine{00090\ \ \ \ \ EdgeId\ old\ =\ e;}
+\DoxyCodeLine{00091\ \ \ \ \ e\ =\ e\ +\ 1;}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordflow}{return}\ old;}
+\DoxyCodeLine{00093\ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00098\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_edge}{Edge}}\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ VertexId\ \mbox{\hyperlink{structgraph_1_1_edge_a6a516d910771cae576b34102395dfaf3}{v0}};}
+\DoxyCodeLine{00102\ \ \ \ \ VertexId\ \mbox{\hyperlink{structgraph_1_1_edge_af00ad9202d78a6b085fc7014e3afe7e8}{v1}};}
+\DoxyCodeLine{00103\ \ \ \ \ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_edge}{Edge}}\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_edge_a6a516d910771cae576b34102395dfaf3}{v0}}\ ==\ other.\mbox{\hyperlink{structgraph_1_1_edge_a6a516d910771cae576b34102395dfaf3}{v0}}\ and\ \mbox{\hyperlink{structgraph_1_1_edge_af00ad9202d78a6b085fc7014e3afe7e8}{v1}}\ ==\ other.\mbox{\hyperlink{structgraph_1_1_edge_af00ad9202d78a6b085fc7014e3afe7e8}{v1}};}
+\DoxyCodeLine{00106\ \ \ \ \ \}}
+\DoxyCodeLine{00107\ \};}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00115\ \textcolor{keyword}{enum\ struct}\ EdgeDir\ \{}
+\DoxyCodeLine{00116\ \ \ \ \ Incoming\ =\ 0,}
+\DoxyCodeLine{00117\ \ \ \ \ Outgoing\ =\ 1,}
+\DoxyCodeLine{00118\ \};}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ EdgeDir\ operator\string~(EdgeDir\ dir)\ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{keywordflow}{return}\ dir\ ==\ EdgeDir::Incoming\ ?\ EdgeDir::Outgoing\ :\ EdgeDir::Incoming;}
+\DoxyCodeLine{00122\ \}}
+\DoxyCodeLine{00123\ \ \ \ \ }
+\DoxyCodeLine{00124\ \textcolor{keyword}{enum\ struct}\ Constness\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ Mutable,}
+\DoxyCodeLine{00126\ \ \ \ \ Const,}
+\DoxyCodeLine{00127\ \};}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \textcolor{keyword}{constexpr}\ Constness\ operator\string~(Constness\ c)\ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordflow}{return}\ (c\ ==\ Constness::Mutable)\ ?\ Constness::Const\ :\ Constness::Mutable;}
+\DoxyCodeLine{00131\ \}}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{size\_t}\ hash\_combine(\textcolor{keywordtype}{size\_t}\ h0,\ \textcolor{keywordtype}{size\_t}\ h1)\ \{}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordflow}{if}\ \textcolor{keyword}{constexpr}\ (\textcolor{keyword}{sizeof}(size\_t)\ ==\ 8)\ \{}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*}}
+\DoxyCodeLine{00136\ \textcolor{comment}{\ \ \ \ \ \ \ \ //\ this\ offers\ a\ solution\ which\ doesn't\ use}}
+\DoxyCodeLine{00137\ \textcolor{comment}{\ \ \ \ \ \ \ \ //\ a\ variant\ of\ the\ shitty\ boost\ combine:\ }}
+\DoxyCodeLine{00138\ \textcolor{comment}{\ \ \ \ \ \ \ \ //\ https://stackoverflow.com/questions/8513911/}}
+\DoxyCodeLine{00139\ \textcolor{comment}{\ \ \ \ \ \ \ \ //\ but\ doesn't\ justify\ it.}}
+\DoxyCodeLine{00140\ \textcolor{comment}{\ \ \ \ \ \ \ \ constexpr\ size\_t\ k\ =\ 0x9E3779B97F4A7C15ULL;}}
+\DoxyCodeLine{00141\ \textcolor{comment}{\ \ \ \ \ \ \ \ size\_t\ a\ =\ (h0\ \string^\ h1)\ *\ k;}}
+\DoxyCodeLine{00142\ \textcolor{comment}{\ \ \ \ \ \ \ \ a\ \string^=\ (a\ >>\ 47);}}
+\DoxyCodeLine{00143\ \textcolor{comment}{\ \ \ \ \ \ \ \ size\_t\ b\ =\ (h0\ \string^\ a)\ *\ k;}}
+\DoxyCodeLine{00144\ \textcolor{comment}{\ \ \ \ \ \ \ \ b\ \string^=\ (b\ >>\ 47);}}
+\DoxyCodeLine{00145\ \textcolor{comment}{\ \ \ \ \ \ \ \ return\ b\ *\ k;}}
+\DoxyCodeLine{00146\ \textcolor{comment}{\ \ \ \ \ \ \ \ */}}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ constant\ from:\ https://stackoverflow.com/questions/5889238/}}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ h0\ \string^=\ h1\ +\ 0x517cc1b727220a95\ +\ (h0\ <<\ 12)\ +\ (h0\ >>\ 4);}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ h0;}
+\DoxyCodeLine{00151\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ \textcolor{keyword}{constexpr}\ (\textcolor{keyword}{sizeof}(size\_t)\ ==\ 4)\ \{}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ boost's\ hash\_combine.\ everyone\ uses\ this\ even\ though\ it's\ known\ to\ be\ shit.}}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ i\ am\ not\ a\ cryptographer,\ though,\ so\ I\ don't\ expect\ to\ do\ much\ better\ myself.}}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ we\ should\ make\ this\ better,\ though}}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ h0\ \string^=\ h1\ +\ 0x9e3779b9U\ +\ (h0\ <<\ 6)\ +\ (h0\ >>\ 2);}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ h0;}
+\DoxyCodeLine{00157\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ \textcolor{keyword}{constexpr}\ (\textcolor{keyword}{sizeof}(size\_t)\ ==\ 2)\ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ same\ as\ above.\ ugh}}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ h0\ \string^=\ h1\ +\ 0x9e37U\ +\ (h0\ <<\ 3)\ +\ (h0\ >>\ 1);}
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ h0;}
+\DoxyCodeLine{00161\ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_assert}(\textcolor{keyword}{sizeof}(size\_t)\ >\ 2,\ \textcolor{stringliteral}{"{}size\_t\ size\ not\ supported\ for\ hashing"{}});}
+\DoxyCodeLine{00163\ \ \ \ \ \}}
+\DoxyCodeLine{00164\ \}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ }
+\DoxyCodeLine{00167\ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertKey,}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertVal,}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeKey,}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeVal,}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }Map>}
+\DoxyCodeLine{00173\ \textcolor{keyword}{struct\ }DigraphMap;}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \}\ \textcolor{comment}{//\ namespace\ graph}}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \textcolor{keyword}{namespace\ }std\ \{}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \textcolor{keyword}{template}\ <>}
+\DoxyCodeLine{00181\ \textcolor{keyword}{struct\ }hash<graph::Edge>\ \{}
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ operator()(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_edge}{graph::Edge}}\&\ e)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ graph::hash\_combine(}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(e.\mbox{\hyperlink{structgraph_1_1_edge_a6a516d910771cae576b34102395dfaf3}{v0}}),}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{size\_t}\textcolor{keyword}{>}(e.\mbox{\hyperlink{structgraph_1_1_edge_af00ad9202d78a6b085fc7014e3afe7e8}{v1}})}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ );}
+\DoxyCodeLine{00187\ \ \ \ \ \}}
+\DoxyCodeLine{00188\ \};}
+\DoxyCodeLine{00189\ \ \ \ \ }
+\DoxyCodeLine{00190\ \}\ \textcolor{comment}{//\ namespace\ std}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ }
+\DoxyCodeLine{00193\ \textcolor{keyword}{namespace\ }graph\ \{}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00216\ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00217\ \ \ \ \ \textcolor{keyword}{typename}\ V=void,}
+\DoxyCodeLine{00218\ \ \ \ \ \textcolor{keyword}{typename}\ E=void,}
+\DoxyCodeLine{00219\ \ \ \ \ \textcolor{keyword}{template}<\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }Map=std::unordered\_map>}
+\DoxyCodeLine{00220\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}\ \{}
+\DoxyCodeLine{00221\ \ \ \ \ }
+\DoxyCodeLine{00222\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ HasVertexValue()\ \{\ \textcolor{keywordflow}{return}\ not\ std::same\_as<V,\ void>;\ \}}
+\DoxyCodeLine{00223\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{bool}\ HasEdgeValue()\ \ \ \{\ \textcolor{keywordflow}{return}\ not\ std::same\_as<E,\ void>;\ \}}
+\DoxyCodeLine{00224\ \ \ \ \ }
+\DoxyCodeLine{00225\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00226\ }
+\DoxyCodeLine{00227\ \ \ \ \ \textcolor{keyword}{using\ }EdgeData\ \ \ =\ std::conditional\_t<std::same\_as<E,\ void>,\ \textcolor{keywordtype}{int}[0],\ E>;}
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keyword}{using\ }VertexData\ =\ std::conditional\_t<std::same\_as<V,\ void>,\ \textcolor{keywordtype}{int}[0],\ V>;}
+\DoxyCodeLine{00229\ \ \ \ \ }
+\DoxyCodeLine{00230\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ VertKey,\ \textcolor{keyword}{typename}\ VertVal,\ \textcolor{keyword}{typename}\ EdgeKey,\ \textcolor{keyword}{typename}\ EdgeVal,\ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }M>}
+\DoxyCodeLine{00231\ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_map}{DigraphMap}};}
+\DoxyCodeLine{00232\ \ \ \ \ }
+\DoxyCodeLine{00244\ \ \ \ \ \textcolor{keyword}{struct\ }EdgeNode\ \{}
+\DoxyCodeLine{00245\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_edge}{Edge}}\ edge;}
+\DoxyCodeLine{00246\ \ \ \ \ \ \ \ \ \textcolor{keyword}{union\ }\{}
+\DoxyCodeLine{00247\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ next[2];}
+\DoxyCodeLine{00248\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ next\_incoming;}
+\DoxyCodeLine{00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ next\_outgoing;}
+\DoxyCodeLine{00251\ \ \ \ \ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00252\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00253\ \ \ \ \ \ \ \ \ EdgeData\ data;}
+\DoxyCodeLine{00254\ \ \ \ \ \};}
+\DoxyCodeLine{00255\ \ \ \ \ }
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keyword}{struct\ }EdgeList\ \{}
+\DoxyCodeLine{00260\ \ \ \ \ \ \ \ \ EdgeId\ head;}
+\DoxyCodeLine{00261\ \ \ \ \ \ \ \ \ EdgeId\ tail;}
+\DoxyCodeLine{00262\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ size;}
+\DoxyCodeLine{00263\ \ \ \ \ \};}
+\DoxyCodeLine{00264\ \ \ \ \ }
+\DoxyCodeLine{00275\ \ \ \ \ \textcolor{keyword}{struct\ }VertexNode\ \{}
+\DoxyCodeLine{00276\ \ \ \ \ \ \ \ \ \textcolor{keyword}{union\ }\{}
+\DoxyCodeLine{00277\ \ \ \ \ \ \ \ \ \ \ \ \ std::optional<EdgeList>\ edges[2];}
+\DoxyCodeLine{00278\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00279\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::optional<EdgeList>\ incoming\_edges;}
+\DoxyCodeLine{00280\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::optional<EdgeList>\ outgoing\_edges;}
+\DoxyCodeLine{00281\ \ \ \ \ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00282\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{00283\ \ \ \ \ \ \ \ \ VertexData\ data;}
+\DoxyCodeLine{00284\ \ \ \ \ \};}
+\DoxyCodeLine{00285\ \ \ \ \ }
+\DoxyCodeLine{00286\ \ \ \ \ \textcolor{keyword}{using\ }Edges\ =\ Map<EdgeId,\ \ \ EdgeNode>;}
+\DoxyCodeLine{00287\ \ \ \ \ \textcolor{keyword}{using\ }Verts\ =\ Map<VertexId,\ VertexNode>;}
+\DoxyCodeLine{00288\ \ \ \ \ }
+\DoxyCodeLine{00289\ \ \ \ \ Verts\ \ \ \ \_verts;}
+\DoxyCodeLine{00290\ \ \ \ \ Edges\ \ \ \ \_edges;}
+\DoxyCodeLine{00291\ \ \ \ \ VertexId\ \_free\_vertex\_id\ =\ \textcolor{keyword}{static\_cast<}VertexId\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{00292\ \ \ \ \ EdgeId\ \ \ \_free\_edge\_id\ \ \ =\ \textcolor{keyword}{static\_cast<}EdgeId\textcolor{keyword}{>}(0);}
+\DoxyCodeLine{00293\ }
+\DoxyCodeLine{00294\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00295\ }
+\DoxyCodeLine{00296\ \ \ \ \ \textcolor{comment}{//\ fwd\ decls}}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00298\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00299\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}};}
+\DoxyCodeLine{00300\ }
+\DoxyCodeLine{00301\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}};}
+\DoxyCodeLine{00303\ \ \ \ \ }
+\DoxyCodeLine{00304\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00305\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange}};}
+\DoxyCodeLine{00306\ \ \ \ \ }
+\DoxyCodeLine{00307\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00308\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange}};}
+\DoxyCodeLine{00309\ \ \ \ \ }
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00311\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}};}
+\DoxyCodeLine{00312\ \ \ \ \ }
+\DoxyCodeLine{00313\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00314\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange}};}
+\DoxyCodeLine{00315\ \ \ \ \ }
+\DoxyCodeLine{00316\ \ \ \ \ }
+\DoxyCodeLine{00317\ \ \ \ \ \textcolor{comment}{//\ reference\ types}}
+\DoxyCodeLine{00318\ }
+\DoxyCodeLine{00319\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef}}\ \{}
+\DoxyCodeLine{00321\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00322\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00323\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00324\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00325\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Iter\ \ =\ std::conditional\_t<}
+\DoxyCodeLine{00326\ \ \ \ \ \ \ \ \ \ \ \ \ IsConst(),}
+\DoxyCodeLine{00327\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Edges::const\_iterator,}
+\DoxyCodeLine{00328\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Edges::iterator}
+\DoxyCodeLine{00329\ \ \ \ \ \ \ \ \ >;}
+\DoxyCodeLine{00330\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Value\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ E,\ E>;}
+\DoxyCodeLine{00331\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Node\ \ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ EdgeNode,\ EdgeNode>;}
+\DoxyCodeLine{00332\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00333\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Const>}};}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<\string~Const>}};}
+\DoxyCodeLine{00335\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;}
+\DoxyCodeLine{00336\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00337\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertKey,}
+\DoxyCodeLine{00338\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertVal,}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeKey,}
+\DoxyCodeLine{00340\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeVal,}
+\DoxyCodeLine{00341\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }M>}
+\DoxyCodeLine{00342\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_map}{DigraphMap}};}
+\DoxyCodeLine{00343\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ Iter\ \_i;}
+\DoxyCodeLine{00345\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00346\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef}}(Iter\ i):\ \_i(i)\ \{\}}
+\DoxyCodeLine{00347\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00348\ \ \ \ \ \ \ \ \ Node\&\ node()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>second;\ \}}
+\DoxyCodeLine{00349\ \ \ \ \ \ \ \ \ Iter\ \ inner\_iterator()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00350\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00352\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00354\ \ \ \ \ \ \ \ \ EdgeId\ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_adf0c0722815ab2409d713a758971b660}{id}}()\textcolor{keyword}{\ \ \ \ \ \ const\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>first;\ \}}
+\DoxyCodeLine{00356\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_edge}{Edge}}\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_aabf19d5f99fd05ff2458bc947deedab2}{edge}}()\textcolor{keyword}{\ \ \ \ const\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>second.edge;\ \}}
+\DoxyCodeLine{00358\ \ \ \ \ \ \ \ \ Value\&\ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_a80d0495aada3a8b68bc63bdd7ea22c53}{value}}()\ \ \ const\ requires\ (HasEdgeValue())\ \{\ \textcolor{keywordflow}{return}\ \_i-\/>second.data;\ \}}
+\DoxyCodeLine{00360\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_a07a0de04d3c7b4a5196c96b7b24c089a}{is\_loop}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>second.edge.v0\ ==\ \_i-\/>second.edge.v1;\}}
+\DoxyCodeLine{00362\ \ \ \ \ \ \ \ \ VertexId\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_ae34ea396f694899ee513f68d59ba86ac}{source\_id}}()\textcolor{keyword}{\ \ const\ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>second.edge.v0;\ \}}
+\DoxyCodeLine{00364\ \ \ \ \ \ \ \ \ VertexId\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_ae23ee4933bd72cb92316063e698cc849}{target\_id}}()\textcolor{keyword}{\ \ const\ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>second.edge.v1;\ \}}
+\DoxyCodeLine{00370\ \ \ \ \ \ \ \ \ VertexId\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_a71681f4775a8f9ec5309b74cb9e9602b}{vertex}}(EdgeDir\ dir)\textcolor{keyword}{\ const\ }\{\ }
+\DoxyCodeLine{00371\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ dir\ ==\ EdgeDir::Outgoing\ ?\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_ae34ea396f694899ee513f68d59ba86ac}{source\_id}}()\ :\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_ae23ee4933bd72cb92316063e698cc849}{target\_id}}();}
+\DoxyCodeLine{00372\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00373\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ Value\&\ operator*()\ \ const\ requires\ (HasEdgeValue())\ \{\ \textcolor{keywordflow}{return}\ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_a80d0495aada3a8b68bc63bdd7ea22c53}{value}}();\ \}}
+\DoxyCodeLine{00375\ \ \ \ \ \ \ \ \ Value*\ operator-\/>()\ const\ requires\ (HasEdgeValue())\ \{\ \textcolor{keywordflow}{return}\ \&\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_a80d0495aada3a8b68bc63bdd7ea22c53}{value}}();\ \}}
+\DoxyCodeLine{00376\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ Value\&()\ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{requires}\ (HasEdgeValue())\ \{\ \textcolor{keywordflow}{return}\ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_a80d0495aada3a8b68bc63bdd7ea22c53}{value}}();\ \}}
+\DoxyCodeLine{00377\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ EdgeId()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref_adf0c0722815ab2409d713a758971b660}{id}}();\ \}}
+\DoxyCodeLine{00380\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00381\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef}}\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i\ ==\ other.\_i;\ \}}
+\DoxyCodeLine{00382\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00383\ \ \ \ \ \};}
+\DoxyCodeLine{00384\ \ \ \ \ }
+\DoxyCodeLine{00385\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00386\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef}}\ \{}
+\DoxyCodeLine{00387\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00388\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00389\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \ \ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00390\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Iter\ \ =\ std::conditional\_t<}
+\DoxyCodeLine{00391\ \ \ \ \ \ \ \ \ \ \ \ \ IsConst(),}
+\DoxyCodeLine{00392\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Verts::const\_iterator,}
+\DoxyCodeLine{00393\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Verts::iterator}
+\DoxyCodeLine{00394\ \ \ \ \ \ \ \ \ >;}
+\DoxyCodeLine{00395\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Value\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ V,\ V>;}
+\DoxyCodeLine{00396\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00397\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;}
+\DoxyCodeLine{00398\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Const>}};}
+\DoxyCodeLine{00399\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<\string~Const>}};}
+\DoxyCodeLine{00400\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00401\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertKey,}
+\DoxyCodeLine{00402\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertVal,}
+\DoxyCodeLine{00403\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeKey,}
+\DoxyCodeLine{00404\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeVal,}
+\DoxyCodeLine{00405\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }M>}
+\DoxyCodeLine{00406\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_map}{DigraphMap}};}
+\DoxyCodeLine{00407\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00408\ \ \ \ \ \ \ \ \ Iter\ \_i;}
+\DoxyCodeLine{00409\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00410\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef}}(Iter\ i):\ \_i(i)\ \{\}}
+\DoxyCodeLine{00411\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00412\ \ \ \ \ \ \ \ \ Iter\ inner\_iterator()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00413\ \ \ \ \ \ \ \ \ VertexNode\&\ node()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>second;\ \}}
+\DoxyCodeLine{00414\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00415\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00416\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00418\ \ \ \ \ \ \ \ \ VertexId\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a3b41a96ac356a3995cec8da5648b6abb}{id}}()\textcolor{keyword}{\ \ \ \ const\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }\{\ \textcolor{keywordflow}{return}\ \_i-\/>first;\ \}}
+\DoxyCodeLine{00420\ \ \ \ \ \ \ \ \ Value\&\ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a16e1be67ce0c1bb881c9200574334bf7}{value}}()\ const\ requires\ (HasVertexValue())\ \{\ \textcolor{keywordflow}{return}\ \_i-\/>second.data;\ \}}
+\DoxyCodeLine{00422\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a9fd9c585921836010e6cabfeadc01517}{degree}}(EdgeDir\ dir)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00423\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{auto}\ edge\_list\ =\ \_i-\/>second.edges[(\textcolor{keywordtype}{int})\ dir])\ \{}
+\DoxyCodeLine{00424\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ edge\_list-\/>size;}
+\DoxyCodeLine{00425\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00426\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{00427\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00428\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00430\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_af90cb2e2fd891f887e1d94e933d1ac8d}{degree}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00431\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_af90cb2e2fd891f887e1d94e933d1ac8d}{degree}}(EdgeDir::Incoming)\ +\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_af90cb2e2fd891f887e1d94e933d1ac8d}{degree}}(EdgeDir::Outgoing);}
+\DoxyCodeLine{00432\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00433\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00434\ \ \ \ \ \ \ \ \ Value\&\ operator*()\ \ const\ requires\ (HasVertexValue())\ \{\ \textcolor{keywordflow}{return}\ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a16e1be67ce0c1bb881c9200574334bf7}{value}}();\ \}}
+\DoxyCodeLine{00435\ \ \ \ \ \ \ \ \ Value*\ operator-\/>()\ const\ requires\ (HasVertexValue())\ \{\ \textcolor{keywordflow}{return}\ \&\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a16e1be67ce0c1bb881c9200574334bf7}{value}}();\ \}}
+\DoxyCodeLine{00436\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ Value\&()\ \ \ \textcolor{keyword}{const}\ \textcolor{keyword}{requires}\ (HasVertexValue())\ \{\ \textcolor{keywordflow}{return}\ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a16e1be67ce0c1bb881c9200574334bf7}{value}}();\ \}}
+\DoxyCodeLine{00437\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00439\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ VertexId()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a3b41a96ac356a3995cec8da5648b6abb}{id}}();\ \}}
+\DoxyCodeLine{00440\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00441\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef}}\&\ other)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i\ \ \ ==\ other.\_i;\ \}}
+\DoxyCodeLine{00442\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(VertexId\ other\_id)\textcolor{keyword}{\ \ \ \ \ \ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref_a3b41a96ac356a3995cec8da5648b6abb}{id}}()\ ==\ other\_id;\ \}}
+\DoxyCodeLine{00443\ \ \ \ \ \};}
+\DoxyCodeLine{00444\ \ \ \ \ }
+\DoxyCodeLine{00445\ \ \ \ \ \textcolor{comment}{//\ iterator\ types}}
+\DoxyCodeLine{00446\ \ \ \ \ }
+\DoxyCodeLine{00452\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00453\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}\ \{}
+\DoxyCodeLine{00454\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00455\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00456\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00457\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Iter\ \ =\ std::conditional\_t<}
+\DoxyCodeLine{00458\ \ \ \ \ \ \ \ \ \ \ \ \ IsConst(),}
+\DoxyCodeLine{00459\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Edges::const\_iterator,}
+\DoxyCodeLine{00460\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Edges::iterator}
+\DoxyCodeLine{00461\ \ \ \ \ \ \ \ \ >;}
+\DoxyCodeLine{00462\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{PointerProxy}}\ =\ \mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{detail::arrow\_proxy<EdgeRef<Const>}}>;}
+\DoxyCodeLine{00463\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00464\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;\ \ \ \ }
+\DoxyCodeLine{00465\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00466\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertKey,}
+\DoxyCodeLine{00467\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertVal,}
+\DoxyCodeLine{00468\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeKey,}
+\DoxyCodeLine{00469\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeVal,}
+\DoxyCodeLine{00470\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }M>}
+\DoxyCodeLine{00471\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_map}{DigraphMap}};}
+\DoxyCodeLine{00472\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00473\ \ \ \ \ \ \ \ \ Graph*\ \_graph;}
+\DoxyCodeLine{00474\ \ \ \ \ \ \ \ \ Iter\ \ \ \_i;}
+\DoxyCodeLine{00475\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00476\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}(Graph*\ graph,\ Iter\ i):\ \_graph(graph),\ \_i(i)\ \{\}}
+\DoxyCodeLine{00477\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00479\ \ \ \ \ \ \ \ \ Graph\&\ graph()\textcolor{keyword}{\ \ \ \ \ \ \ \ \ \ const\ }\{\ \textcolor{keywordflow}{return}\ *\_graph;\ \}}
+\DoxyCodeLine{00480\ \ \ \ \ \ \ \ \ Iter\ \ \ inner\_iterator()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00481\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00482\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00483\ \ \ \ \ }
+\DoxyCodeLine{00484\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{value\_type}}\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef<Const>}};}
+\DoxyCodeLine{00485\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00486\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}\&\ other)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00487\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}\&\ other)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00488\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00489\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00490\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef<Const>}}\ operator*()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00491\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{PointerProxy}}\ \ operator-\/>()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{PointerProxy}}\ \{\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef<Const>}}\{\ \_i\ \}\ \};\ \}}
+\DoxyCodeLine{00492\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00494\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator_a3d7f3d8d3ad59668d6b8408334c3bdf5}{source}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \{\_graph-\/>\_verts.find(\_i-\/>second.edge.v0)\};\ \}}
+\DoxyCodeLine{00496\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator_a7778384122737846863f7ed1196081c2}{target}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \{\_graph-\/>\_verts.find(\_i-\/>second.edge.v1)\};\ \}}
+\DoxyCodeLine{00497\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00499\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}\&\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator_aa70a5cd3e8c378ccf28018d578dcd0d8}{operator++}}()\ \{}
+\DoxyCodeLine{00500\ \ \ \ \ \ \ \ \ \ \ \ \ ++\_i;}
+\DoxyCodeLine{00501\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00502\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00503\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00505\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator}}\&\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator_a93beef74710eed24a04e21df5c853c3d}{operator-\/-\/}}()\ \{}
+\DoxyCodeLine{00506\ \ \ \ \ \ \ \ \ \ \ \ \ -\/-\/\_i;}
+\DoxyCodeLine{00507\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00508\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00509\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00510\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ K>}
+\DoxyCodeLine{00511\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<K>}}\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00512\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i\ ==\ other.\_i;}
+\DoxyCodeLine{00513\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00514\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00515\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ K>}
+\DoxyCodeLine{00516\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ IncidentEdgeIterator<K>\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00517\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i\ ==\ other.\_i;}
+\DoxyCodeLine{00518\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00519\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00520\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ EdgeId()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00521\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i-\/>first;}
+\DoxyCodeLine{00522\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00523\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00524\ \ \ \ \ \};}
+\DoxyCodeLine{00525\ \ \ \ \ }
+\DoxyCodeLine{00526\ }
+\DoxyCodeLine{00534\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00535\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}\ \{}
+\DoxyCodeLine{00536\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00537\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00538\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \ \ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00539\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Iter\ \ =\ std::conditional\_t<}
+\DoxyCodeLine{00540\ \ \ \ \ \ \ \ \ \ \ \ \ IsConst(),}
+\DoxyCodeLine{00541\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Edges::const\_iterator,}
+\DoxyCodeLine{00542\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Edges::iterator}
+\DoxyCodeLine{00543\ \ \ \ \ \ \ \ \ >;}
+\DoxyCodeLine{00544\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{PointerProxy}}\ =\ \mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{detail::arrow\_proxy<EdgeRef<Const>}}>;}
+\DoxyCodeLine{00545\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00546\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;}
+\DoxyCodeLine{00547\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00548\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertKey,}
+\DoxyCodeLine{00549\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertVal,}
+\DoxyCodeLine{00550\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeKey,}
+\DoxyCodeLine{00551\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeVal,}
+\DoxyCodeLine{00552\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }M>}
+\DoxyCodeLine{00553\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_map}{DigraphMap}};}
+\DoxyCodeLine{00554\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00555\ \ \ \ \ \ \ \ \ Graph*\ \ \_graph;}
+\DoxyCodeLine{00556\ \ \ \ \ \ \ \ \ Iter\ \ \ \ \_i;}
+\DoxyCodeLine{00557\ \ \ \ \ \ \ \ \ EdgeDir\ \_dir;}
+\DoxyCodeLine{00558\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00559\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}(Graph*\ graph,\ Iter\ i,\ EdgeDir\ dir):}
+\DoxyCodeLine{00560\ \ \ \ \ \ \ \ \ \ \ \ \ \_graph(graph),}
+\DoxyCodeLine{00561\ \ \ \ \ \ \ \ \ \ \ \ \ \_i(i),}
+\DoxyCodeLine{00562\ \ \ \ \ \ \ \ \ \ \ \ \ \_dir(dir)\ \{\}}
+\DoxyCodeLine{00563\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00565\ \ \ \ \ \ \ \ \ Graph\&\ \ graph()\textcolor{keyword}{\ \ \ \ \ \ \ \ \ \ const\ }\{\ \textcolor{keywordflow}{return}\ *\_graph;\ \}}
+\DoxyCodeLine{00566\ \ \ \ \ \ \ \ \ Iter\ \ \ \ inner\_iterator()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00567\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00568\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00569\ \ \ \ \ }
+\DoxyCodeLine{00570\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{value\_type}}\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef<Const>}};}
+\DoxyCodeLine{00571\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00572\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}\&\ other)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00573\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}\&\ other)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00574\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00576\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Const>}}()\ const}
+\DoxyCodeLine{00577\ \ \ \ \ \ \ \ \ \ \ \ \ requires\ (Const\ ==\ Constness::Mutable)}
+\DoxyCodeLine{00578\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00579\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Const>}}(\_graph,\ \_i,\ \_dir);}
+\DoxyCodeLine{00580\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00581\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00582\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef<Const>}}\ operator*()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00583\ \ \ \ \ \ \ \ \ PointerProxy\ \ operator-\/>()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ PointerProxy\ \{\ EdgeRef<Const>\{\_i\}\ \};\ \}}
+\DoxyCodeLine{00585\ \ \ \ \ \ \ \ \ EdgeDir\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_a454daa0e2836231f3fd19b942beac65d}{traversal\_direction}}()\textcolor{keyword}{\ \ const\ }\{\ \textcolor{keywordflow}{return}\ \_dir;\ \}}
+\DoxyCodeLine{00586\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00588\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_afa6328cf104fbf01a2bb7c774ace65ca}{source}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \{\_graph-\/>\_verts.find(\_i-\/>second.edge.v0)\};\ \}}
+\DoxyCodeLine{00590\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_a0211f0bb4d65ed0a59ec12198fedbe21}{target}}()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \{\_graph-\/>\_verts.find(\_i-\/>second.edge.v1)\};\ \}}
+\DoxyCodeLine{00592\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_ac0f3e480f81c836dbade8a7fe7acb642}{pivot}}()\textcolor{keyword}{\ \ const\ }\{}
+\DoxyCodeLine{00593\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ eid\ =\ \_dir\ ==\ EdgeDir::Outgoing\ ?\ \_i-\/>second.edge.v0\ :\ \_i-\/>second.edge.v1;}
+\DoxyCodeLine{00594\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\ \_graph-\/>\_verts.find(eid)\ \};}
+\DoxyCodeLine{00595\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00602\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_a167c65601c1c9ee93d686ce9b45835b0}{with\_traversal\_direction}}(EdgeDir\ dir)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00603\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}(\_graph,\ \_i,\ dir);}
+\DoxyCodeLine{00604\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00605\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00607\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator}}\&\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_aa313f6777d62f883a11b3fd99da05341}{operator++}}()\ \{}
+\DoxyCodeLine{00608\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ next\_id\ =\ \_i-\/>second.next[(int)\ \_dir];}
+\DoxyCodeLine{00609\ \ \ \ \ \ \ \ \ \ \ \ \ \_i\ =\ \_graph-\/>\_edges.find(next\_id);}
+\DoxyCodeLine{00610\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00611\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00612\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00613\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ K>}
+\DoxyCodeLine{00614\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<K>}}\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00615\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i\ ==\ other.\_i;}
+\DoxyCodeLine{00616\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00617\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00618\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ K>}
+\DoxyCodeLine{00619\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ EdgeIterator<K>\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00620\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i\ ==\ other.\_i;}
+\DoxyCodeLine{00621\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00622\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00623\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ EdgeId()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00624\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i-\/>first;}
+\DoxyCodeLine{00625\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00626\ \ \ \ \ \};}
+\DoxyCodeLine{00627\ \ \ \ \ }
+\DoxyCodeLine{00631\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00632\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}\ \{}
+\DoxyCodeLine{00633\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00634\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00635\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00636\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Iter\ \ =\ std::conditional\_t<}
+\DoxyCodeLine{00637\ \ \ \ \ \ \ \ \ \ \ \ \ IsConst(),}
+\DoxyCodeLine{00638\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Verts::const\_iterator,}
+\DoxyCodeLine{00639\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Verts::iterator}
+\DoxyCodeLine{00640\ \ \ \ \ \ \ \ \ >;}
+\DoxyCodeLine{00641\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{PointerProxy}}\ =\ \mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{detail::arrow\_proxy<VertexRef<Const>}}>;}
+\DoxyCodeLine{00642\ \ \ \ \ }
+\DoxyCodeLine{00643\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00644\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertKey,}
+\DoxyCodeLine{00645\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ VertVal,}
+\DoxyCodeLine{00646\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeKey,}
+\DoxyCodeLine{00647\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ EdgeVal,}
+\DoxyCodeLine{00648\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{class}...>\ \textcolor{keyword}{class\ }M>}
+\DoxyCodeLine{00649\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_map}{DigraphMap}};}
+\DoxyCodeLine{00650\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00651\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;}
+\DoxyCodeLine{00652\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00653\ \ \ \ \ \ \ \ \ Graph*\ \_graph;}
+\DoxyCodeLine{00654\ \ \ \ \ \ \ \ \ Iter\ \ \ \_i;}
+\DoxyCodeLine{00655\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00656\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}(Graph*\ graph,\ Iter\ i):\ \_graph(graph),\ \_i(i)\ \{\}}
+\DoxyCodeLine{00657\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00659\ \ \ \ \ \ \ \ \ Graph\&\ graph()\textcolor{keyword}{\ \ \ \ \ \ \ \ \ \ const\ }\{\ \textcolor{keywordflow}{return}\ *\_graph;\ \}}
+\DoxyCodeLine{00660\ \ \ \ \ \ \ \ \ Iter\ \ \ inner\_iterator()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00661\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00662\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00663\ \ \ \ \ }
+\DoxyCodeLine{00664\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{value\_type}}\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Const>}};}
+\DoxyCodeLine{00665\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00666\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}\&\ other)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00667\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}\&\ operator=(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}\&\ other)\ =\ \textcolor{keywordflow}{default};}
+\DoxyCodeLine{00668\ \ \ \ \ }
+\DoxyCodeLine{00670\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Const>}}()\ const\ }
+\DoxyCodeLine{00671\ \ \ \ \ \ \ \ \ \ \ \ \ requires\ (Const\ ==\ Constness::Mutable)}
+\DoxyCodeLine{00672\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00673\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Const>}}(\_graph,\ \_i);}
+\DoxyCodeLine{00674\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00675\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00676\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Const>}}\ operator*()\textcolor{keyword}{\ \ const\ }\{\ \textcolor{keywordflow}{return}\ \_i;\ \}}
+\DoxyCodeLine{00677\ \ \ \ \ \ \ \ \ PointerProxy\ \ \ \ \ operator-\/>()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ PointerProxy\ \{\ VertexRef<Const>\{\_i\}\ \};\ \}}
+\DoxyCodeLine{00678\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00680\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}\&\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator_aaa6ca21de3ec77081766f399bf451ce6}{operator++}}()\ \{}
+\DoxyCodeLine{00681\ \ \ \ \ \ \ \ \ \ \ \ \ ++\_i;}
+\DoxyCodeLine{00682\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00683\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00684\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00686\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator}}\&\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator_a537b2a79603ced6ac5313ae355159061}{operator-\/-\/}}()\ \{}
+\DoxyCodeLine{00687\ \ \ \ \ \ \ \ \ \ \ \ \ -\/-\/\_i;}
+\DoxyCodeLine{00688\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ *\textcolor{keyword}{this};}
+\DoxyCodeLine{00689\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00690\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00691\ \ \ \ \ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ K>}
+\DoxyCodeLine{00692\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<K>}}\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00693\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i\ ==\ other.\_i;}
+\DoxyCodeLine{00694\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00695\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00696\ \ \ \ \ \ \ \ \ \textcolor{keyword}{operator}\ VertexId()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00697\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_i-\/>first;}
+\DoxyCodeLine{00698\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00699\ \ \ \ \ \};}
+\DoxyCodeLine{00700\ \ \ \ \ }
+\DoxyCodeLine{00701\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}\ T>}
+\DoxyCodeLine{00702\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_pair}{EdgePair}}\ \{}
+\DoxyCodeLine{00703\ \ \ \ \ \ \ \ \ T\ incoming;}
+\DoxyCodeLine{00704\ \ \ \ \ \ \ \ \ T\ outgoing;}
+\DoxyCodeLine{00705\ \ \ \ \ \};}
+\DoxyCodeLine{00706\ \ \ \ \ }
+\DoxyCodeLine{00707\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Mutable>}};}
+\DoxyCodeLine{00708\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Const>}};}
+\DoxyCodeLine{00709\ \ \ \ \ }
+\DoxyCodeLine{00710\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Constness::Mutable>}};}
+\DoxyCodeLine{00711\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\_edge\_iterator}}\ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Constness::Const>}};}
+\DoxyCodeLine{00712\ \ \ \ \ }
+\DoxyCodeLine{00713\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Mutable>}};}
+\DoxyCodeLine{00714\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Const>}};}
+\DoxyCodeLine{00715\ \ \ \ \ }
+\DoxyCodeLine{00716\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{vertex\_range}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange<Constness::Mutable>}};}
+\DoxyCodeLine{00717\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{const\_vertex\_range}}\ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange<Constness::Const>}};}
+\DoxyCodeLine{00718\ \ \ \ \ }
+\DoxyCodeLine{00719\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{edge\_range}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange<Constness::Mutable>}};}
+\DoxyCodeLine{00720\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{const\_edge\_range}}\ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange<Constness::Const>}};}
+\DoxyCodeLine{00721\ \ \ \ \ }
+\DoxyCodeLine{00722\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{incident\_edge\_range}}\ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange<Constness::Mutable>}};}
+\DoxyCodeLine{00723\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{const\_incident\_edge\_range}}\ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange<Constness::Const>}};}
+\DoxyCodeLine{00724\ \ \ \ \ }
+\DoxyCodeLine{00725\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\_ref}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Constness::Mutable>}};}
+\DoxyCodeLine{00726\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\_vertex\_ref}}\ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{VertexRef<Constness::Const>}};}
+\DoxyCodeLine{00727\ \ \ \ \ }
+\DoxyCodeLine{00728\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\_ref}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef<Constness::Mutable>}};}
+\DoxyCodeLine{00729\ \ \ \ \ \textcolor{keyword}{using\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\_edge\_ref}}\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ =\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{EdgeRef<Constness::Const>}};}
+\DoxyCodeLine{00730\ \ \ \ \ }
+\DoxyCodeLine{00731\ \ \ \ \ }
+\DoxyCodeLine{00739\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00740\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange}}\ \{}
+\DoxyCodeLine{00741\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00742\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00743\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00744\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00745\ \ \ \ \ \ \ \ \ VertexId\ \_vertex;}
+\DoxyCodeLine{00746\ \ \ \ \ \ \ \ \ Graph*\ \ \ \_graph;}
+\DoxyCodeLine{00747\ \ \ \ \ \ \ \ \ EdgeDir\ \ \_dir;}
+\DoxyCodeLine{00748\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00749\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;}
+\DoxyCodeLine{00750\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00751\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange}}(VertexId\ \mbox{\hyperlink{structgraph_1_1_digraph_a291b3fcfc3dce1e8a0bf00489c66c4be}{vertex}},\ Graph*\ graph,\ EdgeDir\ dir):}
+\DoxyCodeLine{00752\ \ \ \ \ \ \ \ \ \ \ \ \ \_vertex(\mbox{\hyperlink{structgraph_1_1_digraph_a291b3fcfc3dce1e8a0bf00489c66c4be}{vertex}}),}
+\DoxyCodeLine{00753\ \ \ \ \ \ \ \ \ \ \ \ \ \_graph(graph),}
+\DoxyCodeLine{00754\ \ \ \ \ \ \ \ \ \ \ \ \ \_dir(dir)\ \{\}}
+\DoxyCodeLine{00755\ \ \ \ \ }
+\DoxyCodeLine{00756\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00757\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00764\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_af90528d14a74011f341947a346da4d1c}{begin}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00765\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ i\ =\ \_graph-\/>\_verts.find(\_vertex);}
+\DoxyCodeLine{00766\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ \_graph-\/>\_verts.end())\ \{}
+\DoxyCodeLine{00767\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}{end}}();}
+\DoxyCodeLine{00768\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00769\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ std::optional<EdgeList>\&\ \mbox{\hyperlink{structgraph_1_1_digraph_a208d46dcca7fa0f4fadc42720efa10f6}{edges}}\ =\ i-\/>second.edges[(int)\ \_dir];}
+\DoxyCodeLine{00770\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (not\ \mbox{\hyperlink{structgraph_1_1_digraph_a208d46dcca7fa0f4fadc42720efa10f6}{edges}})\ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}{end}}();}
+\DoxyCodeLine{00771\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Const>}}(}
+\DoxyCodeLine{00772\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_graph,}
+\DoxyCodeLine{00773\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_graph-\/>\_edges.find(\mbox{\hyperlink{structgraph_1_1_digraph_a208d46dcca7fa0f4fadc42720efa10f6}{edges}}-\/>head),}
+\DoxyCodeLine{00774\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_dir}
+\DoxyCodeLine{00775\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ );}
+\DoxyCodeLine{00776\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00777\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00778\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00784\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}{end}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00785\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Const>}}(}
+\DoxyCodeLine{00786\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_graph,}
+\DoxyCodeLine{00787\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_graph-\/>\_edges.end(),}
+\DoxyCodeLine{00788\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EdgeDir::Outgoing}
+\DoxyCodeLine{00789\ \ \ \ \ \ \ \ \ \ \ \ \ );}
+\DoxyCodeLine{00790\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00791\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00798\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_a945111ab9cf4a196949a6ee1178533e7}{cbegin}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00799\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Graph*\ g\ =\ \_graph;}
+\DoxyCodeLine{00800\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ g-\/>edges(\_vertex,\ \_dir).begin();}
+\DoxyCodeLine{00801\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00802\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00808\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_ade8a05c77113b83bc46a53e647e1b332}{cend}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00809\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Graph*\ g\ =\ \_graph;}
+\DoxyCodeLine{00810\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ g-\/>edges(\_vertex,\ \_dir).end();}
+\DoxyCodeLine{00811\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00812\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00813\ \ \ \ \ \};}
+\DoxyCodeLine{00814\ \ \ \ \ }
+\DoxyCodeLine{00820\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00821\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange}}\ \{}
+\DoxyCodeLine{00822\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00823\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00824\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00825\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00826\ \ \ \ \ \ \ \ \ Graph*\ \_graph;}
+\DoxyCodeLine{00827\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00828\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;}
+\DoxyCodeLine{00829\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00830\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange}}(Graph*\ graph):\ \_graph(graph)\ \{\}}
+\DoxyCodeLine{00831\ \ \ \ \ }
+\DoxyCodeLine{00832\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00833\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00839\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range_a456789b2d94bcdbc5d6a748e3d6d69b5}{begin}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00840\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Const>}}(\_graph,\ \_graph-\/>\_verts.begin());}
+\DoxyCodeLine{00841\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00842\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00846\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range_aa7773a51c98ebb83d8c4753800f69f87}{end}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00847\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Const>}}(\_graph,\ \_graph-\/>\_verts.end());}
+\DoxyCodeLine{00848\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00849\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00853\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range_a05dac6bf0eba96d2186ee4e5e0512ff4}{cbegin}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00854\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Const>}}(\_graph,\ \_graph-\/>\_verts.begin());}
+\DoxyCodeLine{00855\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00856\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00860\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range_a53927ae09ae83511fc916927782e894d}{cend}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00861\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{VertexIterator<Constness::Const>}}(\_graph,\ \_graph-\/>\_verts.end());}
+\DoxyCodeLine{00862\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00863\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00867\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range_a15a9cdaadd292c75470eb2bc665459bd}{size}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00868\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_graph-\/>\_verts.size();}
+\DoxyCodeLine{00869\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00870\ \ \ \ \ \};}
+\DoxyCodeLine{00871\ \ \ \ \ }
+\DoxyCodeLine{00877\ \ \ \ \ \textcolor{keyword}{template}\ <Constness\ Const>}
+\DoxyCodeLine{00878\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange}}\ \{}
+\DoxyCodeLine{00879\ \ \ \ \ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00880\ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ IsConst()\ \{\ \textcolor{keywordflow}{return}\ Const\ ==\ Constness::Const;\ \}}
+\DoxyCodeLine{00881\ \ \ \ \ \ \ \ \ \textcolor{keyword}{using\ }Graph\ =\ std::conditional\_t<IsConst(),\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}},\ \mbox{\hyperlink{structgraph_1_1_digraph}{Digraph}}>;}
+\DoxyCodeLine{00882\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00883\ \ \ \ \ \ \ \ \ Graph*\ \_graph;}
+\DoxyCodeLine{00884\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00885\ \ \ \ \ \ \ \ \ \textcolor{keyword}{friend}\ Graph;}
+\DoxyCodeLine{00886\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00887\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange}}(Graph*\ graph):\ \_graph(graph)\ \{\}}
+\DoxyCodeLine{00888\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00889\ \ \ \ \ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00890\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00894\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range_a1c89cd94cb2e47d49dbf196f06ce0bd6}{begin}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00895\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Const>}}(\_graph,\ \_graph-\/>\_edges.begin());}
+\DoxyCodeLine{00896\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00897\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00901\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range_a56266fe12da5513fb78853ca252857f4}{end}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00902\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Const>}}(\_graph,\ \_graph-\/>\_edges.end());}
+\DoxyCodeLine{00903\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00904\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00908\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range_ab82804efb2a72f9018d6339ea211d93e}{cbegin}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00909\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Constness::Const>}}(\_graph,\ \_graph-\/>\_edges.begin());}
+\DoxyCodeLine{00910\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00911\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00915\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range_af3980b432e658709b6182c108018cc4f}{cend}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00916\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{EdgeIterator<Constness::Const>}}(\_graph,\ \_graph-\/>\_edges.end());}
+\DoxyCodeLine{00917\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00918\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00922\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range_a8cd3f236b75d962e31c4fdc98c0685ad}{size}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00923\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_graph-\/>\_edges.size();}
+\DoxyCodeLine{00924\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00925\ \ \ \ \ \};}
+\DoxyCodeLine{00926\ }
+\DoxyCodeLine{00927\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00928\ \ \ \ \ }
+\DoxyCodeLine{00929\ \ \ \ \ \textcolor{comment}{//\ assumes\ the\ given\ edge\ is\ definitely\ in\ the\ ring.}}
+\DoxyCodeLine{00930\ \ \ \ \ \textcolor{comment}{//\ returns\ the\ next\ edge\ ID\ in\ the\ ring.}}
+\DoxyCodeLine{00931\ \ \ \ \ std::optional<EdgeId>\ \_remove\_from\_ring(}
+\DoxyCodeLine{00932\ \ \ \ \ \ \ \ \ \ \ \ \ vertex\_iterator\ v,}
+\DoxyCodeLine{00933\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeDir\ dir,\ }
+\DoxyCodeLine{00934\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{typename}\ Edges::iterator\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})}
+\DoxyCodeLine{00935\ \ \ \ \ \{}
+\DoxyCodeLine{00936\ \ \ \ \ \ \ \ \ std::optional<EdgeList>\&\ ring\ =\ v-\/>node().edges[(int)\ dir];}
+\DoxyCodeLine{00937\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ring-\/>size\ ==\ 1)\ \{}
+\DoxyCodeLine{00938\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ removing\ the\ only\ edge}}
+\DoxyCodeLine{00939\ \ \ \ \ \ \ \ \ \ \ \ \ ring\ =\ std::nullopt;}
+\DoxyCodeLine{00940\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::nullopt;}
+\DoxyCodeLine{00941\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00942\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ prev\_id\ =\ ring-\/>tail;}
+\DoxyCodeLine{00943\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ next\_id\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}-\/>second.next[(int)\ dir];}
+\DoxyCodeLine{00944\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ prev\ =\ \_edges.find(prev\_id);}
+\DoxyCodeLine{00945\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{do}\ \{}
+\DoxyCodeLine{00946\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ cur\_id\ =\ prev-\/>second.next[(int)\ dir];}
+\DoxyCodeLine{00947\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (cur\_id\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}-\/>first)\ \{}
+\DoxyCodeLine{00948\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prev-\/>second.next[(int)\ dir]\ =\ next\_id;}
+\DoxyCodeLine{00949\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{00950\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{00951\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prev\_id\ =\ cur\_id;}
+\DoxyCodeLine{00952\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prev\ =\ \_edges.find(cur\_id);}
+\DoxyCodeLine{00953\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00954\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{while}\ (prev\_id\ !=\ ring-\/>tail);}
+\DoxyCodeLine{00955\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00956\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ring-\/>head\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}-\/>first)\ ring-\/>head\ =\ next\_id;\ \textcolor{comment}{//\ removed\ the\ head}}
+\DoxyCodeLine{00957\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ring-\/>tail\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}-\/>first)\ ring-\/>tail\ =\ prev\_id;\ \textcolor{comment}{//\ removed\ the\ tail}}
+\DoxyCodeLine{00958\ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00959\ \ \ \ \ \ \ \ \ \ \ \ \ ring-\/>size\ -\/=\ 1;}
+\DoxyCodeLine{00960\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ next\_id;}
+\DoxyCodeLine{00961\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00962\ \ \ \ \ \}}
+\DoxyCodeLine{00963\ }
+\DoxyCodeLine{00964\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00965\ \ \ \ \ }
+\DoxyCodeLine{00971\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\_vertex\_ref}}\ \mbox{\hyperlink{structgraph_1_1_digraph_afc76c059d8c510e7ddd115d386c45e72}{operator[]}}(VertexId\ v)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00972\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ i\ =\ \_verts.find(v);}
+\DoxyCodeLine{00973\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ \_verts.end())\ \textcolor{keywordflow}{throw}\ std::out\_of\_range(\textcolor{stringliteral}{"{}vertex\ not\ found"{}});}
+\DoxyCodeLine{00974\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\_vertex\_ref}}\ \{i\};}
+\DoxyCodeLine{00975\ \ \ \ \ \}}
+\DoxyCodeLine{00976\ \ \ \ \ }
+\DoxyCodeLine{00982\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\_ref}}\ \mbox{\hyperlink{structgraph_1_1_digraph_af8204ccba579f1f814836f1479b126b1}{operator[]}}(VertexId\ v)\ \{}
+\DoxyCodeLine{00983\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ i\ =\ \_verts.find(v);}
+\DoxyCodeLine{00984\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ \_verts.end())\ \{}
+\DoxyCodeLine{00985\ \ \ \ \ \ \ \ \ \ \ \ \ std::tie(i,\ std::ignore)\ =\ \_verts.insert(\{v,\ VertexNode\{\}\});}
+\DoxyCodeLine{00986\ \ \ \ \ \ \ \ \ \ \ \ \ \_free\_vertex\_id\ =\ std::max(\_free\_vertex\_id,\ v\ +\ 1);}
+\DoxyCodeLine{00987\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00988\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\_ref}}\ \{i\};}
+\DoxyCodeLine{00989\ \ \ \ \ \}}
+\DoxyCodeLine{00990\ \ \ \ \ }
+\DoxyCodeLine{00996\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\_edge\_ref}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a573685de7e8d6324f90e3f02ecf61bea}{operator[]}}(EdgeId\ e)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00997\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ i\ =\ \_edges.find(e);}
+\DoxyCodeLine{00998\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ \_edges.end())\ \textcolor{keywordflow}{throw}\ std::out\_of\_range(\textcolor{stringliteral}{"{}edge\ not\ found"{}});}
+\DoxyCodeLine{00999\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\_edge\_ref}}\ \{i\};}
+\DoxyCodeLine{01000\ \ \ \ \ \}}
+\DoxyCodeLine{01001\ \ \ \ \ }
+\DoxyCodeLine{01007\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\_ref}}\ \mbox{\hyperlink{structgraph_1_1_digraph_ac8a238f097f3c7665a12fff755dd95f3}{operator[]}}(EdgeId\ e)\ \{}
+\DoxyCodeLine{01008\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ i\ =\ \_edges.find(e);}
+\DoxyCodeLine{01009\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (i\ ==\ \_edges.end())\ \textcolor{keywordflow}{throw}\ std::out\_of\_range(\textcolor{stringliteral}{"{}edge\ not\ found"{}});}
+\DoxyCodeLine{01010\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\_ref}}\ \{i\};}
+\DoxyCodeLine{01011\ \ \ \ \ \}}
+\DoxyCodeLine{01012\ \ \ \ \ }
+\DoxyCodeLine{01016\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgraph_1_1_digraph_a04ffa3bdc586e66bd90b92fdeb3176d3}{contains}}(VertexId\ vid)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01017\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_verts.contains(vid);}
+\DoxyCodeLine{01018\ \ \ \ \ \}}
+\DoxyCodeLine{01019\ \ \ \ \ }
+\DoxyCodeLine{01023\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structgraph_1_1_digraph_a1b12879230ce2ebb30363c4de8a29808}{contains}}(EdgeId\ eid)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01024\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_edges.contains(eid);}
+\DoxyCodeLine{01025\ \ \ \ \ \}}
+\DoxyCodeLine{01026\ \ \ \ \ }
+\DoxyCodeLine{01029\ \ \ \ \ }
+\DoxyCodeLine{01031\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_af052c89504e5ef4f121410647d7ac865}{insert\_vertex}}()\ \{}
+\DoxyCodeLine{01032\ \ \ \ \ \ \ \ \ VertexId\ v\ =\ \_free\_vertex\_id++;}
+\DoxyCodeLine{01033\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ [out,\ created]\ =\ \_verts.insert(\{v,\ VertexNode\{\}\});}
+\DoxyCodeLine{01034\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ out\};}
+\DoxyCodeLine{01035\ \ \ \ \ \}}
+\DoxyCodeLine{01036\ \ \ \ \ }
+\DoxyCodeLine{01039\ \ \ \ \ \textcolor{keyword}{template}\ <Forwardable<V>\ T>}
+\DoxyCodeLine{01040\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a72c766be3a5d8e65ce72bd811482d37f}{insert\_vertex}}(T\&\&\ v)\ \textcolor{keyword}{requires}\ (HasVertexValue())\ \{}
+\DoxyCodeLine{01041\ \ \ \ \ \ \ \ \ VertexId\ vid\ =\ \_free\_vertex\_id++;}
+\DoxyCodeLine{01042\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ [out,\ created]\ =\ \_verts.insert(}
+\DoxyCodeLine{01043\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{01044\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vid,\ }
+\DoxyCodeLine{01045\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ VertexNode\ \{}
+\DoxyCodeLine{01046\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .data\ \{std::forward<T>(v)\}}
+\DoxyCodeLine{01047\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01048\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01049\ \ \ \ \ \ \ \ \ );}
+\DoxyCodeLine{01050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ out\};}
+\DoxyCodeLine{01051\ \ \ \ \ \}}
+\DoxyCodeLine{01052\ \ \ \ \ }
+\DoxyCodeLine{01055\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}...\ Args>}
+\DoxyCodeLine{01056\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a308f3ed01474186bf8f37f822a3f57d3}{emplace\_vertex}}(Args\&\&...\ args)\ \textcolor{keyword}{requires}\ (HasVertexValue())\ \{}
+\DoxyCodeLine{01057\ \ \ \ \ \ \ \ \ VertexId\ vid\ =\ \_free\_vertex\_id++;}
+\DoxyCodeLine{01058\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ [out,\ created]\ =\ \_verts.insert(\{vid,\ VertexNode\{.data\ =\ V(std::forward<Args>(args)...)\ \}\});}
+\DoxyCodeLine{01059\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ out\};}
+\DoxyCodeLine{01060\ \ \ \ \ \}}
+\DoxyCodeLine{01061\ \ \ \ \ }
+\DoxyCodeLine{01067\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a11e04e2f0d5a38577b3ca3ca5640322a}{erase}}(\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ v)\ \{}
+\DoxyCodeLine{01068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}())\ \{}
+\DoxyCodeLine{01069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}();}
+\DoxyCodeLine{01070\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01071\ \ \ \ \ \ \ \ \ VertexNode\&\ node\ =\ v-\/>node();}
+\DoxyCodeLine{01072\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (EdgeDir\ dir\ :\ \{EdgeDir::Incoming,\ EdgeDir::Outgoing\})\ \{}
+\DoxyCodeLine{01073\ \ \ \ \ \ \ \ \ \ \ \ \ std::optional<EdgeList>\&\ ring\ =\ node.edges[(int)\ dir];}
+\DoxyCodeLine{01074\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ring)\ \{}
+\DoxyCodeLine{01075\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ e\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\_incident\_edges}}(v,\ dir);}
+\DoxyCodeLine{01076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ begin\_id\ =\ e-\/>id();}
+\DoxyCodeLine{01077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (++e;\ \textcolor{keyword}{true};\ )\ \{}
+\DoxyCodeLine{01078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ remove\ from\ the\ /other/\ vertex's\ ring}}
+\DoxyCodeLine{01079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structgraph_1_1_edge}{Edge}}\&\ this\_edge\ =\ e-\/>edge();}
+\DoxyCodeLine{01080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ we're\ iterating\ over\ this\ vertex's\ incoming\ edges,\ then\ this\ vertex\ is}}
+\DoxyCodeLine{01081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ destination,\ and\ the\ other\ vertex\ is\ the\ edge's\ source.\ Vice\ versa\ for}}
+\DoxyCodeLine{01082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ other\ direction.}}
+\DoxyCodeLine{01083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ VertexId\ other\_id\ =\ (dir\ ==\ EdgeDir::Incoming)\ ?\ this\_edge.\mbox{\hyperlink{structgraph_1_1_edge_a6a516d910771cae576b34102395dfaf3}{v0}}\ :\ this\_edge.\mbox{\hyperlink{structgraph_1_1_edge_af00ad9202d78a6b085fc7014e3afe7e8}{v1}};}
+\DoxyCodeLine{01084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ other\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(other\_id);}
+\DoxyCodeLine{01085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ remove\ the\ edge\ from\ the\ other\ vertex's\ (opposite-\/direction)\ ring}}
+\DoxyCodeLine{01086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_remove\_from\_ring(other,\ \string~dir,\ e.inner\_iterator());}
+\DoxyCodeLine{01087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ don't\ bother\ removing\ the\ edge\ from\ the\ current\ ring,\ because\ we're}}
+\DoxyCodeLine{01089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ about\ to\ erase\ it\ anyway.\ increment\ the\ iterator\ by\ following\ its\ link}}
+\DoxyCodeLine{01090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ to\ the\ next\ edge\ now;\ after\ we\ erase\ the\ edge,\ the\ iterator\ will}}
+\DoxyCodeLine{01091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ be\ invalid.}}
+\DoxyCodeLine{01092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EdgeId\ deleted\_id\ =\ e-\/>id();}
+\DoxyCodeLine{01093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ e\_iter\ =\ e.inner\_iterator();}
+\DoxyCodeLine{01094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ++e;}
+\DoxyCodeLine{01095\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ erase\ the\ edge}}
+\DoxyCodeLine{01096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \_edges.erase(e\_iter);}
+\DoxyCodeLine{01097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (deleted\_id\ ==\ begin\_id)\ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{01098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01099\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01100\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ \_verts.erase(v.inner\_iterator())\};}
+\DoxyCodeLine{01102\ \ \ \ \ \}}
+\DoxyCodeLine{01103\ \ \ \ \ }
+\DoxyCodeLine{01110\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a54c6a7d8c1e8358a6dac4c04103332ff}{erase}}(VertexId\ vid)\ \{}
+\DoxyCodeLine{01111\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_a11e04e2f0d5a38577b3ca3ca5640322a}{erase}}(\mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(vid));}
+\DoxyCodeLine{01112\ \ \ \ \ \}}
+\DoxyCodeLine{01113\ \ \ \ \ }
+\DoxyCodeLine{01115\ }
+\DoxyCodeLine{01116\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{01117\ \ \ \ \ }
+\DoxyCodeLine{01118\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}...\ Args>}
+\DoxyCodeLine{01119\ \ \ \ \ incident\_edge\_iterator\ \_emplace\_directed\_edge(}
+\DoxyCodeLine{01120\ \ \ \ \ \ \ \ \ \ \ \ \ vertex\_iterator\ src,}
+\DoxyCodeLine{01121\ \ \ \ \ \ \ \ \ \ \ \ \ vertex\_iterator\ dst,}
+\DoxyCodeLine{01122\ \ \ \ \ \ \ \ \ \ \ \ \ Args\&\&...\ args)}
+\DoxyCodeLine{01123\ \ \ \ \ \{}
+\DoxyCodeLine{01124\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (src\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}()\ or\ dst\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}())\ \{}
+\DoxyCodeLine{01125\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01126\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01127\ \ \ \ \ \ \ \ \ EdgeId\ eid\ =\ \_free\_edge\_id++;}
+\DoxyCodeLine{01128\ \ \ \ \ \ \ \ \ Edge\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}\ \{src-\/>id(),\ dst-\/>id()\};}
+\DoxyCodeLine{01129\ \ \ \ \ \ \ \ \ VertexNode\&\ v0\ =\ src-\/>node();}
+\DoxyCodeLine{01130\ \ \ \ \ \ \ \ \ VertexNode\&\ v1\ =\ dst-\/>node();}
+\DoxyCodeLine{01131\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01132\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ [new\_edge,\ \_]\ =\ \_edges.insert(\{}
+\DoxyCodeLine{01133\ \ \ \ \ \ \ \ \ \ \ \ \ eid,}
+\DoxyCodeLine{01134\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeNode\{}
+\DoxyCodeLine{01135\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}},}
+\DoxyCodeLine{01136\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ point\ to\ the\ head\ of\ the\ incoming\ and\ outgoing\ edge\ rings.}}
+\DoxyCodeLine{01137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ this\ is\ the\ first\ edge\ in\ each\ ring,\ point\ to\ the\ edge\ itself.}}
+\DoxyCodeLine{01138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .next\_incoming\ =\ v1.incoming\_edges\ ?\ v1.incoming\_edges-\/>head\ :\ eid,}
+\DoxyCodeLine{01139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .next\_outgoing\ =\ v0.outgoing\_edges\ ?\ v0.outgoing\_edges-\/>head\ :\ eid,}
+\DoxyCodeLine{01140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .data\ \{\ std::forward<Args>(args)...\ \}}
+\DoxyCodeLine{01141\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01142\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{01143\ \ \ \ \ }
+\DoxyCodeLine{01144\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ \_append\_tail\ =\ [\textcolor{keyword}{this}](VertexNode\&\ v,\ EdgeDir\ dir,\ EdgeId\ eid)\ \{}
+\DoxyCodeLine{01145\ \ \ \ \ \ \ \ \ \ \ \ \ std::optional<EdgeList>\&\ edge\_list\ =\ v.edges[(int)\ dir];}
+\DoxyCodeLine{01146\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (edge\_list)\ \{}
+\DoxyCodeLine{01147\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ point\ the\ tail\ at\ the\ inserted\ edge}}
+\DoxyCodeLine{01148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ tail\ =\ this-\/>\_edges.find(edge\_list-\/>tail);}
+\DoxyCodeLine{01149\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ tail-\/>second.next[(int)\ dir]\ =\ eid;}
+\DoxyCodeLine{01150\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ new\ edge\ is\ the\ new\ tail}}
+\DoxyCodeLine{01151\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ edge\_list-\/>tail\ \ =\ eid;}
+\DoxyCodeLine{01152\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ edge\_list-\/>size\ +=\ 1;}
+\DoxyCodeLine{01153\ \ \ \ \ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01154\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ there\ were\ no\ edges\ in\ the\ ring,\ so\ this\ new\ edge\ is\ the\ only\ one.}}
+\DoxyCodeLine{01155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ also,\ it\ already\ points\ at\ itself.}}
+\DoxyCodeLine{01156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ edge\_list\ =\ EdgeList\{.head\ =\ eid,\ .tail\ =\ eid,\ .size\ =\ 1\};}
+\DoxyCodeLine{01157\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01158\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{01159\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01160\ \ \ \ \ \ \ \ \ \_append\_tail(v0,\ EdgeDir::Outgoing,\ eid);}
+\DoxyCodeLine{01161\ \ \ \ \ \ \ \ \ \_append\_tail(v1,\ EdgeDir::Incoming,\ eid);}
+\DoxyCodeLine{01162\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01163\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ incident\_edge\_iterator\{\textcolor{keyword}{this},\ new\_edge,\ EdgeDir::Outgoing\};}
+\DoxyCodeLine{01164\ \ \ \ \ \}}
+\DoxyCodeLine{01165\ }
+\DoxyCodeLine{01166\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{01167\ }
+\DoxyCodeLine{01170\ \ \ \ \ }
+\DoxyCodeLine{01178\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a047c99700140d76912584824255a21b9}{insert\_directed\_edge}}(}
+\DoxyCodeLine{01179\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ src,}
+\DoxyCodeLine{01180\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ dst)}
+\DoxyCodeLine{01181\ \ \ \ \ \{}
+\DoxyCodeLine{01182\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_emplace\_directed\_edge(src,\ dst);}
+\DoxyCodeLine{01183\ \ \ \ \ \}}
+\DoxyCodeLine{01184\ \ \ \ \ }
+\DoxyCodeLine{01192\ \ \ \ \ \textcolor{keyword}{template}\ <Forwardable<E>\ T>}
+\DoxyCodeLine{01193\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_aedc9f411cced006d473413b608383f39}{insert\_directed\_edge}}(}
+\DoxyCodeLine{01194\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ src,}
+\DoxyCodeLine{01195\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ dst,}
+\DoxyCodeLine{01196\ \ \ \ \ \ \ \ \ \ \ \ \ T\&\&\ e)}
+\DoxyCodeLine{01197\ \ \ \ \ \ \ \ \ \textcolor{keyword}{requires}\ (HasEdgeValue())}
+\DoxyCodeLine{01198\ \ \ \ \ \{}
+\DoxyCodeLine{01199\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_emplace\_directed\_edge(src,\ dst,\ std::forward<T>(e));}
+\DoxyCodeLine{01200\ \ \ \ \ \}}
+\DoxyCodeLine{01201\ \ \ \ \ }
+\DoxyCodeLine{01203\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a2661b5974e81d8a0150292c3b409ff19}{insert\_directed\_edge}}(VertexId\ src,\ VertexId\ dst)\ \{}
+\DoxyCodeLine{01204\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_a047c99700140d76912584824255a21b9}{insert\_directed\_edge}}(\mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(src),\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(dst));}
+\DoxyCodeLine{01205\ \ \ \ \ \}}
+\DoxyCodeLine{01206\ \ \ \ \ }
+\DoxyCodeLine{01208\ \ \ \ \ \textcolor{keyword}{template}\ <Forwardable<E>\ T>}
+\DoxyCodeLine{01209\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a66dd049e97547dd21cf1f593e8d58858}{insert\_directed\_edge}}(VertexId\ src,\ VertexId\ dst,\ T\&\&\ e)}
+\DoxyCodeLine{01210\ \ \ \ \ \ \ \ \ \textcolor{keyword}{requires}\ (HasEdgeValue())}
+\DoxyCodeLine{01211\ \ \ \ \ \{}
+\DoxyCodeLine{01212\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_a047c99700140d76912584824255a21b9}{insert\_directed\_edge}}(\mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(src),\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(dst),\ std::forward<T>(e));}
+\DoxyCodeLine{01213\ \ \ \ \ \}}
+\DoxyCodeLine{01214\ \ \ \ \ }
+\DoxyCodeLine{01223\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}...\ Args>}
+\DoxyCodeLine{01224\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a106798dd4433d287d473a7f1b3d9ca95}{emplace\_directed\_edge}}(}
+\DoxyCodeLine{01225\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ src,}
+\DoxyCodeLine{01226\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ dst,}
+\DoxyCodeLine{01227\ \ \ \ \ \ \ \ \ \ \ \ \ Args\&\&...\ args)}
+\DoxyCodeLine{01228\ \ \ \ \ \{}
+\DoxyCodeLine{01229\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_emplace\_directed\_edge(src,\ dst,\ std::forward<Args>(args)...);}
+\DoxyCodeLine{01230\ \ \ \ \ \}}
+\DoxyCodeLine{01231\ \ \ \ \ }
+\DoxyCodeLine{01238\ \ \ \ \ std::pair<incident\_edge\_iterator,\ incident\_edge\_iterator>\ \mbox{\hyperlink{structgraph_1_1_digraph_af851493b2f6a927bab78662a8c9be090}{insert\_undirected\_edge}}(}
+\DoxyCodeLine{01239\ \ \ \ \ \ \ \ \ \ \ \ \ VertexId\ a,}
+\DoxyCodeLine{01240\ \ \ \ \ \ \ \ \ \ \ \ \ VertexId\ b)}
+\DoxyCodeLine{01241\ \ \ \ \ \ \ \ \ \textcolor{keyword}{requires}\ (not\ HasEdgeValue())}
+\DoxyCodeLine{01242\ \ \ \ \ \{}
+\DoxyCodeLine{01243\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ e0\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_a047c99700140d76912584824255a21b9}{insert\_directed\_edge}}(a,\ b);}
+\DoxyCodeLine{01244\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ e1\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_a047c99700140d76912584824255a21b9}{insert\_directed\_edge}}(b,\ a);}
+\DoxyCodeLine{01245\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{e0,\ e1\};}
+\DoxyCodeLine{01246\ \ \ \ \ \}}
+\DoxyCodeLine{01247\ }
+\DoxyCodeLine{01248\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{01249\ }
+\DoxyCodeLine{01250\ \ \ \ \ std::pair<EdgePair<std::optional<EdgeId>>,\ \textcolor{keyword}{typename}\ Edges::iterator>}
+\DoxyCodeLine{01251\ \ \ \ \ \_impl\_erase\_edge(\textcolor{keyword}{typename}\ Edges::iterator\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})\ \{}
+\DoxyCodeLine{01252\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}\ ==\ \_edges.end())\ \{}
+\DoxyCodeLine{01253\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\{std::nullopt,\ std::nullopt\},\ \_edges.end()\};}
+\DoxyCodeLine{01254\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01255\ \ \ \ \ \ \ \ \ EdgeNode\&\ edge\_node\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}-\/>second;}
+\DoxyCodeLine{01256\ \ \ \ \ \ \ \ \ Edge\ \ \ \ \ \ \ \ \ \ \ \ \ \ e\ =\ edge\_node.edge;}
+\DoxyCodeLine{01257\ \ \ \ \ \ \ \ \ vertex\_iterator\ \ v0\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(e.v0);}
+\DoxyCodeLine{01258\ \ \ \ \ \ \ \ \ vertex\_iterator\ \ v1\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(e.v1);}
+\DoxyCodeLine{01259\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01260\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ out\_id\ =\ \_remove\_from\_ring(v0,\ EdgeDir::Outgoing,\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}});}
+\DoxyCodeLine{01261\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ \ in\_id\ =\ \_remove\_from\_ring(v1,\ EdgeDir::Incoming,\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}});}
+\DoxyCodeLine{01262\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01263\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ next\_edge\ =\ \_edges.erase(\mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}});}
+\DoxyCodeLine{01264\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\{in\_id,\ out\_id\},\ next\_edge\};}
+\DoxyCodeLine{01265\ \ \ \ \ \}}
+\DoxyCodeLine{01266\ }
+\DoxyCodeLine{01267\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{01268\ }
+\DoxyCodeLine{01269\ \ \ \ \ }
+\DoxyCodeLine{01277\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_pair}{EdgePair<std::optional<EdgeId>}}>\ \mbox{\hyperlink{structgraph_1_1_digraph_a117266a0fcb2b72fad411377551b6524}{erase}}(\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})\ \{}
+\DoxyCodeLine{01278\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_impl\_erase\_edge(\mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}.inner\_iterator()).first;}
+\DoxyCodeLine{01279\ \ \ \ \ \}}
+\DoxyCodeLine{01280\ \ \ \ \ }
+\DoxyCodeLine{01285\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a6d4afdacd5785fc87e4a93212545f7ee}{erase}}(\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}},\ EdgeDir\ dir)\ \{}
+\DoxyCodeLine{01286\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ [in\_id,\ out\_id]\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_a11e04e2f0d5a38577b3ca3ca5640322a}{erase}}(\mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}});}
+\DoxyCodeLine{01287\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ next\_id\ =\ (dir\ ==\ EdgeDir::Incoming)\ ?\ in\_id\ :\ out\_id;}
+\DoxyCodeLine{01288\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (next\_id)\ \{}
+\DoxyCodeLine{01289\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(*next\_id,\ dir);}
+\DoxyCodeLine{01290\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{else}\ \{}
+\DoxyCodeLine{01291\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01292\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01293\ \ \ \ \ \}}
+\DoxyCodeLine{01294\ \ \ \ \ }
+\DoxyCodeLine{01297\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a82b069fcdc9063498357ac8d029f9983}{erase}}(EdgeId\ eid)\ \{}
+\DoxyCodeLine{01298\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ \_impl\_erase\_edge(\_edges.find(eid)).second\};}
+\DoxyCodeLine{01299\ \ \ \ \ \}}
+\DoxyCodeLine{01300\ \ \ \ \ }
+\DoxyCodeLine{01303\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a3605392c9b72bcbd0bd7ad680a235953}{erase}}(\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})\ \{}
+\DoxyCodeLine{01304\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ \_impl\_erase\_edge(\mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}.inner\_iterator()).second\};}
+\DoxyCodeLine{01305\ \ \ \ \ \}}
+\DoxyCodeLine{01306\ \ \ \ \ }
+\DoxyCodeLine{01310\ \ \ \ \ }
+\DoxyCodeLine{01314\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange<Constness::Mutable>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a62d66bc2cc6099934368b859cd12ea0a}{vertices}}()\ \{}
+\DoxyCodeLine{01315\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange<Constness::Mutable>}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{01316\ \ \ \ \ \}}
+\DoxyCodeLine{01317\ \ \ \ \ }
+\DoxyCodeLine{01321\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a1cfc2534b42a9e77169361c22c8f1f42}{vertices}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01322\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range}{VertexRange<Constness::Const>}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{01323\ \ \ \ \ \}}
+\DoxyCodeLine{01324\ \ \ \ \ }
+\DoxyCodeLine{01330\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a13290ba8d07cc281487e09328c6dc803}{begin\_vertices}}()\ \{}
+\DoxyCodeLine{01331\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}(\textcolor{keyword}{this},\ \_verts.begin());}
+\DoxyCodeLine{01332\ \ \ \ \ \}}
+\DoxyCodeLine{01333\ \ \ \ \ }
+\DoxyCodeLine{01337\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}()\ \{}
+\DoxyCodeLine{01338\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}(\textcolor{keyword}{this},\ \_verts.end());}
+\DoxyCodeLine{01339\ \ \ \ \ \}}
+\DoxyCodeLine{01340\ \ \ \ \ }
+\DoxyCodeLine{01346\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a9c8b671c032c844c02fd2fd2f8056ccb}{begin\_vertices}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01347\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}(\textcolor{keyword}{this},\ \_verts.begin());}
+\DoxyCodeLine{01348\ \ \ \ \ \}}
+\DoxyCodeLine{01349\ \ \ \ \ }
+\DoxyCodeLine{01351\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_afec9d19219f488e7c15f8b5b06c1b6dd}{end\_vertices}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01352\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}(\textcolor{keyword}{this},\ \_verts.end());}
+\DoxyCodeLine{01353\ \ \ \ \ \}}
+\DoxyCodeLine{01354\ \ \ \ \ }
+\DoxyCodeLine{01355\ \ \ \ \ const\_vertex\_iterator\ cbegin\_vertices()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01356\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ const\_vertex\_iterator(\textcolor{keyword}{this},\ \_verts.begin());}
+\DoxyCodeLine{01357\ \ \ \ \ \}}
+\DoxyCodeLine{01358\ \ \ \ \ }
+\DoxyCodeLine{01359\ \ \ \ \ const\_vertex\_iterator\ cend\_vertices()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01360\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ const\_vertex\_iterator(\textcolor{keyword}{this},\ \_verts.end());}
+\DoxyCodeLine{01361\ \ \ \ \ \}}
+\DoxyCodeLine{01362\ \ \ \ \ }
+\DoxyCodeLine{01364\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structgraph_1_1_digraph_a9121bd6cd3bdf2657400943acc4b4314}{vertices\_size}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01365\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_verts.size();}
+\DoxyCodeLine{01366\ \ \ \ \ \}}
+\DoxyCodeLine{01367\ \ \ \ \ }
+\DoxyCodeLine{01371\ \ \ \ \ }
+\DoxyCodeLine{01375\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange<Constness::Mutable>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a208d46dcca7fa0f4fadc42720efa10f6}{edges}}()\ \{}
+\DoxyCodeLine{01376\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange<Constness::Mutable>}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{01377\ \ \ \ \ \}}
+\DoxyCodeLine{01378\ \ \ \ \ }
+\DoxyCodeLine{01382\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a7211a982588e79a0025bcd2996997d59}{edges}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01383\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_range}{EdgeRange<Constness::Const>}}(\textcolor{keyword}{this});}
+\DoxyCodeLine{01384\ \ \ \ \ \}}
+\DoxyCodeLine{01385\ \ \ \ \ }
+\DoxyCodeLine{01391\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a178df2c954b82cb9c94db2fc6b6cad00}{begin\_edges}}()\ \{}
+\DoxyCodeLine{01392\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}(\textcolor{keyword}{this},\ \_edges.begin());}
+\DoxyCodeLine{01393\ \ \ \ \ \}}
+\DoxyCodeLine{01394\ \ \ \ \ }
+\DoxyCodeLine{01396\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_af246167edd4ec5c4bac29f81969f4b2b}{end\_edges}}()\ \{}
+\DoxyCodeLine{01397\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{edge\_iterator}}(\textcolor{keyword}{this},\ \_edges.end());}
+\DoxyCodeLine{01398\ \ \ \ \ \}}
+\DoxyCodeLine{01399\ \ \ \ \ }
+\DoxyCodeLine{01405\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a42854027cafca6577d5c1230857a5a0e}{begin\_edges}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01406\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\_edge\_iterator}}(\textcolor{keyword}{this},\ \_edges.begin());}
+\DoxyCodeLine{01407\ \ \ \ \ \}}
+\DoxyCodeLine{01408\ \ \ \ \ }
+\DoxyCodeLine{01410\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_aae3eb784540e7abc4d391ef670a17dea}{end\_edges}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01411\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{const\_edge\_iterator}}(\textcolor{keyword}{this},\ \_edges.end());}
+\DoxyCodeLine{01412\ \ \ \ \ \}}
+\DoxyCodeLine{01413\ \ \ \ \ }
+\DoxyCodeLine{01415\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structgraph_1_1_digraph_a62036a949a11e641a53bbb2b1c8a0b51}{edges\_size}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01416\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \_edges.size();}
+\DoxyCodeLine{01417\ \ \ \ \ \}}
+\DoxyCodeLine{01418\ \ \ \ \ }
+\DoxyCodeLine{01422\ \ \ \ \ }
+\DoxyCodeLine{01428\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(VertexId\ v)\ \{}
+\DoxyCodeLine{01429\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}(\textcolor{keyword}{this},\ \_verts.find(v));}
+\DoxyCodeLine{01430\ \ \ \ \ \}}
+\DoxyCodeLine{01431\ \ \ \ \ }
+\DoxyCodeLine{01437\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a2083cc486407e88f43afc54010dc1cf1}{find\_vertex}}(VertexId\ v)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01438\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}(\textcolor{keyword}{this},\ \_verts.find(v));}
+\DoxyCodeLine{01439\ \ \ \ \ \}}
+\DoxyCodeLine{01440\ \ \ \ \ }
+\DoxyCodeLine{01446\ \ \ \ \ std::optional<vertex\_ref>\ \mbox{\hyperlink{structgraph_1_1_digraph_a291b3fcfc3dce1e8a0bf00489c66c4be}{vertex}}(VertexId\ v)\ \{}
+\DoxyCodeLine{01447\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ it\ =\ \_verts.find(v);}
+\DoxyCodeLine{01448\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ \_verts.end())\ \textcolor{keywordflow}{return}\ std::nullopt;}
+\DoxyCodeLine{01449\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{vertex\_ref}}\{it\};}
+\DoxyCodeLine{01450\ \ \ \ \ \}}
+\DoxyCodeLine{01451\ \ \ \ \ }
+\DoxyCodeLine{01457\ \ \ \ \ std::optional<const\_vertex\_ref>\ \mbox{\hyperlink{structgraph_1_1_digraph_af6f560df464a4c711f6182e3f344a064}{vertex}}(VertexId\ v)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01458\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ it\ =\ \_verts.find(v);}
+\DoxyCodeLine{01459\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ \_verts.end())\ \textcolor{keywordflow}{return}\ std::nullopt;}
+\DoxyCodeLine{01460\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{const\_vertex\_ref}}\{it\};}
+\DoxyCodeLine{01461\ \ \ \ \ \}}
+\DoxyCodeLine{01462\ \ \ \ \ }
+\DoxyCodeLine{01464\ \ \ \ \ }
+\DoxyCodeLine{01467\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01474\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange<Constness::Mutable>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a1412d78dea33431034af24655489b275}{incident\_edges}}(}
+\DoxyCodeLine{01475\ \ \ \ \ \ \ \ \ \ \ \ \ VertexId\ v,}
+\DoxyCodeLine{01476\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeDir\ dir=EdgeDir::Outgoing)}
+\DoxyCodeLine{01477\ \ \ \ \ \{}
+\DoxyCodeLine{01478\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange<Constness::Mutable>}}(v,\ \textcolor{keyword}{this},\ dir);}
+\DoxyCodeLine{01479\ \ \ \ \ \}}
+\DoxyCodeLine{01480\ \ \ \ \ }
+\DoxyCodeLine{01487\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange<Constness::Const>}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a319c9e8ee9680933c7d35f30f7f86ec3}{incident\_edges}}(}
+\DoxyCodeLine{01488\ \ \ \ \ \ \ \ \ \ \ \ \ VertexId\ v,}
+\DoxyCodeLine{01489\ \ \ \ \ \ \ \ \ \ \ \ \ EdgeDir\ dir=EdgeDir::Outgoing)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{01490\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{01491\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range}{IncidentEdgeRange<Constness::Const>}}(v,\ \textcolor{keyword}{this},\ dir);}
+\DoxyCodeLine{01492\ \ \ \ \ \}}
+\DoxyCodeLine{01493\ \ \ \ \ }
+\DoxyCodeLine{01504\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\_incident\_edges}}(\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ v,\ EdgeDir\ dir)\ \{}
+\DoxyCodeLine{01505\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}())\ \{}
+\DoxyCodeLine{01506\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01507\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01508\ \ \ \ \ \ \ \ \ VertexNode\&\ v\_node\ =\ v.\_i-\/>second;}
+\DoxyCodeLine{01509\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (not\ v\_node.edges[(\textcolor{keywordtype}{int})\ dir])\ \{}
+\DoxyCodeLine{01510\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01511\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01512\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Mutable>}}\ \{}
+\DoxyCodeLine{01513\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{this},}
+\DoxyCodeLine{01514\ \ \ \ \ \ \ \ \ \ \ \ \ \_edges.find(v\_node.outgoing\_edges-\/>head),}
+\DoxyCodeLine{01515\ \ \ \ \ \ \ \ \ \ \ \ \ dir}
+\DoxyCodeLine{01516\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{01517\ \ \ \ \ \}}
+\DoxyCodeLine{01518\ \ \ \ \ }
+\DoxyCodeLine{01529\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a74e719835402104804e4d28366f3f8ce}{begin\_incident\_edges}}(\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{vertex\_iterator}}\ v,\ EdgeDir\ dir)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01530\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}())\ \{}
+\DoxyCodeLine{01531\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01532\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01533\ \ \ \ \ \ \ \ \ VertexNode\&\ v\_node\ =\ v.\_i-\/>second;}
+\DoxyCodeLine{01534\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (not\ v\_node.edges[(\textcolor{keywordtype}{int})\ dir])\ \{}
+\DoxyCodeLine{01535\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01536\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01537\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{IncidentEdgeIterator<Constness::Const>}}\ \{}
+\DoxyCodeLine{01538\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{this},}
+\DoxyCodeLine{01539\ \ \ \ \ \ \ \ \ \ \ \ \ \_edges.find(v\_node.outgoing\_edges-\/>head),}
+\DoxyCodeLine{01540\ \ \ \ \ \ \ \ \ \ \ \ \ dir}
+\DoxyCodeLine{01541\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{01542\ \ \ \ \ \}}
+\DoxyCodeLine{01543\ \ \ \ \ }
+\DoxyCodeLine{01545\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_abffa05252d8cad2593b5001e622e6d5e}{begin\_incident\_edges}}(VertexId\ v,\ EdgeDir\ dir)\ \{}
+\DoxyCodeLine{01546\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\_incident\_edges}}(\mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(v),\ dir);}
+\DoxyCodeLine{01547\ \ \ \ \ \}}
+\DoxyCodeLine{01548\ \ \ \ \ }
+\DoxyCodeLine{01550\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a688ddbb552213a9dca3b475512c754b6}{begin\_incident\_edges}}(VertexId\ v,\ EdgeDir\ dir)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01551\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\_incident\_edges}}(\mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(v),\ dir);}
+\DoxyCodeLine{01552\ \ \ \ \ \}}
+\DoxyCodeLine{01553\ \ \ \ \ }
+\DoxyCodeLine{01559\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}()\ \{}
+\DoxyCodeLine{01560\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ \_edges.end(),\ EdgeDir::Outgoing\};}
+\DoxyCodeLine{01561\ \ \ \ \ \}}
+\DoxyCodeLine{01562\ \ \ \ \ }
+\DoxyCodeLine{01563\ \ \ \ \ const\_incident\_edge\_iterator\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01564\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \{\textcolor{keyword}{this},\ \_edges.end(),\ EdgeDir::Outgoing\};}
+\DoxyCodeLine{01565\ \ \ \ \ \}}
+\DoxyCodeLine{01566\ \ \ \ \ }
+\DoxyCodeLine{01567\ \ \ \ \ const\_incident\_edge\_iterator\ cbegin\_incident\_edges(VertexId\ v,\ EdgeDir\ dir)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01568\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\_incident\_edges}}(v,\ dir);}
+\DoxyCodeLine{01569\ \ \ \ \ \}}
+\DoxyCodeLine{01570\ \ \ \ \ }
+\DoxyCodeLine{01571\ \ \ \ \ const\_incident\_edge\_iterator\ cend\_incident\_edges()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01572\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01573\ \ \ \ \ \}}
+\DoxyCodeLine{01574\ \ \ \ \ }
+\DoxyCodeLine{01578\ \ \ \ \ }
+\DoxyCodeLine{01584\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(EdgeId\ e,\ EdgeDir\ dir=EdgeDir::Outgoing)\ \{}
+\DoxyCodeLine{01585\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}(\textcolor{keyword}{this},\ \_edges.find(e),\ EdgeDir::Outgoing);}
+\DoxyCodeLine{01586\ \ \ \ \ \}}
+\DoxyCodeLine{01587\ \ \ \ \ }
+\DoxyCodeLine{01593\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a72d6728dca23fc72667089d763fe953b}{find\_edge}}(EdgeId\ e,\ EdgeDir\ dir=EdgeDir::Outgoing)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01594\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}(\textcolor{keyword}{this},\ \_edges.find(e),\ EdgeDir::Outgoing);}
+\DoxyCodeLine{01595\ \ \ \ \ \}}
+\DoxyCodeLine{01596\ \ \ \ \ }
+\DoxyCodeLine{01607\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_ae805ed41f16480845c0b8c080d89fb7b}{find\_edge}}(\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ v0,\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ v1)\ \{}
+\DoxyCodeLine{01608\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v0\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}()\ or\ v1\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}())\ \{}
+\DoxyCodeLine{01609\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01610\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01611\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ search\ through\ the\ smaller\ vertex's\ edges}}
+\DoxyCodeLine{01612\ \ \ \ \ \ \ \ \ EdgeDir\ dir\ =\ EdgeDir::Outgoing;}
+\DoxyCodeLine{01613\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v0-\/>degree(EdgeDir::Outgoing)\ >\ v0-\/>degree(EdgeDir::Incoming))\ \{}
+\DoxyCodeLine{01614\ \ \ \ \ \ \ \ \ \ \ \ \ dir\ =\ EdgeDir::Incoming;}
+\DoxyCodeLine{01615\ \ \ \ \ \ \ \ \ \ \ \ \ std::swap(v0,\ v1);}
+\DoxyCodeLine{01616\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01617\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ first\_edge\_it\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\_incident\_edges}}(v0,\ dir);}
+\DoxyCodeLine{01618\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (first\_edge\_it\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}())\ \{}
+\DoxyCodeLine{01619\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01620\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01621\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ edge\_it\ =\ first\_edge\_it;}
+\DoxyCodeLine{01622\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{do}\ \{}
+\DoxyCodeLine{01623\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (edge\_it-\/>vertex(\string~dir)\ ==\ v1)\ \{}
+\DoxyCodeLine{01624\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ edge\_it;}
+\DoxyCodeLine{01625\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01626\ \ \ \ \ \ \ \ \ \ \ \ \ ++edge\_it;}
+\DoxyCodeLine{01627\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{while}\ (edge\_it\ !=\ first\_edge\_it);}
+\DoxyCodeLine{01628\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01629\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01630\ \ \ \ \ \}}
+\DoxyCodeLine{01631\ \ \ \ \ }
+\DoxyCodeLine{01632\ \ \ \ \ \textcolor{keyword}{inline}\ incident\_edge\_iterator\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(vertex\_iterator\ v0,\ vertex\_iterator\ v1)\ \{}
+\DoxyCodeLine{01633\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(const\_vertex\_iterator(v0),\ const\_vertex\_iterator(v1));}
+\DoxyCodeLine{01634\ \ \ \ \ \}}
+\DoxyCodeLine{01635\ \ \ \ \ }
+\DoxyCodeLine{01646\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_af7e8e34c1ddde1c701fb1f5320775c7e}{find\_edge}}(}
+\DoxyCodeLine{01647\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ v0,}
+\DoxyCodeLine{01648\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{const\_vertex\_iterator}}\ v1)\textcolor{keyword}{\ const}}
+\DoxyCodeLine{01649\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{01650\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v0\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}()\ or\ v1\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\_vertices}}())\ \{}
+\DoxyCodeLine{01651\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01652\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01653\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ search\ through\ the\ smaller\ vertex's\ edges}}
+\DoxyCodeLine{01654\ \ \ \ \ \ \ \ \ EdgeDir\ dir\ =\ EdgeDir::Outgoing;}
+\DoxyCodeLine{01655\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (v0-\/>degree(EdgeDir::Outgoing)\ >\ v0-\/>degree(EdgeDir::Incoming))\ \{}
+\DoxyCodeLine{01656\ \ \ \ \ \ \ \ \ \ \ \ \ dir\ =\ EdgeDir::Incoming;}
+\DoxyCodeLine{01657\ \ \ \ \ \ \ \ \ \ \ \ \ std::swap(v0,\ v1);}
+\DoxyCodeLine{01658\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01659\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ first\_edge\_it\ =\ \mbox{\hyperlink{structgraph_1_1_digraph_aec0c8b94611a1e5ed4a5fceffabc4367}{begin\_incident\_edges}}(v0,\ dir);}
+\DoxyCodeLine{01660\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (first\_edge\_it\ ==\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}())\ \{}
+\DoxyCodeLine{01661\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01662\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01663\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ edge\_it\ =\ first\_edge\_it;}
+\DoxyCodeLine{01664\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{do}\ \{}
+\DoxyCodeLine{01665\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (edge\_it-\/>vertex(\string~dir)\ ==\ v1)\ \{}
+\DoxyCodeLine{01666\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ edge\_it;}
+\DoxyCodeLine{01667\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{01668\ \ \ \ \ \ \ \ \ \ \ \ \ ++edge\_it;}
+\DoxyCodeLine{01669\ \ \ \ \ \ \ \ \ \}\ \textcolor{keywordflow}{while}\ (edge\_it\ !=\ first\_edge\_it);}
+\DoxyCodeLine{01670\ \ \ \ \ \ \ \ \ }
+\DoxyCodeLine{01671\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9667ab957346eb20e3abdee7ae51bd8}{end\_incident\_edges}}();}
+\DoxyCodeLine{01672\ \ \ \ \ \}}
+\DoxyCodeLine{01673\ \ \ \ \ }
+\DoxyCodeLine{01677\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a672dc9fa3b145759db6bfa8bb1b891d6}{find\_edge}}(VertexId\ v0,\ VertexId\ v1)\ \{}
+\DoxyCodeLine{01678\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(\mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(v0),\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(v1));}
+\DoxyCodeLine{01679\ \ \ \ \ \}}
+\DoxyCodeLine{01680\ \ \ \ \ }
+\DoxyCodeLine{01684\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a9c55b2e7fe82a49fcde3ca05a121c707}{find\_edge}}(VertexId\ v0,\ VertexId\ v1)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01685\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(\mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(v0),\ \mbox{\hyperlink{structgraph_1_1_digraph_a7bdd6d25f2ef79bc80d4f18a97cb8a00}{find\_vertex}}(v1));}
+\DoxyCodeLine{01686\ \ \ \ \ \}}
+\DoxyCodeLine{01687\ \ \ \ \ }
+\DoxyCodeLine{01689\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_a883da5c3b15937b7e53c49ff34e8434b}{find\_edge}}(\mbox{\hyperlink{structgraph_1_1_edge}{Edge}}\ e)\ \{}
+\DoxyCodeLine{01690\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(e.\mbox{\hyperlink{structgraph_1_1_edge_a6a516d910771cae576b34102395dfaf3}{v0}},\ e.\mbox{\hyperlink{structgraph_1_1_edge_af00ad9202d78a6b085fc7014e3afe7e8}{v1}});}
+\DoxyCodeLine{01691\ \ \ \ \ \}}
+\DoxyCodeLine{01692\ \ \ \ \ }
+\DoxyCodeLine{01694\ \ \ \ \ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{const\_incident\_edge\_iterator}}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa9130f92722890203ce3e3f20c1d3950}{find\_edge}}(\mbox{\hyperlink{structgraph_1_1_edge}{Edge}}\ e)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01695\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_aa51033fff8c4dcab66007bec179c2e50}{find\_edge}}(e.\mbox{\hyperlink{structgraph_1_1_edge_a6a516d910771cae576b34102395dfaf3}{v0}},\ e.\mbox{\hyperlink{structgraph_1_1_edge_af00ad9202d78a6b085fc7014e3afe7e8}{v1}});}
+\DoxyCodeLine{01696\ \ \ \ \ \}}
+\DoxyCodeLine{01697\ \ \ \ \ }
+\DoxyCodeLine{01699\ \ \ \ \ std::optional<edge\_ref>\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}}(EdgeId\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})\ \{}
+\DoxyCodeLine{01700\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ it\ =\ \_edges.find(\mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}});}
+\DoxyCodeLine{01701\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ \_edges.end())\ \textcolor{keywordflow}{return}\ std::nullopt;}
+\DoxyCodeLine{01702\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{edge\_ref}}\{it\};}
+\DoxyCodeLine{01703\ \ \ \ \ \}}
+\DoxyCodeLine{01704\ \ \ \ \ }
+\DoxyCodeLine{01706\ \ \ \ \ std::optional<const\_edge\_ref>\ \mbox{\hyperlink{structgraph_1_1_digraph_a8f10850e7edd1b74a7f4be8b2dee5b0e}{edge}}(EdgeId\ \mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}})\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{01707\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ it\ =\ \_edges.find(\mbox{\hyperlink{structgraph_1_1_digraph_ad383717d9f9dd6c07c6be47e6f0201e1}{edge}});}
+\DoxyCodeLine{01708\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (it\ ==\ \_edges.end())\ \textcolor{keywordflow}{return}\ std::nullopt;}
+\DoxyCodeLine{01709\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{const\_edge\_ref}}\{it\};}
+\DoxyCodeLine{01710\ \ \ \ \ \}}
+\DoxyCodeLine{01711\ \ \ \ \ }
+\DoxyCodeLine{01713\ \ \ \ \ }
+\DoxyCodeLine{01714\ \};}
+\DoxyCodeLine{01715\ }
+\DoxyCodeLine{01716\ \}\ \textcolor{comment}{//\ namespace\ graph}}
+
+\end{DoxyCode}

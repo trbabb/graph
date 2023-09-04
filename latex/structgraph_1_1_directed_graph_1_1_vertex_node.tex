@@ -1,0 +1,46 @@
+\hypertarget{structgraph_1_1_directed_graph_1_1_vertex_node}{}\doxysection{graph\+::Directed\+Graph\texorpdfstring{$<$}{<} V, E \texorpdfstring{$>$}{>}\+::Vertex\+Node Struct Reference}
+\label{structgraph_1_1_directed_graph_1_1_vertex_node}\index{graph::DirectedGraph$<$ V, E $>$::VertexNode@{graph::DirectedGraph$<$ V, E $>$::VertexNode}}
+
+
+A node holding information about a vertex.  
+
+
+
+
+{\ttfamily \#include $<$graph.\+h$>$}
+
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_vertex_node_ac1c2861c971bf2ea1bfaf9964c4df80c}\label{structgraph_1_1_directed_graph_1_1_vertex_node_ac1c2861c971bf2ea1bfaf9964c4df80c}} 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\>std::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_list}{Edge\+List}} $>$ {\bfseries edges} \mbox{[}2\mbox{]}\\
+\mbox{\Hypertarget{uniongraph_1_1_directed_graph_1_1_vertex_node_1_1_0d4_add0f450da3a2c669431ec937195bf01f}\label{uniongraph_1_1_directed_graph_1_1_vertex_node_1_1_0d4_add0f450da3a2c669431ec937195bf01f}} 
+\>struct \{\\
+\>\>std::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_list}{Edge\+List}} $>$ {\bfseries incoming\_edges}\\
+\>\>std::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_list}{Edge\+List}} $>$ {\bfseries outgoing\_edges}\\
+\>\} \\
+\}; \\
+
+\end{tabbing}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_vertex_node_a4c13ee22ec84f5606b20239d268899e9}\label{structgraph_1_1_directed_graph_1_1_vertex_node_a4c13ee22ec84f5606b20239d268899e9}} 
+Vertex\+Data {\bfseries data}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename V, typename E$>$\newline
+struct graph\+::\+Directed\+Graph$<$ V, E $>$\+::\+Vertex\+Node}
+A node holding information about a vertex. 
+
+Each vertex node carries the head and tail of two linked lists of edges\+: One of the incoming edges around the vertex, and one of the outgoing edges.
+
+If there are no edges in a list, the head and tail point to {\ttfamily std\+::nullopt}.
+
+If this graph stores vertex values, the vertex data is stored in {\ttfamily data}. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/graph.\+h\end{DoxyCompactItemize}

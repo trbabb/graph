@@ -1,0 +1,453 @@
+\hypertarget{structgraph_1_1_directed_graph}{}\doxysection{graph\+::Directed\+Graph\texorpdfstring{$<$}{<} V, E \texorpdfstring{$>$}{>} Struct Template Reference}
+\label{structgraph_1_1_directed_graph}\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{Edge\+Iterator}}
+\begin{DoxyCompactList}\small\item\em An iterator over all the edges in a graph. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_pair}{Edge\+Pair}}
+\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_range}{Edge\+Range}}
+\begin{DoxyCompactList}\small\item\em A range capturing all the edges in a graph. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{Edge\+Ref}}
+\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}
+\begin{DoxyCompactList}\small\item\em An iterator over the edges incident to a vertex. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range}{Incident\+Edge\+Range}}
+\begin{DoxyCompactList}\small\item\em A range capturing all the edges incident to a vertex in a given direction. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{Vertex\+Iterator}}
+\begin{DoxyCompactList}\small\item\em An iterator over the vertices in a graph. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_range}{Vertex\+Range}}
+\begin{DoxyCompactList}\small\item\em A range capturing all the edges in a graph. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{Vertex\+Ref}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_aff1ad1664d99580e1c65637e5d2e8ec1}\label{structgraph_1_1_directed_graph_aff1ad1664d99580e1c65637e5d2e8ec1}} 
+using {\bfseries vertex\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a07e34e06e6203b8e91bdacd5f642ca2b}\label{structgraph_1_1_directed_graph_a07e34e06e6203b8e91bdacd5f642ca2b}} 
+using {\bfseries const\+\_\+vertex\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a7e4c7225fc3ab99fe3cd18d14a640729}\label{structgraph_1_1_directed_graph_a7e4c7225fc3ab99fe3cd18d14a640729}} 
+using {\bfseries edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{Edge\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a439c7a33cd37b2c610439d3e79e74184}\label{structgraph_1_1_directed_graph_a439c7a33cd37b2c610439d3e79e74184}} 
+using {\bfseries const\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{Edge\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_acdcc321eee26aa9cb73bb9040a318951}\label{structgraph_1_1_directed_graph_acdcc321eee26aa9cb73bb9040a318951}} 
+using {\bfseries incident\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a8fa973ab3b843789bfcb59d413648de6}\label{structgraph_1_1_directed_graph_a8fa973ab3b843789bfcb59d413648de6}} 
+using {\bfseries const\+\_\+incident\+\_\+edge\+\_\+iterator} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_ad1a9fb7e4fd151c0a2cd699083ae8dc4}\label{structgraph_1_1_directed_graph_ad1a9fb7e4fd151c0a2cd699083ae8dc4}} 
+using {\bfseries vertex\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_abe9f1a2c7982fea5d71d65918ec36f1f}\label{structgraph_1_1_directed_graph_abe9f1a2c7982fea5d71d65918ec36f1f}} 
+using {\bfseries const\+\_\+vertex\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_ad13cc08de4c5602b16ebfa03e0bff39d}\label{structgraph_1_1_directed_graph_ad13cc08de4c5602b16ebfa03e0bff39d}} 
+using {\bfseries edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a4036e18757016bac8bb54cae05480a57}\label{structgraph_1_1_directed_graph_a4036e18757016bac8bb54cae05480a57}} 
+using {\bfseries const\+\_\+edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a7e639a87901e9952d4fa9cd7e5f06e69}\label{structgraph_1_1_directed_graph_a7e639a87901e9952d4fa9cd7e5f06e69}} 
+using {\bfseries incident\+\_\+edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_adb09278480ba6d88037cc8bea3710fb5}\label{structgraph_1_1_directed_graph_adb09278480ba6d88037cc8bea3710fb5}} 
+using {\bfseries const\+\_\+incident\+\_\+edge\+\_\+range} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_aca1b7f716136f27be37fa4f461d796ea}\label{structgraph_1_1_directed_graph_aca1b7f716136f27be37fa4f461d796ea}} 
+using {\bfseries vertex\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_afa72acb7729a300a521b8fc6a6b42052}\label{structgraph_1_1_directed_graph_afa72acb7729a300a521b8fc6a6b42052}} 
+using {\bfseries const\+\_\+vertex\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Constness\+::\+Const $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a7d268f6bfbfca57cfc7cd02eafe608e0}\label{structgraph_1_1_directed_graph_a7d268f6bfbfca57cfc7cd02eafe608e0}} 
+using {\bfseries edge\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{Edge\+Ref}}$<$ Constness\+::\+Mutable $>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_ae5ff5e20123637661fa0e17770fb3870}\label{structgraph_1_1_directed_graph_ae5ff5e20123637661fa0e17770fb3870}} 
+using {\bfseries const\+\_\+edge\+\_\+ref} = \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{Edge\+Ref}}$<$ Constness\+::\+Const $>$
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} \mbox{\hyperlink{group__vtex_gad5ba4d05815d1a1870152132ca68f6ba}{operator\mbox{[}$\,$\mbox{]}}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Retrieve a const reference to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{vertex\+\_\+ref}} \mbox{\hyperlink{group__vtex_gacaadcfcc00f15548864bccedfe9e5469}{operator\mbox{[}$\,$\mbox{]}}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} \mbox{\hyperlink{group__edge_ga5ba6e9948b741207cc9b974fca9b0199}{operator\mbox{[}$\,$\mbox{]}}} (Edge\+Id e) const
+\begin{DoxyCompactList}\small\item\em Retrieve a const reference to the edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{edge\+\_\+ref}} \mbox{\hyperlink{group__edge_gabb33fe03c7f5ffa64e85cd15667755f6}{operator\mbox{[}$\,$\mbox{]}}} (Edge\+Id e)
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the edge with the given id. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group__vtex_ga146bb27950e3814f4decf77a1695e393}{contains}} (Vertex\+Id vid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains a vertex with the given id. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group__edge_ga18356fc4e319469b3ad513ab25a6202a}{contains}} (Edge\+Id eid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains an edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Mutable $>$ {\bfseries vertices} ()
+\begin{DoxyCompactList}\small\item\em A range of all the vertices in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Const $>$ {\bfseries vertices} () const
+\begin{DoxyCompactList}\small\item\em An immutable range of all the vertices in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Mutable $>$ {\bfseries edges} ()
+\begin{DoxyCompactList}\small\item\em A range of all the edges in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_range}{Edge\+Range}}$<$ Constness\+::\+Const $>$ {\bfseries edges} () const
+\begin{DoxyCompactList}\small\item\em An immutable range of all the edges in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{group__vtex_gad7e25fd9d82815deeaaac9a7f150cf12}{begin\+\_\+vertices}} ()
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}{end\+\_\+vertices}} ()
+\begin{DoxyCompactList}\small\item\em A sentinel iterator pointing beyond the end of the range of vertices. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{group__vtex_ga2d91b03c6016da3bd09d7d9c4cc83d7d}{begin\+\_\+vertices}} () const
+\begin{DoxyCompactList}\small\item\em A const iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a55196b528278f7b2ddb1b3554e742650}\label{structgraph_1_1_directed_graph_a55196b528278f7b2ddb1b3554e742650}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} {\bfseries end\+\_\+vertices} () const
+\begin{DoxyCompactList}\small\item\em A const sentinel iterator pointing beyond the end of the range of vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a621d26f0f2649a55122d75bd58cec133}\label{structgraph_1_1_directed_graph_a621d26f0f2649a55122d75bd58cec133}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} {\bfseries cbegin\+\_\+vertices} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a993631ac0b3ad02399badc1fc85ea6ba}\label{structgraph_1_1_directed_graph_a993631ac0b3ad02399badc1fc85ea6ba}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} {\bfseries cend\+\_\+vertices} () const
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a11590f959def012251f7e17073a857e5}{begin\+\_\+edges}} ()
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the first edge in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_aefad716d1c7ffbc6032b7a42b0a5013c}\label{structgraph_1_1_directed_graph_aefad716d1c7ffbc6032b7a42b0a5013c}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{edge\+\_\+iterator}} {\bfseries end\+\_\+edges} ()
+\begin{DoxyCompactList}\small\item\em A sentinel iterator pointing beyond the end of the range of edges. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{const\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a68faa91d71f11da3ef1b01866e460499}{begin\+\_\+edges}} () const
+\begin{DoxyCompactList}\small\item\em A const iterator pointing to the first edge in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a8e1f5bbd9a0f1db2f711de6101262ae4}\label{structgraph_1_1_directed_graph_a8e1f5bbd9a0f1db2f711de6101262ae4}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{const\+\_\+edge\+\_\+iterator}} {\bfseries end\+\_\+edges} () const
+\begin{DoxyCompactList}\small\item\em A const sentinel iterator pointing beyond the end of the range of edges. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a52472e586fe17f2b47c0cb559cb5e53f}{find\+\_\+vertex}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Find the vertex with the given id and return a mutable iterator to it. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a237604e0f607cbed38f0374586548f48}{find\+\_\+vertex}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Find the vertex with the given id and return a const iterator to it. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph_a36a634295d48f39a1c2f6c4273f90b09}{vertex}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Return a reference to the vertex with the given id, if it exists. \end{DoxyCompactList}\item 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph_a79ec9039f089842bb6992f717ef7c723}{vertex}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Return a const reference to the vertex with the given id, if it exists. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a19d21c8186403389754425dd7e336534}\label{structgraph_1_1_directed_graph_a19d21c8186403389754425dd7e336534}} 
+size\+\_\+t {\bfseries vertices\+\_\+size} () const
+\begin{DoxyCompactList}\small\item\em Return the number of vertices in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a21e44fbc919c087b603f8c6917b11409}\label{structgraph_1_1_directed_graph_a21e44fbc919c087b603f8c6917b11409}} 
+size\+\_\+t {\bfseries edges\+\_\+size} () const
+\begin{DoxyCompactList}\small\item\em Return the number of edges in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Mutable $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph_a6d9dbaca90eb27ee358e73a25eeca0f3}{edges}} (Vertex\+Id v, Edge\+Dir dir)
+\begin{DoxyCompactList}\small\item\em Return an infinite range of edges which cycles through all the edges incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Const $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph_a2ed116eba7dbb0864294ef2ea9fe9d21}{edges}} (Vertex\+Id v, Edge\+Dir dir) const
+\begin{DoxyCompactList}\small\item\em Return an infinite range of immutable edges which cycles through all the edges incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_ac7788a09c3a6abc7b6e0524100310b4f}{begin\+\_\+incident\+\_\+edges}} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v, Edge\+Dir dir)
+\begin{DoxyCompactList}\small\item\em Return an iterator pointing to the first edge incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_aa30d6f07d0fa8e522f16a07701d5003b}{begin\+\_\+incident\+\_\+edges}} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v, Edge\+Dir dir) const
+\begin{DoxyCompactList}\small\item\em Return a const iterator pointing to the first edge incident to {\ttfamily v} in the given direction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_acf95291292fb281799629f8e9c0818df}\label{structgraph_1_1_directed_graph_acf95291292fb281799629f8e9c0818df}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries begin\+\_\+incident\+\_\+edges} (Vertex\+Id v, Edge\+Dir dir)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily begin\+\_\+incident\+\_\+edges(find\+\_\+vertex(v), dir)}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a6c2b58380c8b2b54af5015d67eac7ceb}\label{structgraph_1_1_directed_graph_a6c2b58380c8b2b54af5015d67eac7ceb}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries begin\+\_\+incident\+\_\+edges} (Vertex\+Id v, Edge\+Dir dir) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily begin\+\_\+incident\+\_\+edges(find\+\_\+vertex(v), dir)}. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_af93255b45f7f54d034c2c794cfed0f0a}{end\+\_\+incident\+\_\+edges}} ()
+\begin{DoxyCompactList}\small\item\em A sentinel iterator indicating an empty incident edge range. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a146e2990384eef93c00a89455dd7f5d5}\label{structgraph_1_1_directed_graph_a146e2990384eef93c00a89455dd7f5d5}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries end\+\_\+incident\+\_\+edges} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_acd8efca44cb64a4601ec68c9cdac631c}\label{structgraph_1_1_directed_graph_acd8efca44cb64a4601ec68c9cdac631c}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries cbegin\+\_\+incident\+\_\+edges} (Vertex\+Id v, Edge\+Dir dir) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a97755c417c3490c72053f5203f173ee6}\label{structgraph_1_1_directed_graph_a97755c417c3490c72053f5203f173ee6}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries cend\+\_\+incident\+\_\+edges} () const
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a5a6df7f3b13ffe1025548bc1ea66bfe5}{find\+\_\+edge}} (Edge\+Id e, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing)
+\begin{DoxyCompactList}\small\item\em Return an iterator pointing to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a963813abec02fad008734a3c96758ee3}{find\+\_\+edge}} (Edge\+Id e, Edge\+Dir dir=Edge\+Dir\+::\+Outgoing) const
+\begin{DoxyCompactList}\small\item\em Return a const iterator pointing to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_aec17a16fb52728622f958062fc5efab6}{find\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v1)
+\begin{DoxyCompactList}\small\item\em Find the edge connecting the two given vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a65387460205e417ba5e0481262069b0c}\label{structgraph_1_1_directed_graph_a65387460205e417ba5e0481262069b0c}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v1)
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a2eb466fed80d2a8b2df217d70c38730b}{find\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v0, \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} v1) const
+\begin{DoxyCompactList}\small\item\em Find the edge connecting the two given vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a5d1d8c28797116fe67ef032dd0695982}\label{structgraph_1_1_directed_graph_a5d1d8c28797116fe67ef032dd0695982}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (Vertex\+Id v0, Vertex\+Id v1)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(find\+\_\+vertex(v0), find\+\_\+vertex(v1))}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_ae347b9394a0c3c2c21bb9bff1a3672c0}\label{structgraph_1_1_directed_graph_ae347b9394a0c3c2c21bb9bff1a3672c0}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (Vertex\+Id v0, Vertex\+Id v1) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(find\+\_\+vertex(v0), find\+\_\+vertex(v1))}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_ad9fd91ce56415f1f6f1cb1cec320eb5b}\label{structgraph_1_1_directed_graph_ad9fd91ce56415f1f6f1cb1cec320eb5b}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} e)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(e.\+v0, e.\+v1)}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_aaeadfeeae6c619fd4d7cd1a230f8339b}\label{structgraph_1_1_directed_graph_aaeadfeeae6c619fd4d7cd1a230f8339b}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} {\bfseries find\+\_\+edge} (\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} e) const
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily find\+\_\+edge(e.\+v0, e.\+v1)}. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_aa45ea85a4a6c96f83af08c7119dac575}\label{structgraph_1_1_directed_graph_aa45ea85a4a6c96f83af08c7119dac575}} 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{edge\+\_\+ref}} $>$ {\bfseries edge} (Edge\+Id edge)
+\begin{DoxyCompactList}\small\item\em Return a reference to the edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_af9dd06a05e9bdfcb3e603aae1fa03066}\label{structgraph_1_1_directed_graph_af9dd06a05e9bdfcb3e603aae1fa03066}} 
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{const\+\_\+edge\+\_\+ref}} $>$ {\bfseries edge} (Edge\+Id edge) const
+\begin{DoxyCompactList}\small\item\em Return a const reference to the edge with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a3e123ec04d6e276883a29c7b985d0312}\label{structgraph_1_1_directed_graph_a3e123ec04d6e276883a29c7b985d0312}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} {\bfseries add\+\_\+vertex} ()
+\begin{DoxyCompactList}\small\item\em Insert a new vertex into the graph, and return an iterator to it. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a856ec584641c64a2ebedefbe0618d774}{add\+\_\+vertex}} (const V \&v)
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a476033add1be9744f595bc57692c7613}{add\+\_\+vertex}} (V \&\&v)
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a2bcc1f4b5eaa6cc014583e7040de0485}{insert\+\_\+directed\+\_\+edge}} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} src, \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} dst)
+\begin{DoxyCompactList}\small\item\em Insert a new edge into the graph connecting the two given vertices, and return an iterator to it. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_adbd250d5fc8f27a149aeab8c588a16ce}\label{structgraph_1_1_directed_graph_adbd250d5fc8f27a149aeab8c588a16ce}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} {\bfseries insert\+\_\+directed\+\_\+edge} (Vertex\+Id src, Vertex\+Id dst)
+\begin{DoxyCompactList}\small\item\em Alias for {\ttfamily insert\+\_\+directed\+\_\+edge(find\+\_\+vertex(src), find\+\_\+vertex(dst))}. \end{DoxyCompactList}\item 
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph_a950ae688b45b28edfa4c66941372821a}{insert\+\_\+undirected\+\_\+edge}} (Vertex\+Id a, Vertex\+Id b)
+\begin{DoxyCompactList}\small\item\em Insert an undirected edge between the two given vertices by inserting two directed edges in opposing directions. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_ace24e80bfb7edefab9538d69a9d7bceb}\label{structgraph_1_1_directed_graph_ace24e80bfb7edefab9538d69a9d7bceb}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_pair}{Edge\+Pair}}$<$ std\+::optional$<$ Edge\+Id $>$ $>$ {\bfseries erase} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_aa45ea85a4a6c96f83af08c7119dac575}{edge}})
+\begin{DoxyCompactList}\small\item\em Remove the given edge, and return the IDs of edges that followed it in the incoming and outgoing edge rings. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a06ebc4c3613f42b1bea9655e05171c90}\label{structgraph_1_1_directed_graph_a06ebc4c3613f42b1bea9655e05171c90}} 
+auto {\bfseries erase} (Edge\+Id eid)
+\begin{DoxyCompactList}\small\item\em Remove the edge with the given id, returning an iterator to the following edge. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_a23dd45a0a9e708c0b4181bcd93a80be0}{erase}} (\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} v)
+\begin{DoxyCompactList}\small\item\em Remove the given vertex, and return an iterator to the following vertex. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a81ea219a4a970372f980907cbc1d8a09}\label{structgraph_1_1_directed_graph_a81ea219a4a970372f980907cbc1d8a09}} 
+static constexpr bool {\bfseries Has\+Vertex\+Value} = not std\+::same\+\_\+as$<$V, void$>$
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a3920687f99e13c1261e20280047a0a09}\label{structgraph_1_1_directed_graph_a3920687f99e13c1261e20280047a0a09}} 
+static constexpr bool {\bfseries Has\+Edge\+Value} = not std\+::same\+\_\+as$<$E, void$>$
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_a856ec584641c64a2ebedefbe0618d774}\label{structgraph_1_1_directed_graph_a856ec584641c64a2ebedefbe0618d774}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!add\_vertex@{add\_vertex}}
+\index{add\_vertex@{add\_vertex}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{add\_vertex()}{add\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::add\+\_\+vertex (\begin{DoxyParamCaption}\item[{const V \&}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Insert a new vertex into the graph storing the given value, and return an iterator to it. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a476033add1be9744f595bc57692c7613}\label{structgraph_1_1_directed_graph_a476033add1be9744f595bc57692c7613}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!add\_vertex@{add\_vertex}}
+\index{add\_vertex@{add\_vertex}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{add\_vertex()}{add\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::add\+\_\+vertex (\begin{DoxyParamCaption}\item[{V \&\&}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Insert a new vertex into the graph storing the given value, and return an iterator to it. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a11590f959def012251f7e17073a857e5}\label{structgraph_1_1_directed_graph_a11590f959def012251f7e17073a857e5}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!begin\_edges@{begin\_edges}}
+\index{begin\_edges@{begin\_edges}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{begin\_edges()}{begin\_edges()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::begin\+\_\+edges (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+An iterator pointing to the first edge in the graph. 
+
+If the graph has no edges, this iterator will be equal to \mbox{\hyperlink{structgraph_1_1_directed_graph_aefad716d1c7ffbc6032b7a42b0a5013c}{end\+\_\+edges()}}. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a68faa91d71f11da3ef1b01866e460499}\label{structgraph_1_1_directed_graph_a68faa91d71f11da3ef1b01866e460499}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!begin\_edges@{begin\_edges}}
+\index{begin\_edges@{begin\_edges}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{begin\_edges()}{begin\_edges()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{const\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::begin\+\_\+edges (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+A const iterator pointing to the first edge in the graph. 
+
+If the graph has no edges, this iterator will be equal to \mbox{\hyperlink{structgraph_1_1_directed_graph_aefad716d1c7ffbc6032b7a42b0a5013c}{end\+\_\+edges()}}. \mbox{\Hypertarget{structgraph_1_1_directed_graph_ac7788a09c3a6abc7b6e0524100310b4f}\label{structgraph_1_1_directed_graph_ac7788a09c3a6abc7b6e0524100310b4f}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!begin\_incident\_edges@{begin\_incident\_edges}}
+\index{begin\_incident\_edges@{begin\_incident\_edges}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{begin\_incident\_edges()}{begin\_incident\_edges()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::begin\+\_\+incident\+\_\+edges (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{v,  }\item[{Edge\+Dir}]{dir }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return an iterator pointing to the first edge incident to {\ttfamily v} in the given direction. 
+
+The iterator begins an infinite range which cycles through all the edges incident to {\ttfamily v} in the given incidence direction.
+
+If the vertex has no edges in the given direction, \mbox{\hyperlink{structgraph_1_1_directed_graph_af93255b45f7f54d034c2c794cfed0f0a}{end\+\_\+incident\+\_\+edges()}} will be returned. \mbox{\Hypertarget{structgraph_1_1_directed_graph_aa30d6f07d0fa8e522f16a07701d5003b}\label{structgraph_1_1_directed_graph_aa30d6f07d0fa8e522f16a07701d5003b}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!begin\_incident\_edges@{begin\_incident\_edges}}
+\index{begin\_incident\_edges@{begin\_incident\_edges}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{begin\_incident\_edges()}{begin\_incident\_edges()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::begin\+\_\+incident\+\_\+edges (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{v,  }\item[{Edge\+Dir}]{dir }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return a const iterator pointing to the first edge incident to {\ttfamily v} in the given direction. 
+
+The iterator begins an infinite range which cycles through all the edges incident to {\ttfamily v} in the given incidence direction.
+
+If the vertex has no edges in the given direction, \mbox{\hyperlink{structgraph_1_1_directed_graph_af93255b45f7f54d034c2c794cfed0f0a}{end\+\_\+incident\+\_\+edges()}} will be returned. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a6d9dbaca90eb27ee358e73a25eeca0f3}\label{structgraph_1_1_directed_graph_a6d9dbaca90eb27ee358e73a25eeca0f3}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!edges@{edges}}
+\index{edges@{edges}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{edges()}{edges()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Mutable $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::edges (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v,  }\item[{Edge\+Dir}]{dir }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return an infinite range of edges which cycles through all the edges incident to {\ttfamily v} in the given direction. 
+
+If the vertex has no edges in the given direction, an empty range will be returned. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a2ed116eba7dbb0864294ef2ea9fe9d21}\label{structgraph_1_1_directed_graph_a2ed116eba7dbb0864294ef2ea9fe9d21}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!edges@{edges}}
+\index{edges@{edges}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{edges()}{edges()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range}{Incident\+Edge\+Range}}$<$ Constness\+::\+Const $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::edges (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v,  }\item[{Edge\+Dir}]{dir }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return an infinite range of immutable edges which cycles through all the edges incident to {\ttfamily v} in the given direction. 
+
+If the vertex has no edges in the given direction, an empty range will be returned. \mbox{\Hypertarget{structgraph_1_1_directed_graph_af93255b45f7f54d034c2c794cfed0f0a}\label{structgraph_1_1_directed_graph_af93255b45f7f54d034c2c794cfed0f0a}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!end\_incident\_edges@{end\_incident\_edges}}
+\index{end\_incident\_edges@{end\_incident\_edges}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{end\_incident\_edges()}{end\_incident\_edges()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::end\+\_\+incident\+\_\+edges (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+A sentinel iterator indicating an empty incident edge range. 
+
+This iterator is unreachable by incrementing a valid iterator. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a23dd45a0a9e708c0b4181bcd93a80be0}\label{structgraph_1_1_directed_graph_a23dd45a0a9e708c0b4181bcd93a80be0}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!erase@{erase}}
+\index{erase@{erase}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{erase()}{erase()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::erase (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Remove the given vertex, and return an iterator to the following vertex. 
+
+All edges incident to the vertex will also be removed. \mbox{\Hypertarget{structgraph_1_1_directed_graph_aec17a16fb52728622f958062fc5efab6}\label{structgraph_1_1_directed_graph_aec17a16fb52728622f958062fc5efab6}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [1/4]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v0,  }\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v1 }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the edge connecting the two given vertices. 
+
+If no such edge exists, \mbox{\hyperlink{structgraph_1_1_directed_graph_af93255b45f7f54d034c2c794cfed0f0a}{end\+\_\+incident\+\_\+edges()}} will be returned.
+
+This operation is O(k), with k being the degree of the smaller vertex.
+
+The direction of the iterator will be such that it is cycling about the smaller vertex. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a2eb466fed80d2a8b2df217d70c38730b}\label{structgraph_1_1_directed_graph_a2eb466fed80d2a8b2df217d70c38730b}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [2/4]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v0,  }\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}}}]{v1 }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the edge connecting the two given vertices. 
+
+If no such edge exists, \mbox{\hyperlink{structgraph_1_1_directed_graph_af93255b45f7f54d034c2c794cfed0f0a}{end\+\_\+incident\+\_\+edges()}} will be returned.
+
+This operation is O(k), with k being the degree of the smaller vertex.
+
+The direction of the iterator will be such that it is cycling about the smaller vertex. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a5a6df7f3b13ffe1025548bc1ea66bfe5}\label{structgraph_1_1_directed_graph_a5a6df7f3b13ffe1025548bc1ea66bfe5}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [3/4]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{Edge\+Id}]{e,  }\item[{Edge\+Dir}]{dir = {\ttfamily EdgeDir\+:\+:Outgoing} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return an iterator pointing to the vertex with the given id. 
+
+{\ttfamily dir} determines the direction of the iterator. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a963813abec02fad008734a3c96758ee3}\label{structgraph_1_1_directed_graph_a963813abec02fad008734a3c96758ee3}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!find\_edge@{find\_edge}}
+\index{find\_edge@{find\_edge}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{find\_edge()}{find\_edge()}\hspace{0.1cm}{\footnotesize\ttfamily [4/4]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{const\+\_\+incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::find\+\_\+edge (\begin{DoxyParamCaption}\item[{Edge\+Id}]{e,  }\item[{Edge\+Dir}]{dir = {\ttfamily EdgeDir\+:\+:Outgoing} }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return a const iterator pointing to the vertex with the given id. 
+
+{\ttfamily dir} determines the direction of the iterator. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a52472e586fe17f2b47c0cb559cb5e53f}\label{structgraph_1_1_directed_graph_a52472e586fe17f2b47c0cb559cb5e53f}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!find\_vertex@{find\_vertex}}
+\index{find\_vertex@{find\_vertex}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{find\_vertex()}{find\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::find\+\_\+vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the vertex with the given id and return a mutable iterator to it. 
+
+If the vertex does not exist, \mbox{\hyperlink{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}{end\+\_\+vertices()}} will be returned. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a237604e0f607cbed38f0374586548f48}\label{structgraph_1_1_directed_graph_a237604e0f607cbed38f0374586548f48}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!find\_vertex@{find\_vertex}}
+\index{find\_vertex@{find\_vertex}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{find\_vertex()}{find\_vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::find\+\_\+vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Find the vertex with the given id and return a const iterator to it. 
+
+If the vertex does not exist, \mbox{\hyperlink{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}{end\+\_\+vertices()}} will be returned. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a2bcc1f4b5eaa6cc014583e7040de0485}\label{structgraph_1_1_directed_graph_a2bcc1f4b5eaa6cc014583e7040de0485}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!insert\_directed\_edge@{insert\_directed\_edge}}
+\index{insert\_directed\_edge@{insert\_directed\_edge}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_directed\_edge()}{insert\_directed\_edge()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::insert\+\_\+directed\+\_\+edge (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{src,  }\item[{\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}}}]{dst }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Insert a new edge into the graph connecting the two given vertices, and return an iterator to it. 
+
+Edges may be duplicated; a new edge will be created whether or not one between the two vertices already exists. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a950ae688b45b28edfa4c66941372821a}\label{structgraph_1_1_directed_graph_a950ae688b45b28edfa4c66941372821a}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!insert\_undirected\_edge@{insert\_undirected\_edge}}
+\index{insert\_undirected\_edge@{insert\_undirected\_edge}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{insert\_undirected\_edge()}{insert\_undirected\_edge()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+std\+::pair$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}}, \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{incident\+\_\+edge\+\_\+iterator}} $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::insert\+\_\+undirected\+\_\+edge (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{a,  }\item[{Vertex\+Id}]{b }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Insert an undirected edge between the two given vertices by inserting two directed edges in opposing directions. 
+
+Return a pair of iterators to the two edges. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a36a634295d48f39a1c2f6c4273f90b09}\label{structgraph_1_1_directed_graph_a36a634295d48f39a1c2f6c4273f90b09}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!vertex@{vertex}}
+\index{vertex@{vertex}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{vertex()}{vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return a reference to the vertex with the given id, if it exists. 
+
+If the vertex does not exist, std\+::nullopt will be returned. \mbox{\Hypertarget{structgraph_1_1_directed_graph_a79ec9039f089842bb6992f717ef7c723}\label{structgraph_1_1_directed_graph_a79ec9039f089842bb6992f717ef7c723}} 
+\index{graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}!vertex@{vertex}}
+\index{vertex@{vertex}!graph::DirectedGraph$<$ V, E $>$@{graph::DirectedGraph$<$ V, E $>$}}
+\doxysubsubsection{\texorpdfstring{vertex()}{vertex()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+std\+::optional$<$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::vertex (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Return a const reference to the vertex with the given id, if it exists. 
+
+If the vertex does not exist, std\+::nullopt will be returned. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/graph.\+h\end{DoxyCompactItemize}

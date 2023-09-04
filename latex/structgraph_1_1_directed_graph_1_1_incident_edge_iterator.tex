@@ -1,0 +1,88 @@
+\hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{}\doxysection{graph\+::Directed\+Graph\texorpdfstring{$<$}{<} V, E \texorpdfstring{$>$}{>}\+::Incident\+Edge\+Iterator\texorpdfstring{$<$}{<} Const \texorpdfstring{$>$}{>} Struct Template Reference}
+\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}\index{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeIterator$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeIterator$<$ Const $>$}}
+
+
+An iterator over the edges incident to a vertex.  
+
+
+
+
+{\ttfamily \#include $<$graph.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ab4966ee2beadaa4b9e0e8115b2613ab7}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ab4966ee2beadaa4b9e0e8115b2613ab7}} 
+{\bfseries operator Incident\+Edge\+Iterator$<$ Constness\+::\+Const $>$} () const
+\begin{DoxyCompactList}\small\item\em Implicit conversion to the edge ID. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ab32082467b941a76e497dd627647a587}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ab32082467b941a76e497dd627647a587}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_ref}{Edge\+Ref}}$<$ Const $>$ {\bfseries operator$\ast$} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_adb6851608413974aadf9b09ca09fb0b6}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_adb6851608413974aadf9b09ca09fb0b6}} 
+\mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{Pointer\+Proxy}} {\bfseries operator-\/$>$} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_aeeb363512d38fea573431f0983e9c317}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_aeeb363512d38fea573431f0983e9c317}} 
+Edge\+Dir {\bfseries traversal\+\_\+direction} () const
+\begin{DoxyCompactList}\small\item\em Whether this iterator traverses incoming or outgoing edges. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a04c8d9779491c6870a3c2a9e050a266e}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a04c8d9779491c6870a3c2a9e050a266e}} 
+Graph \& {\bfseries graph} () const
+\begin{DoxyCompactList}\small\item\em The graph this iterator belongs to. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ae7cf38e0223a7b31b6d5b66697538b16}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ae7cf38e0223a7b31b6d5b66697538b16}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries source} () const
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the source vertex of the referenced edge. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a72ee6ae6fec2a14fe7849e390b20804c}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a72ee6ae6fec2a14fe7849e390b20804c}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries target} () const
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the target vertex of the referenced edge. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ac2db260ad58b9a77d26b52917a2088e6}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ac2db260ad58b9a77d26b52917a2088e6}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries pivot} () const
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the vertex about which this iterator is cycling. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a6b08a5d562b1d261cf2d5be2fa00b66f}{with\+\_\+traversal\+\_\+direction}} (Edge\+Dir dir) const
+\begin{DoxyCompactList}\small\item\em Returns an iterator with the given traversal direction. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a5b033176518ec9a3b1741daf1d132d3e}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a5b033176518ec9a3b1741daf1d132d3e}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}} \& {\bfseries operator++} ()
+\begin{DoxyCompactList}\small\item\em Advances the iterator to the next edge in the current edge direction. ~\newline
+ \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ac3f1e543d3ad8a42a446aa782b2766c3}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_ac3f1e543d3ad8a42a446aa782b2766c3}} 
+{\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&other) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a9ea1a672635fc210716f7ca47cd8c647}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a9ea1a672635fc210716f7ca47cd8c647}} 
+{\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_edge_iterator}{Edge\+Iterator}}$<$ K $>$ \&other) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a8d38492bba338329b1d90a522ca1f338}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a8d38492bba338329b1d90a522ca1f338}} 
+{\bfseries operator Edge\+Id} () const
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename V = void, typename E = void$>$\newline
+template$<$Constness Const$>$\newline
+struct graph\+::\+Directed\+Graph$<$ V, E $>$\+::\+Incident\+Edge\+Iterator$<$ Const $>$}
+An iterator over the edges incident to a vertex. 
+
+The iterator is cyclical, so it will wrap around to the first edge after the last.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Const} & Whether the referenced edges are mutable or const. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a6b08a5d562b1d261cf2d5be2fa00b66f}\label{structgraph_1_1_directed_graph_1_1_incident_edge_iterator_a6b08a5d562b1d261cf2d5be2fa00b66f}} 
+\index{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeIterator$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeIterator$<$ Const $>$}!with\_traversal\_direction@{with\_traversal\_direction}}
+\index{with\_traversal\_direction@{with\_traversal\_direction}!graph::DirectedGraph$<$ V, E $>$::IncidentEdgeIterator$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeIterator$<$ Const $>$}}
+\doxysubsubsection{\texorpdfstring{with\_traversal\_direction()}{with\_traversal\_direction()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+template$<$Constness Const$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::\+Incident\+Edge\+Iterator$<$ Const $>$\+::with\+\_\+traversal\+\_\+direction (\begin{DoxyParamCaption}\item[{Edge\+Dir}]{dir }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Returns an iterator with the given traversal direction. 
+
+Changing the traversal direction causes the iterator to cycle around the edges incident to the opposite vertex, changing the pivot. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/graph.\+h\end{DoxyCompactItemize}

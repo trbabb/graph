@@ -1,0 +1,77 @@
+\hypertarget{structgraph_1_1_digraph_1_1_edge_iterator}{}\doxysection{graph\+::Digraph\texorpdfstring{$<$}{<} V, E, Map \texorpdfstring{$>$}{>}\+::Edge\+Iterator\texorpdfstring{$<$}{<} Const \texorpdfstring{$>$}{>} Struct Template Reference}
+\label{structgraph_1_1_digraph_1_1_edge_iterator}\index{graph::Digraph$<$ V, E, Map $>$::EdgeIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::EdgeIterator$<$ Const $>$}}
+
+
+An iterator over all the edges in a graph.  
+
+
+
+
+{\ttfamily \#include $<$digraph.\+h$>$}
+
+\doxysubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_ae0c5d616ebfc8d2d029c15a997d89412}\label{structgraph_1_1_digraph_1_1_edge_iterator_ae0c5d616ebfc8d2d029c15a997d89412}} 
+using {\bfseries value\+\_\+type} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{Edge\+Ref}}$<$ Const $>$
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a33825de7a8b4b292260a8c66af377898}\label{structgraph_1_1_digraph_1_1_edge_iterator_a33825de7a8b4b292260a8c66af377898}} 
+{\bfseries Edge\+Iterator} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}} \&other)=default
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a72e6feefb5cea869dfadb44ab4fedb60}\label{structgraph_1_1_digraph_1_1_edge_iterator_a72e6feefb5cea869dfadb44ab4fedb60}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}} \& {\bfseries operator=} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}} \&other)=default
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a5a70e218b884010836e838868fde475a}\label{structgraph_1_1_digraph_1_1_edge_iterator_a5a70e218b884010836e838868fde475a}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{Edge\+Ref}}$<$ Const $>$ {\bfseries operator$\ast$} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a164b6ccdffea6638cdd1b5df595b4541}\label{structgraph_1_1_digraph_1_1_edge_iterator_a164b6ccdffea6638cdd1b5df595b4541}} 
+\mbox{\hyperlink{structgraph_1_1detail_1_1arrow__proxy}{Pointer\+Proxy}} {\bfseries operator-\/$>$} () const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a3d7f3d8d3ad59668d6b8408334c3bdf5}\label{structgraph_1_1_digraph_1_1_edge_iterator_a3d7f3d8d3ad59668d6b8408334c3bdf5}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries source} () const
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the source vertex of the referenced edge. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a7778384122737846863f7ed1196081c2}\label{structgraph_1_1_digraph_1_1_edge_iterator_a7778384122737846863f7ed1196081c2}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries target} () const
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the target vertex of the referenced edge. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_aa70a5cd3e8c378ccf28018d578dcd0d8}\label{structgraph_1_1_digraph_1_1_edge_iterator_aa70a5cd3e8c378ccf28018d578dcd0d8}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}} \& {\bfseries operator++} ()
+\begin{DoxyCompactList}\small\item\em Advance the iterator to the next edge in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a93beef74710eed24a04e21df5c853c3d}\label{structgraph_1_1_digraph_1_1_edge_iterator_a93beef74710eed24a04e21df5c853c3d}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}} \& {\bfseries operator-\/-\/} ()
+\begin{DoxyCompactList}\small\item\em Decrement the iterator to the previous edge in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_ad56a549a094ba50d34058e5cc5056397}\label{structgraph_1_1_digraph_1_1_edge_iterator_ad56a549a094ba50d34058e5cc5056397}} 
+{\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}}$<$ K $>$ \&other) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a8266d87ad50318d46f7485df9da7e425}\label{structgraph_1_1_digraph_1_1_edge_iterator_a8266d87ad50318d46f7485df9da7e425}} 
+{\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&other) const
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a2a9face91a864f6ed55595986191e487}\label{structgraph_1_1_digraph_1_1_edge_iterator_a2a9face91a864f6ed55595986191e487}} 
+{\bfseries operator Edge\+Id} () const
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a3f5f04861e9fe4dbf9d24d988fb9b105}\label{structgraph_1_1_digraph_1_1_edge_iterator_a3f5f04861e9fe4dbf9d24d988fb9b105}} 
+{\footnotesize template$<$typename Vert\+Key , typename Vert\+Val , typename Edge\+Key , typename Edge\+Val , template$<$ class... $>$ class M$>$ }\\struct {\bfseries Digraph\+Map}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename V = void, typename E = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$\newline
+template$<$Constness Const$>$\newline
+struct graph\+::\+Digraph$<$ V, E, Map $>$\+::\+Edge\+Iterator$<$ Const $>$}
+An iterator over all the edges in a graph. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Const} & \\
+\hline
+\end{DoxyTemplParams}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/digraph.\+h\end{DoxyCompactItemize}

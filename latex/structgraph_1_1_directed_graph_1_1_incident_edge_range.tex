@@ -1,0 +1,65 @@
+\hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_range}{}\doxysection{graph\+::Directed\+Graph\texorpdfstring{$<$}{<} V, E \texorpdfstring{$>$}{>}\+::Incident\+Edge\+Range\texorpdfstring{$<$}{<} Const \texorpdfstring{$>$}{>} Struct Template Reference}
+\label{structgraph_1_1_directed_graph_1_1_incident_edge_range}\index{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$}}
+
+
+A range capturing all the edges incident to a vertex in a given direction.  
+
+
+
+
+{\ttfamily \#include $<$graph.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range_a069269549ce2282aa2b04b4a539625e7}{begin}} () const
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the first edge in the infinite, cyclical range of vertices incident to the given vertex. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range_a4bc816401f3d14d316c6909305dda70e}{end}} () const
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the end of the range. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename V = void, typename E = void$>$\newline
+template$<$Constness Const$>$\newline
+struct graph\+::\+Directed\+Graph$<$ V, E $>$\+::\+Incident\+Edge\+Range$<$ Const $>$}
+A range capturing all the edges incident to a vertex in a given direction. 
+
+The range is cyclical and will eventually return to the starting edge.
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Const} & Whether the referenced edges are const or mutable. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_range_a069269549ce2282aa2b04b4a539625e7}\label{structgraph_1_1_directed_graph_1_1_incident_edge_range_a069269549ce2282aa2b04b4a539625e7}} 
+\index{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$}!begin@{begin}}
+\index{begin@{begin}!graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$}}
+\doxysubsubsection{\texorpdfstring{begin()}{begin()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+template$<$Constness Const$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::\+Incident\+Edge\+Range$<$ Const $>$\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+An iterator pointing to the first edge in the infinite, cyclical range of vertices incident to the given vertex. 
+
+If the vertex does not exist in the graph, this iterator will be equal to \mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_range_a4bc816401f3d14d316c6909305dda70e}{end()}}. \mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_incident_edge_range_a4bc816401f3d14d316c6909305dda70e}\label{structgraph_1_1_directed_graph_1_1_incident_edge_range_a4bc816401f3d14d316c6909305dda70e}} 
+\index{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$}!end@{end}}
+\index{end@{end}!graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$@{graph::DirectedGraph$<$ V, E $>$::IncidentEdgeRange$<$ Const $>$}}
+\doxysubsubsection{\texorpdfstring{end()}{end()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+template$<$Constness Const$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::\+Incident\+Edge\+Range$<$ Const $>$\+::end (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+An iterator pointing to the end of the range. 
+
+This iterator can never be reached by incrementing a valid iterator. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/graph.\+h\end{DoxyCompactItemize}

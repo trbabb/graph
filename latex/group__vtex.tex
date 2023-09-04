@@ -1,0 +1,103 @@
+\hypertarget{group__vtex}{}\doxysection{Vtex}
+\label{group__vtex}\index{Vtex@{Vtex}}
+
+
+Vertex methods.  
+
+
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} \mbox{\hyperlink{group__vtex_gad5ba4d05815d1a1870152132ca68f6ba}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]}}} (Vertex\+Id v) const
+\begin{DoxyCompactList}\small\item\em Retrieve a const reference to the vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{vertex\+\_\+ref}} \mbox{\hyperlink{group__vtex_gacaadcfcc00f15548864bccedfe9e5469}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]}}} (Vertex\+Id v)
+\begin{DoxyCompactList}\small\item\em Retrieve a reference to the vertex with the given id. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{group__vtex_ga146bb27950e3814f4decf77a1695e393}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::contains}} (Vertex\+Id vid) const
+\begin{DoxyCompactList}\small\item\em Whether the graph contains a vertex with the given id. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group__vtex_ga6c62d3847337c93ad19415e86cdda0c0}\label{group__vtex_ga6c62d3847337c93ad19415e86cdda0c0}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Mutable $>$ {\bfseries graph\+::\+Directed\+Graph$<$ V, E $>$\+::vertices} ()
+\begin{DoxyCompactList}\small\item\em A range of all the vertices in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{group__vtex_ga372dcc3847bac8e9c7ef73b9f264dd15}\label{group__vtex_ga372dcc3847bac8e9c7ef73b9f264dd15}} 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_range}{Vertex\+Range}}$<$ Constness\+::\+Const $>$ {\bfseries graph\+::\+Directed\+Graph$<$ V, E $>$\+::vertices} () const
+\begin{DoxyCompactList}\small\item\em An immutable range of all the vertices in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{group__vtex_gad7e25fd9d82815deeaaac9a7f150cf12}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::begin\+\_\+vertices}} ()
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::end\+\_\+vertices}} ()
+\begin{DoxyCompactList}\small\item\em A sentinel iterator pointing beyond the end of the range of vertices. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{group__vtex_ga2d91b03c6016da3bd09d7d9c4cc83d7d}{graph\+::\+Directed\+Graph$<$ V, E $>$\+::begin\+\_\+vertices}} () const
+\begin{DoxyCompactList}\small\item\em A const iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Vertex methods. 
+
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{group__vtex_gad7e25fd9d82815deeaaac9a7f150cf12}\label{group__vtex_gad7e25fd9d82815deeaaac9a7f150cf12}} 
+\index{Vtex@{Vtex}!begin\_vertices@{begin\_vertices}}
+\index{begin\_vertices@{begin\_vertices}!Vtex@{Vtex}}
+\doxysubsubsection{\texorpdfstring{begin\_vertices()}{begin\_vertices()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::begin\+\_\+vertices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+An iterator pointing to the first vertex in the graph. 
+
+If the graph is empty, this iterator will be equal to \mbox{\hyperlink{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}{end\+\_\+vertices()}}. \mbox{\Hypertarget{group__vtex_ga2d91b03c6016da3bd09d7d9c4cc83d7d}\label{group__vtex_ga2d91b03c6016da3bd09d7d9c4cc83d7d}} 
+\index{Vtex@{Vtex}!begin\_vertices@{begin\_vertices}}
+\index{begin\_vertices@{begin\_vertices}!Vtex@{Vtex}}
+\doxysubsubsection{\texorpdfstring{begin\_vertices()}{begin\_vertices()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{const\+\_\+vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::begin\+\_\+vertices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+A const iterator pointing to the first vertex in the graph. 
+
+If the graph is empty, this iterator will be equal to \mbox{\hyperlink{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}{end\+\_\+vertices()}}. \mbox{\Hypertarget{group__vtex_ga146bb27950e3814f4decf77a1695e393}\label{group__vtex_ga146bb27950e3814f4decf77a1695e393}} 
+\index{Vtex@{Vtex}!contains@{contains}}
+\index{contains@{contains}!Vtex@{Vtex}}
+\doxysubsubsection{\texorpdfstring{contains()}{contains()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+bool \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::contains (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{vid }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Whether the graph contains a vertex with the given id. 
+
+\mbox{\Hypertarget{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}\label{group__vtex_ga36c9846ab7c25f67992feea6a4e202e1}} 
+\index{Vtex@{Vtex}!end\_vertices@{end\_vertices}}
+\index{end\_vertices@{end\_vertices}!Vtex@{Vtex}}
+\doxysubsubsection{\texorpdfstring{end\_vertices()}{end\_vertices()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_iterator}{vertex\+\_\+iterator}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::end\+\_\+vertices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+A sentinel iterator pointing beyond the end of the range of vertices. 
+
+\mbox{\Hypertarget{group__vtex_gacaadcfcc00f15548864bccedfe9e5469}\label{group__vtex_gacaadcfcc00f15548864bccedfe9e5469}} 
+\index{Vtex@{Vtex}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!Vtex@{Vtex}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve a reference to the vertex with the given id. 
+
+If the vertex does not exist, it will be created. \mbox{\Hypertarget{group__vtex_gad5ba4d05815d1a1870152132ca68f6ba}\label{group__vtex_gad5ba4d05815d1a1870152132ca68f6ba}} 
+\index{Vtex@{Vtex}!operator\mbox{[}\mbox{]}@{operator[]}}
+\index{operator\mbox{[}\mbox{]}@{operator[]}!Vtex@{Vtex}}
+\doxysubsubsection{\texorpdfstring{operator[]()}{operator[]()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void$>$ \\
+\mbox{\hyperlink{structgraph_1_1_directed_graph_1_1_vertex_ref}{const\+\_\+vertex\+\_\+ref}} \mbox{\hyperlink{structgraph_1_1_directed_graph}{graph\+::\+Directed\+Graph}}$<$ V, E $>$\+::operator\mbox{[}$\,$\mbox{]} (\begin{DoxyParamCaption}\item[{Vertex\+Id}]{v }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Retrieve a const reference to the vertex with the given id. 
+
+If the vertex does not exist, {\ttfamily std\+::out\+\_\+of\+\_\+range} will be thrown. 

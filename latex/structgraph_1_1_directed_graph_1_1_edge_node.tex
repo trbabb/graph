@@ -1,0 +1,49 @@
+\hypertarget{structgraph_1_1_directed_graph_1_1_edge_node}{}\doxysection{graph\+::Directed\+Graph\texorpdfstring{$<$}{<} V, E \texorpdfstring{$>$}{>}\+::Edge\+Node Struct Reference}
+\label{structgraph_1_1_directed_graph_1_1_edge_node}\index{graph::DirectedGraph$<$ V, E $>$::EdgeNode@{graph::DirectedGraph$<$ V, E $>$::EdgeNode}}
+
+
+A node in a linked list of edges.  
+
+
+
+
+{\ttfamily \#include $<$graph.\+h$>$}
+
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_edge_node_a80836c6b9d4e17197b0678a81fb92de9}\label{structgraph_1_1_directed_graph_1_1_edge_node_a80836c6b9d4e17197b0678a81fb92de9}} 
+\mbox{\hyperlink{structgraph_1_1_edge}{Edge}} {\bfseries edge}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_edge_node_aede1080e8f2810b3262f8b36fb106745}\label{structgraph_1_1_directed_graph_1_1_edge_node_aede1080e8f2810b3262f8b36fb106745}} 
+\begin{tabbing}
+xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=xx\=\kill
+union \{\\
+\>EdgeId {\bfseries next} \mbox{[}2\mbox{]}\\
+\mbox{\Hypertarget{uniongraph_1_1_directed_graph_1_1_edge_node_1_1_0d0_afbe864433aa9013333c011fa40510313}\label{uniongraph_1_1_directed_graph_1_1_edge_node_1_1_0d0_afbe864433aa9013333c011fa40510313}} 
+\>struct \{\\
+\>\>EdgeId {\bfseries next\_incoming}\\
+\>\>EdgeId {\bfseries next\_outgoing}\\
+\>\} \\
+\}; \\
+
+\end{tabbing}\item 
+\mbox{\Hypertarget{structgraph_1_1_directed_graph_1_1_edge_node_ab0c2cfcdaa1adff65f079fbddf0b0399}\label{structgraph_1_1_directed_graph_1_1_edge_node_ab0c2cfcdaa1adff65f079fbddf0b0399}} 
+Edge\+Data {\bfseries data}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename V, typename E$>$\newline
+struct graph\+::\+Directed\+Graph$<$ V, E $>$\+::\+Edge\+Node}
+A node in a linked list of edges. 
+
+Each edge node links to the next edge in two lists\+: One of the outgoing edges around the source vertex, and one of the incoming edges around the target vertex.
+
+If the edge is the last in the list, it points to itself.
+
+If this graph stores edge values, the edge data is stored in {\ttfamily data}. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/graph.\+h\end{DoxyCompactItemize}

@@ -1,0 +1,61 @@
+\hypertarget{structgraph_1_1_digraph_1_1_vertex_range}{}\doxysection{graph\+::Digraph\texorpdfstring{$<$}{<} V, E, Map \texorpdfstring{$>$}{>}\+::Vertex\+Range\texorpdfstring{$<$}{<} Const \texorpdfstring{$>$}{>} Struct Template Reference}
+\label{structgraph_1_1_digraph_1_1_vertex_range}\index{graph::Digraph$<$ V, E, Map $>$::VertexRange$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::VertexRange$<$ Const $>$}}
+
+
+A range capturing all the edges in a graph.  
+
+
+
+
+{\ttfamily \#include $<$digraph.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_range_a456789b2d94bcdbc5d6a748e3d6d69b5}{begin}} () const
+\begin{DoxyCompactList}\small\item\em An iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_range_aa7773a51c98ebb83d8c4753800f69f87}\label{structgraph_1_1_digraph_1_1_vertex_range_aa7773a51c98ebb83d8c4753800f69f87}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Const $>$ {\bfseries end} () const
+\begin{DoxyCompactList}\small\item\em A sentinel iterator pointing beyond the end of the range of vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_range_a05dac6bf0eba96d2186ee4e5e0512ff4}\label{structgraph_1_1_digraph_1_1_vertex_range_a05dac6bf0eba96d2186ee4e5e0512ff4}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Const $>$ {\bfseries cbegin} () const
+\begin{DoxyCompactList}\small\item\em A const iterator pointing to the first vertex in the graph. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_range_a53927ae09ae83511fc916927782e894d}\label{structgraph_1_1_digraph_1_1_vertex_range_a53927ae09ae83511fc916927782e894d}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Constness\+::\+Const $>$ {\bfseries cend} () const
+\begin{DoxyCompactList}\small\item\em A const sentinel iterator pointing beyond the end of the range of vertices. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_range_a15a9cdaadd292c75470eb2bc665459bd}\label{structgraph_1_1_digraph_1_1_vertex_range_a15a9cdaadd292c75470eb2bc665459bd}} 
+size\+\_\+t {\bfseries size} () const
+\begin{DoxyCompactList}\small\item\em The number of vertices in the graph. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\subsubsection*{template$<$typename V = void, typename E = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$\newline
+template$<$Constness Const$>$\newline
+struct graph\+::\+Digraph$<$ V, E, Map $>$\+::\+Vertex\+Range$<$ Const $>$}
+A range capturing all the edges in a graph. 
+
+
+\begin{DoxyTemplParams}{Template Parameters}
+{\em Const} & Whether the referenced edges are const or mutable. \\
+\hline
+\end{DoxyTemplParams}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_vertex_range_a456789b2d94bcdbc5d6a748e3d6d69b5}\label{structgraph_1_1_digraph_1_1_vertex_range_a456789b2d94bcdbc5d6a748e3d6d69b5}} 
+\index{graph::Digraph$<$ V, E, Map $>$::VertexRange$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::VertexRange$<$ Const $>$}!begin@{begin}}
+\index{begin@{begin}!graph::Digraph$<$ V, E, Map $>$::VertexRange$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::VertexRange$<$ Const $>$}}
+\doxysubsubsection{\texorpdfstring{begin()}{begin()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$Constness Const$>$ \\
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_iterator}{Vertex\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::\+Vertex\+Range$<$ Const $>$\+::begin (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+An iterator pointing to the first vertex in the graph. 
+
+If the graph is empty, this iterator will be equal to \mbox{\hyperlink{structgraph_1_1_digraph_a29fc6bcdf6b17be31c43ca6fac346754}{end\+\_\+vertices()}}. 
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+graph/digraph.\+h\end{DoxyCompactItemize}
