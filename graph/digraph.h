@@ -191,20 +191,44 @@ namespace graph {
 /**
  * @brief A class representing a directed graph.
  * 
+ *     #include <graph/digraph.h>
+ * 
+ * Values may optionally be associated with either vertices or edges. If no value
+ * is to be stored, the type `void` may be used, and no storage will be allocated
+ * for that type.
+ * 
+ * The graph associates a unique ID with each vertex and edge. These IDs are unique
+ * to the graph container they belong to, are 64-bit, and are never re-used by the
+ * same container.
+ * 
+ * If you need to index edges or vertices by custom keys, use the `DigraphMap` class
+ * defined in `<graph/digraph_map.h>`.
+ * 
  * Iterator invalidation follows the same rules as the underlying map type, since
  * all iterators wrap the iterators of the underlying map.
  * 
  * Indexing by a valid iterator will generally be more performant than indexing by ID.
  * 
  * Indexing by ID will always be stable, regardless of mutations to other vertices and edges.
- * IDs are 64-bit and are never re-used. Indexing by a disused ID will return the corresponding
- * `end()` iterator.
+ * Indexing by a disused ID will return the corresponding `end()` iterator.
  * 
  * Iterators to vertices are independent of iterators to edges; i.e. mutations to the set of
  * edges will not invalidate vertex iterators. Additions to the set of vertices will not
  * invalidate edge iterators; however, deletion of vertices will also delete all edges
  * incident to that vertex, which in turn *may* invalidate edge iterators (depending on the
  * iterator stability guarantees of the underlying map).
+ * 
+ * The graph is implemented as two maps from IDs to data: One for vertices, and one for edges.
+ * Edges belong to linked lists of edges incident to each vertex. An edge belongs to two
+ * such lists: One for incoming edges, and one for outgoing edges. The nodes in each
+ * list are connected by their stable IDs, and are sequenced in insertion order.
+ * 
+ * The type of map which stores vertices and edges may be passed as a template template
+ * parameter. The default map is `std::unordered_map`, but much better performance may
+ * be obtained by using a modern third-party hash map such as `absl::flat_hash_map` or
+ * `ankerl::unordered_dense::map`. The map parameter is a **template template**
+ * parameter, so you must pass the template name itself without any template arguments, like:
+ * `Digraph<int, int, std::unordered_map>`.
  * 
  * @tparam V Type associated with vertices (may be `void`).
  * @tparam E Type associated with edges (may be `void`).
@@ -924,8 +948,8 @@ public:
 
 private:
     
-    // assumes the given edge is definitely in the ring.
-    // returns the next edge ID in the ring.
+    // assumes the given edge is definitely in the list.
+    // returns the next edge ID in the list.
     std::optional<EdgeId> _remove_from_list(
             vertex_iterator v,
             EdgeDir dir, 
@@ -1088,17 +1112,17 @@ public:
         }
         for (EdgeDir dir : {EdgeDir::Incoming, EdgeDir::Outgoing}) {
             for (auto e = begin_incident_edges(v, dir); e != end_incident_edges(); ) {
-                // remove the edge from the other vertex's ring
+                // remove the edge from the other vertex's list
                 const Edge& this_edge = e->edge();
                 // if we're iterating over this vertex's incoming edges, then this vertex is
                 // the destination, and the other vertex is the edge's source. Vice versa for
                 // the other direction.
                 VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
                 vertex_iterator other = find_vertex(other_id);
-                // remove the edge from the other vertex's (opposite-direction) ring
+                // remove the edge from the other vertex's (opposite-direction) list
                 _remove_from_list(other, ~dir, e.inner_iterator());
                 
-                // don't bother removing the edge from the current ring, because we're
+                // don't bother removing the edge from the current list, because we're
                 // about to erase it anyway. increment the iterator by following its link
                 // to the next edge now; after we erase the edge, the iterator will
                 // be invalid.
@@ -1145,7 +1169,7 @@ private:
             eid,
             EdgeNode {
                 edge,
-                // point to the head of the incoming and outgoing edge rings.
+                // point to the head of the incoming and outgoing edge lists.
                 .next_incoming = v1.incoming_edges.head,
                 .next_outgoing = v0.outgoing_edges.head,
                 .data { std::forward<Args>(args)... }
@@ -1270,7 +1294,7 @@ public:
     
     /**
      * @brief Remove the given edge, and return the IDs of edges that followed it in the
-     * incoming and outgoing edge rings.
+     * incoming and outgoing edge sequences.
      * 
      * This is slightly more efficient than the overload of erase() which returns an
      * incident_edge_iterator.

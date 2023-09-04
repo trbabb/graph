@@ -76,11 +76,13 @@ struct Instrumentation {
  * @brief A digraph class that allows vertices and/or edges to be indexed by a custom type
  * in O(1) time.
  * 
- * Because this is a subclass, verts and edges will also continue to be indexable by VertexId
- * and EdgeId, respectively.
+ *
+ *     #include <graph/digraph_map.h>
  * 
  * It is permitted for one of the key types to be void, in which case the corresponding
  * indexing methods will not be available.
+ * 
+ * Vertices and edges will additionally be indexable by VertexId and EdgeId, respectively.
  * 
  * As in the base class, value types for vertices and edges may each be void / omitted.
  * 
