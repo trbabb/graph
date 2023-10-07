@@ -269,6 +269,11 @@ private:
     >
     friend struct DigraphMap;
     
+    struct EdgeLink {
+        std::optional<EdgeId> prev = std::nullopt;
+        std::optional<EdgeId> next = std::nullopt;
+    };
+    
     /**
      * @brief A node in a linked list of edges.
      * 
@@ -283,10 +288,10 @@ private:
     struct EdgeNode {
         Edge edge;
         union {
-            std::optional<EdgeId> next[2] = {std::nullopt, std::nullopt};
+            EdgeLink links[2] = {std::nullopt, std::nullopt};
             struct {
-                std::optional<EdgeId> next_incoming;
-                std::optional<EdgeId> next_outgoing;
+                EdgeLink incoming;
+                EdgeLink outgoing;
             };
         };
         EdgeData data;
@@ -651,9 +656,17 @@ public:
         
         /// Advances the iterator to the next edge in the current edge direction.  
         IncidentEdgeIterator& operator++() {
-            std::optional<EdgeId> next_id = _i->second.next[(int) _dir];
+            std::optional<EdgeId> next_id = _i->second.links[(int) _dir].next;
             _i = next_id
                 ? _graph->_edges.find(*next_id)
+                : _graph->_edges.end();
+            return *this;
+        }
+        
+        IncidentEdgeIterator& operator--() {
+            std::optional<EdgeId> prev_id = _i->second.links[(int) _dir].prev;
+            _i = prev_id
+                ? _graph->_edges.find(*prev_id)
                 : _graph->_edges.end();
             return *this;
         }
@@ -974,7 +987,8 @@ private:
     
     // assumes the given edge is definitely in the list.
     // returns the next edge ID in the list.
-    std::optional<EdgeId> _remove_from_list(
+    // does not erase the edge from the graph.
+    std::optional<EdgeId> _excise_from_list(
             vertex_iterator v,
             EdgeDir dir, 
             typename Edges::iterator edge)
@@ -986,35 +1000,25 @@ private:
             list.size = 0;
             return std::nullopt;
         } else {
-            EdgeList& list = v->node().edges[(int) dir];
+            const EdgeNode& e = edge->second;
             std::optional<EdgeId> edge_id = edge->first;
-            std::optional<EdgeId> prev_id = std::nullopt;
-            std::optional<EdgeId> cur_id  = list.head;
-            auto e_prev = _edges.end();
-            auto e_cur  = e_prev;
-            while(cur_id.has_value()) {
-                e_cur = _edges.find(*cur_id);
-                std::optional<EdgeId> next_id = e_cur->second.next[(int) dir];
-                if (cur_id == edge_id) {
-                    // found the edge to remove; excise it from the list
-                    if (not prev_id) {
-                        // removing the head
-                        list.head = next_id;
-                    } else {
-                        // removing an interior or tail edge.
-                        // make the previous edge skip the deleted one.
-                        e_prev->second.next[(int) dir] = next_id;
-                    }
-                    list.size -= 1;
-                    cur_id = next_id;
-                    break;
-                } else {
-                    prev_id = cur_id;
-                    cur_id  = next_id;
-                    e_prev  = e_cur;
-                }
+            std::optional<EdgeId> next_id = e.links[(int) dir].next;
+            std::optional<EdgeId> prev_id = e.links[(int) dir].prev;
+            
+            if (prev_id) {
+                // previous edge exists and should skip the deleted node
+                _edges.find(*prev_id)->second.links[(int) dir].next = next_id;
+            } else {
+                // the deleted edge is was the head of the list
+                list.head = next_id;
             }
-            return cur_id;
+            
+            if (next_id) {
+                // next edge exists and should skip the deleted node
+                _edges.find(*next_id)->second.links[(int) dir].prev = prev_id;
+            }
+            list.size -= 1;
+            return next_id;
         }
     }
 
@@ -1144,14 +1148,14 @@ public:
                 VertexId other_id = (dir == EdgeDir::Incoming) ? this_edge.v0 : this_edge.v1;
                 vertex_iterator other = find_vertex(other_id);
                 // remove the edge from the other vertex's (opposite-direction) list
-                _remove_from_list(other, ~dir, e.inner_iterator());
+                _excise_from_list(other, ~dir, e.inner_iterator());
                 
                 // don't bother removing the edge from the current list, because we're
                 // about to erase it anyway. increment the iterator by following its link
                 // to the next edge now; after we erase the edge, the iterator will
                 // be invalid.
                 auto e_iter = e.inner_iterator();
-                std::optional<EdgeId> next_id = e_iter->second.next[(int) dir];
+                std::optional<EdgeId> next_id = e_iter->second.links[(int) dir].next;
                 // erase the edge
                 _edges.erase(e_iter);
                 if (not next_id) break;
@@ -1194,19 +1198,24 @@ private:
             eid,
             EdgeNode {
                 edge,
-                // point to the head of the incoming and outgoing edge lists.
-                .next_incoming = v1.incoming_edges.head,
-                .next_outgoing = v0.outgoing_edges.head,
+                // the new edge points to the head of the incoming and outgoing edge lists
+                .incoming = {.next = v1.incoming_edges.head},
+                .outgoing = {.next = v0.outgoing_edges.head},
                 .data { std::forward<Args>(args)... }
             }
         });
     
-        auto _prepend_head = [](VertexNode& v, EdgeDir dir, EdgeId eid) {
+        // the new edge becomes the head of the incoming and outgoing edge lists
+        auto _prepend_head = [&](VertexNode& v, EdgeDir dir, EdgeId eid) {
             EdgeList& edge_list = v.edges[(int) dir];
+            if (edge_list.head) {
+                // the previous head points backwards to the new head
+                auto prev_head = _edges.find(*edge_list.head);
+                prev_head->second.links[(int) dir].prev = eid;
+            }
             edge_list.head = eid;
             edge_list.size += 1;
         };
-        
         _prepend_head(v0, EdgeDir::Outgoing, eid);
         _prepend_head(v1, EdgeDir::Incoming, eid);
         
@@ -1307,8 +1316,8 @@ private:
         vertex_iterator  v0 = find_vertex(e.v0);
         vertex_iterator  v1 = find_vertex(e.v1);
         
-        std::optional<EdgeId> out_id = _remove_from_list(v0, EdgeDir::Outgoing, edge);
-        std::optional<EdgeId>  in_id = _remove_from_list(v1, EdgeDir::Incoming, edge);
+        std::optional<EdgeId> out_id = _excise_from_list(v0, EdgeDir::Outgoing, edge);
+        std::optional<EdgeId>  in_id = _excise_from_list(v1, EdgeDir::Incoming, edge);
         
         auto next_edge = _edges.erase(edge);
         return {{in_id, out_id}, next_edge};
