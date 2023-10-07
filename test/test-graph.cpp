@@ -2,10 +2,10 @@
 
 #include <iostream>
 #include <random>
-#include <pcg_random.hpp>
-#include <gtest/gtest.h>
 #include <chrono>
 
+#include <pcg_random.hpp>
+#include <gtest/gtest.h>
 #include <ankerl/unordered_dense.h>
 
 #define _GRAPH_TEST_HARNESS_INSTRUMENTATION
@@ -42,6 +42,7 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
 // todo: test self-loop edges
 // todo: test with each of the value types as void
 // todo: test DigraphMap with each of the key types equal to void
+// todo: test iterators and refs with const graphs
 
 
 /// make a 'star' graph with a central vertex and `n_verts` adjacent to it in the
@@ -212,14 +213,14 @@ TEST(TEST_MODULE_NAME, graph_map) {
 }
 
 
-TEST(TEST_MODULE_NAME, test_double_indirect) {
+TEST(TEST_MODULE_NAME, test_double_indirect_perf) {
     size_t n = 10'000;
     auto rng   = std::uniform_int_distribution<size_t>();
     auto rng_d = std::uniform_real_distribution<double>(0, 1);
     Map<std::string, size_t> keys;
     Map<size_t, double> vals;
     std::string* key_arr = new std::string[n];
-    size_t* id_arr = new size_t[n];
+    size_t*      id_arr  = new size_t[n];
     for (size_t i = 0; i < 5000; ++i) {
         size_t id = rng(rng_eng);
         id_arr[i] = id;
@@ -240,7 +241,7 @@ TEST(TEST_MODULE_NAME, test_double_indirect) {
     _dummy = d;
     delta_t ms = t2 - t1;
     
-    std::cout << "key -> id -> val: " << ms.count() << "\n";
+    std::cout << "  key -> id -> val: " << ms.count() << " ms\n";
     
     d = 0;
     t1 = perftimer_t::now();
@@ -254,7 +255,7 @@ TEST(TEST_MODULE_NAME, test_double_indirect) {
     _dummy = d;
     ms = t2 - t1;
     
-    std::cout << "key -> val: " << ms.count() << "\n";
+    std::cout << "  key -> val: " << ms.count() << " ms\n";
     
     d = 0;
     t1 = perftimer_t::now();
@@ -268,8 +269,8 @@ TEST(TEST_MODULE_NAME, test_double_indirect) {
     _dummy = d;
     ms = t2 - t1;
     
-    std::cout << "id -> val: " << ms.count() << "\n";
-    
+    std::cout << "  id -> val: " << ms.count() << " ms\n";
     
     delete[] key_arr;
+    delete[] id_arr;
 }

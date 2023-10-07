@@ -1,4 +1,4 @@
-PREFIX    = /usr/local
+PREFIX      = /usr/local
 INCLUDE_DIR = graph
 
 H_FILES  = $(wildcard $(INCLUDE_DIR)/*.h)

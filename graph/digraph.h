@@ -9,6 +9,8 @@
 //    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
 //    invalidate the key-value mapping.
 //    > consider also the access granted by shared iterator and range classes.
+// todo: edge insertion should use try_emplace for better forwarding semantics.
+//    also document that behavior
 // todo: wbn to have a pre-built class that indexes edges by Pair<VertexId>
 // todo: expose pseudo-containers for the verts and edges?
 //    would allow disambiguation for operator[], etc; and a lot of
@@ -224,6 +226,9 @@ namespace graph {
  *        // ...
  *     }
  * 
+ * Self-loop edges are supported. Duplicate edges are also supported, and are distinguished
+ * by their unique IDs.
+ * 
  * The graph is implemented as two maps from IDs to data: One for vertices, and one for edges.
  * Edges belong to linked lists of edges incident to each vertex. An edge belongs to two
  * such lists: One for incoming edges, and one for outgoing edges. The nodes in each
@@ -367,8 +372,9 @@ public:
             typename Edges::const_iterator,
             typename Edges::iterator
         >;
-        using Value = std::conditional_t<IsConst(), const E, E>;
-        using Node  = std::conditional_t<IsConst(), const EdgeNode, EdgeNode>;
+        using _SafeE = std::conditional_t<std::same_as<E, void>, int, E>;
+        using Value  = std::conditional_t<IsConst(), const _SafeE, _SafeE>;
+        using Node   = std::conditional_t<IsConst(), const EdgeNode, EdgeNode>;
         
         friend IncidentEdgeIterator<Const>;
         friend IncidentEdgeIterator<~Const>;
@@ -391,9 +397,9 @@ public:
     public:
         
         /// The ID of the edge.
-        EdgeId   id()      const                         { return _i->first; }
+        EdgeId   id()      const                           { return _i->first; }
         /// The vertex IDs of the edge endpoints.
-        Edge     edge()    const                         { return _i->second.edge; }
+        Edge     edge()    const                           { return _i->second.edge; }
         /// The value stored on the edge.
         Value&   value()   const requires (HasEdgeValue()) { return _i->second.data; }
         /// Returns `true` if the edge begins and ends at the same vertex.
@@ -432,7 +438,8 @@ public:
             typename Verts::const_iterator,
             typename Verts::iterator
         >;
-        using Value = std::conditional_t<IsConst(), const V, V>;
+        using _SafeV = std::conditional_t<std::same_as<V, void>, int, V>;
+        using Value = std::conditional_t<IsConst(), const _SafeV, _SafeV>;
         
         friend Graph;
         friend VertexIterator<Const>;
@@ -450,12 +457,12 @@ public:
         VertexRef(Iter i): _i(i) {}
         
         Iter inner_iterator() const { return _i; }
-        VertexNode& node() const { return _i->second; }
+        VertexNode& node()    const { return _i->second; }
         
     public:
         
         /// An ID for this vertex which is unique to the graph container it belongs to.
-        VertexId id()    const                           { return _i->first; }
+        VertexId id()    const                             { return _i->first; }
         /// The value stored in this vertex.
         Value&   value() const requires (HasVertexValue()) { return _i->second.data; }
         /// The number of edges incident to this vertex in the given direction.
@@ -520,6 +527,9 @@ public:
         using value_type = EdgeRef<Const>;
         
         EdgeIterator(const EdgeIterator& other) = default;
+        EdgeIterator(const IncidentEdgeIterator<Const>& other):
+            _graph(&other.graph()),
+            _i(other.inner_iterator()) {}
         EdgeIterator& operator=(const EdgeIterator& other) = default;
         
         
@@ -585,6 +595,8 @@ public:
             typename EdgeVal,
             template <class...> class M>
         friend struct DigraphMap;
+        template <Constness K>
+        friend struct EdgeIterator;
         
         Graph*  _graph;
         Iter    _i;
@@ -1177,6 +1189,7 @@ private:
         VertexNode& v0 = src->node();
         VertexNode& v1 = dst->node();
         
+        // todo: this should be try_emplace!
         auto [new_edge, _] = _edges.insert({
             eid,
             EdgeNode {

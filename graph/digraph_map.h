@@ -3,9 +3,10 @@
 #include <graph/digraph.h>
 
 // todo: key iteration
-//   - make an iterator which derives from the raw vert_ and edge_iterator types;
-//     have it hold a parallel iterator to the key map; change the increment/decrement
-//     method
+//   - make an iterator which wraps the underlying key-id iterators but only returns the key.
+//     (I think the stdlib has some unities that will construct this easily).
+//   - also: find_{vert,edge}(key_iter) should be overloaded to use the inner map iterator
+//     directly, saving a key lookup.
 
 // todo: we store the keys in two places. a careful implementation might be able to share them
 
@@ -100,9 +101,11 @@ template <
     typename EdgeVal,
     template <class...> class Map=std::unordered_map>
 struct DigraphMap : public Digraph<VertVal, EdgeVal, Map> {
+    
+    static constexpr bool HasVertKey() { return not std::is_same<VertKey, void>::value; }
+    static constexpr bool HasEdgeKey() { return not std::is_same<EdgeKey, void>::value; }
+    
 private:
-    static constexpr bool HasVertKey() { return !std::is_same<VertKey, void>::value; }
-    static constexpr bool HasEdgeKey() { return !std::is_same<EdgeKey, void>::value; }
     
 #ifdef _GRAPH_TEST_HARNESS_INSTRUMENTATION
     friend struct detail::Instrumentation;
@@ -282,10 +285,20 @@ public:
         return _edge_ids_by_key.contains(key);
     }
     
+    /**
+     * @brief Returns the key for the vertex with the given Id.
+     * 
+     * Throws `std::out_of_range` if the vertex is not in the graph.
+     */
     const VertKey& key_for(VertexId v) const requires (HasVertKey()) {
         return _vert_keys_by_id.at(v);
     }
     
+    /**
+     * @brief Returns the key for the edge with the given Id.
+     * 
+     * Throws `std::out_of_range` if the edge is not in the graph.
+     */
     const EdgeKey& key_for(EdgeId e) const requires (HasEdgeKey()) {
         return _edge_keys_by_id.at(e);
     }
@@ -433,9 +446,36 @@ public:
     /**
      * @brief Removes the edge with the given key from the graph, if present.
      * 
+     * Returns the value associated with the deleted edge, or `std::nullopt` if the edge
+     * was not present in the graph.
+     */
+    std::optional<EdgeVal> erase(const EdgeKey& key)
+        requires (HasEdgeKey() and HasEdgeValue())
+    {
+        auto i = _edge_ids_by_key.find(key);
+        if (i != _edge_ids_by_key.end()) {
+            EdgeId e_id = i->second;
+            _edge_keys_by_id.erase(e_id);
+            _edge_ids_by_key.erase(i);
+            auto e_iter = this->_edges.find(e_id);
+            if (e_iter != this->_edges.end()) {
+                EdgeVal ev {std::move(e_iter->second)};
+                this->erase(edge_iterator{this, e_iter});
+                return ev;
+            } else {
+                return std::nullopt;
+            }
+        } else {
+            return std::nullopt;
+        }
+    }
+    
+    /**
+     * @brief Removes the edge with the given key from the graph, if present.
+     * 
      * Returns the number of edges (0 or 1) removed from the graph.
      */
-    size_t erase(const EdgeKey& key) requires (HasEdgeKey()) {
+    size_t erase(const EdgeKey& key) requires (HasEdgeKey() and not HasEdgeValue()) {
         auto i = _edge_ids_by_key.find(key);
         if (i != _edge_ids_by_key.end()) {
             EdgeId e_id = i->second;
@@ -715,7 +755,7 @@ public:
             vertex_iterator src,
             vertex_iterator dst,
             Args&&... args)
-        requires (HasEdgeKey() and HasEdgeValue())
+        requires (HasEdgeKey())
     {
         auto i = _edge_ids_by_key.find(new_key);
         if (i != _edge_ids_by_key.end()) {
@@ -740,7 +780,7 @@ public:
             const VertKey& src_key,
             const VertKey& dst_key,
             Args&&... args)
-        requires (HasEdgeKey() and HasEdgeValue() and HasVertKey())
+        requires (HasEdgeKey() and HasVertKey())
     {
         return emplace_directed_edge(
             new_key,
@@ -755,7 +795,7 @@ public:
             vertex_iterator src,
             vertex_iterator dst,
             Args&&... args)
-        requires (not HasEdgeKey() and HasEdgeValue())
+        requires (not HasEdgeKey())
     {
         return _base()->emplace_directed_edge(src, dst, std::forward<Args>(args)...);
     }
@@ -765,7 +805,7 @@ public:
             const VertKey& src_key,
             const VertKey& dst_key,
             Args&&... args)
-        requires (not HasEdgeKey() and HasEdgeValue() and HasVertKey())
+        requires (not HasEdgeKey() and HasVertKey())
     {
         return _base()->emplace_directed_edge(
             this->find_vertex(src_key),
@@ -780,6 +820,106 @@ public:
         requires (not HasEdgeKey() and not HasEdgeValue())
     {
         return _base()->insert_undirected_edge(src, dst);
+    }
+    
+    /**
+     * @brief Associate the edge key with a directed edge between the given vertices.
+     * 
+     * If an edge with the given key already exists, replace it, and construct its
+     * associated value from the given arguments.
+     * 
+     * If no such edge exists, emplace one using the given arguments.
+     * 
+     * Return an iterator to the edge, and a bool indicating whether the edge was inserted
+     * (true) or existed already (false).
+     * 
+     * To prefer keeping the previous edge value in the case where it exists, use
+     * `try_redirect_edge()`.
+     * 
+     * If the edge endpoints were changed, the EdgeId associated with the key will change
+     * as well.
+     */
+    template <typename... Args>
+    std::pair<edge_iterator, bool> redirect_edge(
+            const EdgeKey& key,
+            vertex_iterator src,
+            vertex_iterator dst,
+            Args... args)
+        requires (HasEdgeKey())
+    {
+        auto e = this->find_edge(key);
+        if (e != this->end_incident_edges()) {
+            if (e->source_id() == src->id() and e->target_id() == dst) {
+                // edge already exists with this key and endpoints
+                if constexpr (HasVertexValue()) {
+                    // replace the existing value
+                    e->value() = VertVal{std::forward<Args>(args)...};
+                }
+                return {e, false};
+            } else {
+                // edge exists, but points to the wrong verts
+                this->erase(e);
+                return std::make_pair(
+                    this->emplace_directed_edge(
+                            key,
+                            src,
+                            dst,
+                            std::forward<Args>(args)...
+                        ).first,
+                    false
+                );
+            }
+        } else {
+            // edge does not exist. emplace it.
+            return std::make_pair(
+                this->emplace_directed_edge(key, src, dst, std::forward<Args>(args)...).first,
+                true
+            );
+        }
+    }
+    
+    /**
+     * @brief Change the endpoints of the edge with the given key, preserving the edge's
+     * value if one exists.
+     * 
+     * If the edge does not exist, insert one having a value constructed from the given
+     * arguments.
+     * 
+     * If the edge does exist, it will be redirected, and the existing value will be preserved.
+     * 
+     * To unconditionally replace the existing value, use `redirect_edge()`.
+     * 
+     * If the edge endpoints were changed, the EdgeId associated with the key will change as
+     * well.
+     * 
+     * If this graph does not contain edge values, this function is equivalent to
+     * `redirect_edge()`, and is therefore not available.
+     */
+    template <typename... Args>
+    std::pair<incident_edge_iterator, bool> try_redirect_edge(
+            const EdgeKey& key,
+            vertex_iterator src,
+            vertex_iterator dst,
+            Args... args)
+        requires (HasEdgeKey() and HasEdgeValue())
+    {
+        auto e = this->find_edge(key);
+        if (e != this->end_incident_edges()) {
+            // edge exists; save the existing value
+            EdgeVal v { std::move(e->value()) };
+            this->erase(e);
+            return 
+                std::make_pair(
+                    this->emplace_directed_edge(key, src, dst, std::move(v)),
+                    false
+                );
+        } else {
+            // edge does not exist, emplace one
+            return std::make_pair(
+                this->emplace_directed_edge(key, src, dst, std::forward<Args>(args)...).first,
+                true
+            );
+        }
     }
     
 private:

@@ -1,6 +1,6 @@
 # trbabb/graph
 
-A simple, header-only, templated C++ directed graph implementation.
+A lightweight, header-only, zero-dependency, templated, C++ directed graph implementation.
 
 Graphs may optionally associate values with vertices and edges. Additionally, it
 is possible to index vertices and edges with custom types using the provided `DigraphMap`
@@ -10,6 +10,9 @@ Graphs are implemented using hash maps that associate unique identifiers with
 vertex and edge data. The hash map implementation may be provided as a template parameter,
 so that the graph structure may take advantage of modern, performant hash map implementations.
 Iterator invalidation rules are inherited from the underlying hash map implementation.
+
+This library intentionally does *not* provide graph traversal and analysis algorithms.
+It is a lightweight library that *only* implements the graph data structure.
 
 `graph` is written in C++20.
 
@@ -34,9 +37,9 @@ Testing-only dependencies (these are **NOT** required to include the library!):
 - [ankerl/unordered_dense](https://github.com/martinus/unordered_dense)
 
 To run tests:
-    
+
     scons test
-    
+
 in the root project directory.
 
 To enable a debug build for testing:
@@ -59,8 +62,8 @@ latter will invalidate the key-mapping in the former by failing to maintain it. 
 be remedied by making a hidden base class which both classes derive from, instead of directly
 deriving one from the other.
 
-- The build system is rudimentary; it would be better to provide a `.configure` script. I don't
-know `autoconf` but would accept PRs that accomplish this!
+- The build system is rudimentary and is hard-coded to install to `/usr/local`. It would be
+better to provide a `.configure` script.
 
 - Performance comparisons with other libraries
 
