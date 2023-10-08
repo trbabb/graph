@@ -488,13 +488,7 @@ public:
         }
     }
     
-    auto erase(incident_edge_iterator edge) {
-        if constexpr (HasEdgeKey()) {
-            _unregister_edge(edge->id());
-        }
-        return _base()->erase(edge);
-    }
-    
+    /// Removes the given edge from the graph.
     auto erase(edge_iterator edge) {
         if constexpr (HasEdgeKey()) {
             _unregister_edge(edge->id());
@@ -502,6 +496,7 @@ public:
         return _base()->erase(edge);
     }
     
+    /// Removes the edge with the given ID from the graph.
     auto erase(EdgeId edge) {
         return this->erase(find_edge(edge));
     }
@@ -623,123 +618,6 @@ public:
     }
     
     /**
-     * @brief Inserts a directed edge with the given key into the graph.
-     * 
-     * Returns a pair of an iterator to the edge with the given key, and a boolean
-     * indicating whether the edge was inserted (`true`) or already existed (`false`).
-     * 
-     * In the case where the edge was inserted, the value is default-constructed.
-     * Otherwise, the value is left unchanged.
-     */
-    std::pair<incident_edge_iterator, bool> insert_directed_edge(
-            const EdgeKey& new_key,
-            vertex_iterator src,
-            vertex_iterator dst)
-        requires (HasEdgeKey())
-    {
-        auto i = _edge_ids_by_key.find(new_key);
-        if (i != _edge_ids_by_key.end()) {
-            // insertion blocked by existing key
-            return {
-                incident_edge_iterator {
-                    this,
-                    this->_edges.find(i->second),
-                    EdgeDir::Outgoing
-                },
-                false
-            };
-        }
-        auto e_i = _base()->insert_directed_edge(src, dst);
-        _register_edge(e_i->id(), new_key);
-        return { e_i, true };
-    }
-    
-    /**
-     * @brief Inserts a directed edge with the given key and value into the graph.
-     * 
-     * Returns a pair of an iterator to the edge with the given key, and a boolean
-     * indicating whether the edge was inserted (`true`) or already existed (`false`).
-     * 
-     * In the case where the edge was inserted, the value is copy-constructed from the
-     * given value. Otherwise, the value is left unchanged.
-     */
-    template <Forwardable<EdgeVal> T>
-    std::pair<incident_edge_iterator, bool> insert_directed_edge(
-            const EdgeKey& new_key,
-            vertex_iterator src,
-            vertex_iterator dst,
-            T&& value)
-        requires (HasEdgeKey() and HasEdgeValue())
-    {
-        auto i = _edge_ids_by_key.find(new_key);
-        if (i != _edge_ids_by_key.end()) {
-            // insertion blocked by existing key
-            return {
-                incident_edge_iterator {
-                    this,
-                    this->_edges.find(i->second),
-                    EdgeDir::Outgoing
-                },
-                false
-            };
-        }
-        auto e_i = _base()->insert_directed_edge(src, dst, std::forward<T>(value));
-        _register_edge(e_i->id(), new_key);
-        return { e_i, true };
-    }
-    
-    template <Forwardable<EdgeVal> T>
-    std::pair<incident_edge_iterator, bool> insert_directed_edge(
-            const EdgeKey& new_key,
-            const VertKey& src_key,
-            const VertKey& dst_key,
-            T&& value)
-        requires (HasEdgeKey() and HasEdgeValue() and HasVertKey())
-    {
-        return insert_directed_edge(
-            new_key,
-            this->find_vertex(src_key),
-            this->find_vertex(dst_key),
-            std::forward<T>(value)
-        );
-    }
-    
-    template <Forwardable<EdgeVal> T>
-    std::pair<incident_edge_iterator, bool> insert_directed_edge(
-            const VertKey& src_key,
-            const VertKey& dst_key,
-            T&& value)
-        requires (not HasEdgeKey() and HasEdgeValue() and HasVertKey())
-    {
-        return insert_directed_edge(
-            this->find_vertex(src_key),
-            this->find_vertex(dst_key),
-            std::forward<T>(value)
-        );
-    }
-    
-    std::pair<incident_edge_iterator, bool> insert_directed_edge(
-            const EdgeKey& new_key,
-            const VertKey& src_key,
-            const VertKey& dst_key)
-        requires (HasEdgeKey() and HasVertKey())
-    {
-        return insert_directed_edge(
-            new_key,
-            this->find_vertex(src_key),
-            this->find_vertex(dst_key)
-        );
-    }
-    
-    incident_edge_iterator insert_directed_edge(
-            vertex_iterator src,
-            vertex_iterator dst)
-        requires (not HasEdgeKey())
-    {
-        return _base()->insert_directed_edge(src, dst);
-    }
-    
-    /**
      * @brief Inserts an undirected edge with the given key and value construction
      * arguments into the graph.
      * 
@@ -774,6 +652,7 @@ public:
         return { e_i, true };
     }
     
+    /// Inserts a new edge from an `EdgeKey` and two `VertKey`s.
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
             const EdgeKey& new_key,
@@ -790,6 +669,11 @@ public:
         );
     }
     
+    /**
+     * @brief Inserts a new un-keyed edge from two vertex iterators.
+     * 
+     * Not available if `HasEdgeKey() == true`.
+     */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
             vertex_iterator src,
@@ -800,6 +684,11 @@ public:
         return _base()->emplace_directed_edge(src, dst, std::forward<Args>(args)...);
     }
     
+    /**
+     * @brief Inserts a new un-keyed edge from two vertex keys.
+     * 
+     * Not available if `HasEdgeKey() == true`.
+     */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
             const VertKey& src_key,
@@ -812,6 +701,67 @@ public:
             this->find_vertex(dst_key),
             std::forward<Args>(args)...
         );
+    }
+    
+    /**
+     * @brief Insert a new edge with the given key into the graph before each given edge.
+     * 
+     * Each vertex argument can be either a vertex or an edge iterator. If it is a vertex, the
+     * edge will be inserted before the first edge in the given direction. If it is
+     * an edge, the new edge will be inserted before the given edge, and the vertex
+     * will be taken from the same endpoint.
+     * 
+     * The `before_outgoing` edge provides the source vertex for the new edge, and the
+     * `before_incoming` edge provides the target vertex.
+     * 
+     * If the graph has edge values, the new edge will be constructed in-place with the
+     * given arguments.
+     */
+    template <typename... Args>
+    std::pair<incident_edge_iterator, bool> emplace_directed_edge_before(
+            const EdgeKey& new_key,
+            std::variant<edge_iterator, vertex_iterator> before_outgoing,
+            std::variant<edge_iterator, vertex_iterator> before_incoming,
+            Args&&... args)
+        requires (HasEdgeKey())
+    {
+        auto i = _edge_ids_by_key.find(new_key);
+        if (i != _edge_ids_by_key.end()) {
+            // key exists; insertion blocked; return existing edge
+            return {
+                incident_edge_iterator {
+                    this,
+                    this->_edges.find(i->second),
+                    EdgeDir::Outgoing
+                },
+                false
+            };
+        }
+        auto e_i = _base()->emplace_directed_edge_before(
+            before_outgoing,
+            before_incoming,
+            std::forward<Args>(args)...
+        );
+        _register_edge(e_i->id(), new_key);
+        return { e_i, true };
+    }
+    
+    /**
+     * @brief Insert an un-keyed edge at a specific place in the edge sequence.
+     * 
+     * The arguments are the same as for `emplace_directed_edge_before()`, except that
+     * the `new_key` argument is omitted.
+     * 
+     * Not available if `HasEdgeKey() == true`.
+     */
+    template <typename... Args>
+    std::pair<incident_edge_iterator, bool> emplace_directed_edge_before(
+            std::variant<edge_iterator, vertex_iterator> src,
+            std::variant<edge_iterator, vertex_iterator> dst,
+            Args&&... args)
+        requires (not HasVertKey())
+    {
+        return _base()->emplace_directed_edge_before(src, dst, std::forward<Args>(args)...);
     }
     
     std::pair<incident_edge_iterator, incident_edge_iterator> insert_undirected_edge(

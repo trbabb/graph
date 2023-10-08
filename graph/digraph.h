@@ -3,6 +3,14 @@
 #include <optional>
 #include <type_traits>
 
+// todo: remove all insert_() functions
+//   x insert_..._edge()
+//   - insert_..._vertex()
+// todo: reorder_edge(edge_iterator edge, edge_iterator before)
+//   - this requires storing the tail of the edge list in the vertex node,
+//     otherwise it's O(n) to insert at the end of the edge sequence
+// todo: emplace_edge_before() cannot insert at the end
+ 
 // todo: testing. exercise all the code paths
 // todo: make Digraph and GraphMap inherit from a common [private] base class but not each
 //    other.
@@ -195,14 +203,14 @@ namespace graph {
  * for that type.
  * 
  * The graph associates a unique ID with each vertex and edge. These IDs are unique
- * to the graph container they belong to, are 64-bit, and are never re-used by the
+ * within the graph container they belong to, are 64-bit, and are never re-used by the
  * same container.
  * 
  * If you need to index edges or vertices by custom keys, use the `DigraphMap` class
  * defined in `<graph/digraph_map.h>`.
  * 
  * Iterator invalidation follows the same rules as the underlying map type, since
- * all iterators wrap the iterators of the underlying map.
+ * all graph iterators wrap the iterators of the underlying map.
  * 
  * Indexing by a valid iterator will generally be more performant than indexing by ID.
  * 
@@ -231,8 +239,10 @@ namespace graph {
  * 
  * The graph is implemented as two maps from IDs to data: One for vertices, and one for edges.
  * Edges belong to linked lists of edges incident to each vertex. An edge belongs to two
- * such lists: One for incoming edges, and one for outgoing edges. The nodes in each
- * list are connected by their stable IDs, and are sequenced in insertion order.
+ * such lists: One for incoming edges, and one for outgoing edges. The edges in each
+ * list are connected by their stable IDs, and edge ordering may be optionally specified
+ * by inserting with `emplace_directed_edge_before(...)`, or altered with
+ * `swap_edge_order(...)`.
  * 
  * The type of map which stores vertices and edges may be passed as a template template
  * parameter. The default map is `std::unordered_map`, but much better performance may
@@ -288,10 +298,10 @@ private:
     struct EdgeNode {
         Edge edge;
         union {
-            EdgeLink links[2] = {std::nullopt, std::nullopt};
+            EdgeLink links[2];
             struct {
-                EdgeLink incoming;
-                EdgeLink outgoing;
+                EdgeLink incoming = std::nullopt;
+                EdgeLink outgoing = std::nullopt;
             };
         };
         EdgeData data;
@@ -507,6 +517,7 @@ public:
             typename Edges::const_iterator,
             typename Edges::iterator
         >;
+        using Node   = std::conditional_t<IsConst(), const EdgeNode, EdgeNode>;
         using PointerProxy = detail::arrow_proxy<EdgeRef<Const>>;
         
         friend Graph;    
@@ -526,6 +537,7 @@ public:
         /// The graph this iterator belongs to.
         Graph& graph()          const { return *_graph; }
         Iter   inner_iterator() const { return _i; }
+        Node&  node()           const { return _i->second; }
         
     public:
     
@@ -699,6 +711,7 @@ public:
             typename Verts::const_iterator,
             typename Verts::iterator
         >;
+        using Node = std::conditional_t<IsConst(), const VertexNode, VertexNode>;
         using PointerProxy = detail::arrow_proxy<VertexRef<Const>>;
     
         template <
@@ -719,6 +732,7 @@ public:
         /// The graph this iterator is iterating over.
         Graph& graph()          const { return *_graph; }
         Iter   inner_iterator() const { return _i; }
+        Node&  node()           const { return _i->second; }
         
     public:
     
@@ -1179,6 +1193,19 @@ public:
 
 private:
     
+    void _prepend_head(EdgeNode& edge, VertexNode& v, EdgeDir dir, EdgeId eid) {
+        // the new edge points forwards to the previous head
+        edge.links[(int) dir].next = v.edges[(int) dir].head;
+        EdgeList& edge_list = v.edges[(int) dir];
+        if (edge_list.head) {
+            // the previous head (if it exists) points backwards to the new head
+            auto prev_head = _edges.find(*edge_list.head);
+            prev_head->second.links[(int) dir].prev = eid;
+        }
+        edge_list.head = eid;
+        edge_list.size += 1;
+    }
+    
     template <typename... Args>
     incident_edge_iterator _emplace_directed_edge(
             vertex_iterator src,
@@ -1198,26 +1225,73 @@ private:
             eid,
             EdgeNode {
                 edge,
-                // the new edge points to the head of the incoming and outgoing edge lists
-                .incoming = {.next = v1.incoming_edges.head},
-                .outgoing = {.next = v0.outgoing_edges.head},
                 .data { std::forward<Args>(args)... }
             }
         });
+        
+        _prepend_head(new_edge->second, v0, EdgeDir::Outgoing, eid);
+        _prepend_head(new_edge->second, v1, EdgeDir::Incoming, eid);
+        
+        return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing};
+    }
     
-        // the new edge becomes the head of the incoming and outgoing edge lists
-        auto _prepend_head = [&](VertexNode& v, EdgeDir dir, EdgeId eid) {
-            EdgeList& edge_list = v.edges[(int) dir];
-            if (edge_list.head) {
-                // the previous head points backwards to the new head
-                auto prev_head = _edges.find(*edge_list.head);
-                prev_head->second.links[(int) dir].prev = eid;
+    // insert `edge` into the linked list of edges before the node `before`.
+    void _splice_edge(
+            EdgeNode&       edge,
+            VertexNode&     shared_vert,
+            edge_iterator   before,
+            EdgeDir         dir,
+            EdgeId          eid)
+    {
+        edge.links[(int) dir].next    = before.id();
+        edge.links[(int) dir].prev    = before.node().links[(int) dir].prev;
+        std::optional<EdgeId> prev_id = before.node().links[(int) dir].prev;
+        if (prev_id) {
+            // we're inserting a new list head
+            shared_vert.edges[(int) dir].head = eid;
+        }
+        before.node().links[(int) dir].prev = eid;
+    }
+    
+    // insert a new edge into the graph, splicing the 
+    template <typename... Args>
+    incident_edge_iterator _emplace_directed_edge_before(
+            // take the src vertex from this edge:
+            std::variant<edge_iterator, vertex_iterator> src,
+            // and the target vertex from this edge:
+            std::variant<edge_iterator, vertex_iterator> dst,
+            Args&&... args)
+    {
+        auto get_vert_iterator = [this](
+                std::variant<edge_iterator, vertex_iterator>& v,
+                EdgeDir dir)
+        {
+            if (std::holds_alternative<edge_iterator>(v)) {
+                auto& e = std::get<edge_iterator>(v);
+                VertexId v_id = (dir == EdgeDir::Outgoing) ? e->source_id() : e->target_id();
+                return _verts.find(v_id);
+            } else {
+                return std::get<vertex_iterator>(v).inner_iterator();
             }
-            edge_list.head = eid;
-            edge_list.size += 1;
         };
-        _prepend_head(v0, EdgeDir::Outgoing, eid);
-        _prepend_head(v1, EdgeDir::Incoming, eid);
+        
+        if (src == end_edges() or dst == end_edges()) return end_incident_edges();
+        
+        EdgeId eid = _free_edge_id++;
+        Edge edge {src->edge.v0, dst->edge.v1};
+        auto v0 = get_vert_iterator(src, EdgeDir::Outgoing);
+        auto v1 = get_vert_iterator(dst, EdgeDir::Incoming);
+        
+        auto [new_edge, _] = _edges.insert({
+            eid,
+            EdgeNode {
+                edge,
+                .data { std::forward<Args>(args)... }
+            }
+        });
+        
+        _splice_edge(new_edge->second, v0->second, src, EdgeDir::Outgoing, eid);
+        _splice_edge(new_edge->second, v1->second, dst, EdgeDir::Incoming, eid);
         
         return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing};
     }
@@ -1229,55 +1303,14 @@ public:
     
     /**
      * @brief Insert a new edge into the graph connecting the two given vertices,
-     * and return an iterator to it.
-     * 
-     * Edges may be duplicated; a new edge will be created whether or not one between
-     * the two vertices already exists.
-     */
-    incident_edge_iterator insert_directed_edge(
-            vertex_iterator src,
-            vertex_iterator dst)
-    {
-        return _emplace_directed_edge(src, dst);
-    }
-    
-    /**
-     * @brief Insert a new edge into the graph connecting the two given vertices,
-     * storing the given value, and return an iterator to it.
-     * 
-     * Edges may be duplicated; a new edge will be created whether or not one between
-     * the two vertices already exists.
-     */
-    template <Forwardable<E> T>
-    incident_edge_iterator insert_directed_edge(
-            vertex_iterator src,
-            vertex_iterator dst,
-            T&& e)
-        requires (HasEdgeValue())
-    {
-        return _emplace_directed_edge(src, dst, std::forward<T>(e));
-    }
-    
-    /// Alias for `insert_directed_edge(find_vertex(src), find_vertex(dst))`.
-    incident_edge_iterator insert_directed_edge(VertexId src, VertexId dst) {
-        return insert_directed_edge(find_vertex(src), find_vertex(dst));
-    }
-    
-    /// Alias for `insert_directed_edge(find_vertex(src), find_vertex(dst), e)`.
-    template <Forwardable<E> T>
-    incident_edge_iterator insert_directed_edge(VertexId src, VertexId dst, T&& e)
-        requires (HasEdgeValue())
-    {
-        return insert_directed_edge(find_vertex(src), find_vertex(dst), std::forward<T>(e));
-    }
-    
-    /**
-     * @brief Insert a new edge into the graph connecting the two given vertices,
      * constructing a new edge value in-place with the given arguments, and return
      * an iterator to it.
      * 
      * Edges may be duplicated; a new edge will be created whether or not one between
      * the two vertices already exists.
+     * 
+     * The inserted edge will become the first one in its adjacency lists. To insert an edge
+     * before a specific existing edge, use `emplace_directed_edge_before(...)`.
      */
     template <typename... Args>
     incident_edge_iterator emplace_directed_edge(
@@ -1286,6 +1319,49 @@ public:
             Args&&... args)
     {
         return _emplace_directed_edge(src, dst, std::forward<Args>(args)...);
+    }
+    
+    /**
+     * @brief Alias for `emplace_directed_edge(find_vertex(src), find_vertex(dst), ...)`
+     */
+    template <typename... Args>
+    incident_edge_iterator emplace_directed_edge(
+            VertexId src,
+            VertexId dst,
+            Args&&... args)
+    {
+        return _emplace_directed_edge(
+            find_vertex(src),
+            find_vertex(dst),
+            std::forward<Args>(args)...
+        );
+    }
+    
+    /**
+     * @brief Insert a new edge into the graph before each given edge.
+     * 
+     * Each vertex argument can be either a vertex or an edge iterator. If it is
+     * an edge, the new edge will be inserted before the given edge, and the vertex
+     * will be taken from the same endpoint. If it is a vertex, the edge will be inserted
+     * before the first edge in the given direction. 
+     * 
+     * The `before_outgoing` edge provides the source vertex for the new edge, and the
+     * `before_incoming` edge provides the target vertex.
+     * 
+     * If the graph has edge values, the new edge will be constructed in-place with the
+     * given arguments.
+     */
+    template <typename... Args>
+    incident_edge_iterator emplace_directed_edge_before(
+        std::variant<edge_iterator, vertex_iterator> before_outgoing,
+        std::variant<edge_iterator, vertex_iterator> before_incoming,
+        Args&&... args)
+    {
+        return _emplace_directed_edge_before(
+            before_outgoing,
+            before_incoming,
+            std::forward<Args>(args)...
+        );
     }
     
     /**
@@ -1299,9 +1375,46 @@ public:
             VertexId b)
         requires (not HasEdgeValue())
     {
-        incident_edge_iterator e0 = insert_directed_edge(a, b);
-        incident_edge_iterator e1 = insert_directed_edge(b, a);
+        incident_edge_iterator e0 = emplace_directed_edge(a, b);
+        incident_edge_iterator e1 = emplace_directed_edge(b, a);
         return {e0, e1};
+    }
+    
+    /**
+     * @brief In O(1) time, exchange the position of the two edges in their
+     * incident edge sequences.
+     * 
+     * If the edges are not incident to the same vertex, this function has no effect
+     * and returns `false`. Otherwise, the edges are exchanged and the function returns
+     * `true`.
+     * 
+     * This method does not invalidate any iterators (however, the ordering of any existing
+     * iterators will be altered to reflect the change).
+     */
+    bool swap_edge_order(edge_iterator e0, edge_iterator e1, EdgeDir dir) {
+        if (e0->vertex(dir) != e1->vertex(dir)) return false;
+        
+        EdgeNode* e0node = &e0.node();
+        EdgeNode* e1node = &e1.node();
+        
+        int idx = (int) dir;
+        std::swap(e0node->links[idx], e1node->links[idx]);
+        
+        if (not e0node->prev and e1node->prev) {
+            // one of the nodes was the head of the list.
+            // we need to fix up that vertex to point to the new head.
+            EdgeId new_head_id = e0->id();
+            if (e0node->prev) {
+                // ensure e0 is the one that holds the new head
+                new_head_id = e1->id();
+                std::swap(e0node, e1node);
+            }
+            VertexId vid  = e0node->vertex(dir);
+            VertexNode& v = _verts.find(vid)->second;
+            v.edges[idx].head = new_head_id;
+        }
+        
+        return true;
     }
 
 private:
@@ -1330,10 +1443,9 @@ public:
      * @brief Remove the given edge, and return the IDs of edges that followed it in the
      * incoming and outgoing edge sequences.
      * 
-     * This is slightly more efficient than the overload of erase() which returns an
-     * incident_edge_iterator.
+     * This is slightly more efficient than erase(), which returns an incident_edge_iterator.
      */
-    EdgePair<std::optional<EdgeId>> erase(incident_edge_iterator edge) {
+    EdgePair<std::optional<EdgeId>> erase_and_next_ids(edge_iterator edge) {
         return _impl_erase_edge(edge.inner_iterator()).first;
     }
     
@@ -1341,8 +1453,9 @@ public:
      * @brief Remove the given edge, and return an iterator to the following edge in the
      * given direction.
      */
-    incident_edge_iterator erase(incident_edge_iterator edge, EdgeDir dir) {
-        auto [in_id, out_id] = erase(edge);
+    incident_edge_iterator erase(incident_edge_iterator edge) {
+        EdgeDir dir = edge.traversal_direction();
+        auto [in_id, out_id] = erase_and_next_ids(edge);
         auto next_id = (dir == EdgeDir::Incoming) ? in_id : out_id;
         if (next_id) {
             return find_edge(*next_id, dir);

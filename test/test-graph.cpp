@@ -38,6 +38,8 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
     return os;
 }
 
+// todo: test emplace_before()
+// todo: test swap_edge_order()
 // todo: make a test with multiple edges between two vertices; try to delete some of them
 // todo: test self-loop edges
 // todo: test with each of the value types as void
@@ -65,7 +67,7 @@ auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
     for (auto v : g.vertices()) {
         ++ct;
         if (v != v0_id) {
-            g.insert_directed_edge(v0_id, v.id());
+            g.emplace_directed_edge(v0_id, v.id());
         }
     }
     EXPECT_EQ(ct, n_verts + 1);
@@ -104,7 +106,7 @@ TEST(TEST_MODULE_NAME, test_access) {
     EXPECT_EQ(g[v0_id].value(), 1);
     EXPECT_EQ(g[v1_id].value(), 2);
     
-    auto e0 = g.insert_directed_edge(v0_id, v1_id);
+    auto e0 = g.emplace_directed_edge(v0_id, v1_id);
     e0->value() = 3;
     EXPECT_EQ(g.edges_size(), 1);
     EXPECT_EQ(*e0, 3);
@@ -151,7 +153,7 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
     for (auto e = g.begin_incident_edges(v0, EdgeDir::Outgoing);
          e != g.end_incident_edges(); )
     {
-        e = g.erase(e, EdgeDir::Outgoing);
+        e = g.erase(e);
         ++ct;
     }
     EXPECT_EQ(ct, n_verts - 1);
@@ -190,7 +192,7 @@ TEST(TEST_MODULE_NAME, graph_map) {
     VertexId v0_id = dgm.find_vertex("goof")->id();
     VertexId v1_id = dgm.find_vertex("fleg")->id();
     
-    auto [e, created] = dgm.insert_directed_edge(99, "goof", "fleg");
+    auto [e, created] = dgm.emplace_directed_edge(99, "goof", "fleg");
     EXPECT_TRUE(created);
     e->value() = 77;
     EXPECT_EQ(dgm[99], 77);
