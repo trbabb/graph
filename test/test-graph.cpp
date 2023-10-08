@@ -40,6 +40,8 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
 
 // todo: test emplace_before()
 // todo: test swap_edge_order()
+// todo: test that swap_edge_order() for edges that are not adjacent to the same vertex
+//   returns false and does not change the graph
 // todo: make a test with multiple edges between two vertices; try to delete some of them
 // todo: test self-loop edges
 // todo: test with each of the value types as void
@@ -73,6 +75,33 @@ auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
     EXPECT_EQ(ct, n_verts + 1);
     EXPECT_EQ(g.edges_size(), n_verts);
     return g.find_vertex(v0_id);
+}
+
+// make a random graph, and then return an iterator to a random vertex.
+// add `n_incident_edges` outgoing edges to the returned vertex.
+template <template <typename...> typename Map>
+auto make_random_graph(Digraph<int,float,Map>& g, size_t n_verts, size_t n_incident_edges) {
+    auto rng   = std::uniform_int_distribution<size_t>(0, n_verts - 1);
+    auto rng_d = std::uniform_real_distribution<double>(0, 1);
+    
+    auto v = g.begin_vertices();
+    for (size_t i = 0; i < n_verts; ++i) {
+        v = g.insert_vertex();
+        v->value() = i;
+    }
+    
+    size_t n_edges = std::uniform_int_distribution<size_t>(0, n_verts * n_verts / 2)(rng_eng);
+    for (size_t i = 0; i < n_edges; ++i) {
+        VertexId v0 = (VertexId) rng(rng_eng);
+        VertexId v1 = (VertexId) rng(rng_eng);
+        g.emplace_directed_edge(v0, v1);
+    }
+    for (size_t i = 0; i < n_incident_edges; ++i) {
+        VertexId v_id = (VertexId) rng(rng_eng);
+        auto v1 = g.find_vertex(v_id);
+        g.emplace_directed_edge(v, v1);
+    }
+    return v;
 }
 
 
@@ -212,6 +241,45 @@ TEST(TEST_MODULE_NAME, graph_map) {
     EXPECT_EQ(Inspector::keys_to_vert_id(dgm).size(), 1);
     
     EXPECT_EQ(dgm.find_edge(99), dgm.end_edges());
+}
+
+
+TEST(TEST_MODULE_NAME, test_reorder_edge) {
+    Digraph<int, float, Map> g;
+    size_t n_verts = 60;
+    auto v = make_random_graph(g, n_verts, 10);
+    auto range = g.incident_edges(v, EdgeDir::Outgoing);
+    size_t n = range.size();
+    EXPECT_GE(n, 10);
+    float i = 0;
+    std::vector<float> vals;
+    vals.resize(n);
+    for (auto e : range) {
+        vals[i] = e.value() = i;
+        i += 1;
+    }
+    size_t j = 0;
+    for (auto e : range) {
+        EXPECT_EQ(e.value(), vals[j]);
+        j += 1;
+    }
+    
+    std::uniform_int_distribution<size_t> rng(0, n - 1);
+    for (size_t i = 0; i < n * 20; ++i) {
+        size_t p = rng(rng_eng);
+        size_t q = rng(rng_eng);
+        auto e_p = range.begin();
+        auto e_q = range.begin();
+        for (int k = 0; k < p; ++k) ++e_p;
+        for (int k = 0; k < q; ++k) ++e_q;
+        EXPECT_TRUE(g.swap_edge_order(e_p, e_q, EdgeDir::Outgoing));
+        std::swap(vals[p], vals[q]);
+        j = 0;
+        for (auto e : range) {
+            EXPECT_EQ(e.value(), vals[j]);
+            j += 1;
+        }
+    }
 }
 
 

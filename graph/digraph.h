@@ -346,6 +346,10 @@ private:
     using Edges = Map<EdgeId,   EdgeNode>;
     using Verts = Map<VertexId, VertexNode>;
     
+    /************************
+     * member fields        *
+     ************************/
+    
     Verts    _verts;
     Edges    _edges;
     VertexId _free_vertex_id = static_cast<VertexId>(0);
@@ -564,10 +568,22 @@ public:
             return *this;
         }
         
+        EdgeIterator operator++(int) {
+            EdgeIterator old = *this;
+            ++_i;
+            return old;
+        }
+        
         /// Decrement the iterator to the previous edge in the graph.
         EdgeIterator& operator--() {
             --_i;
             return *this;
+        }
+        
+        EdgeIterator operator--(int) {
+            EdgeIterator old = *this;
+            --_i;
+            return old;
         }
         
         template <Constness K>
@@ -675,12 +691,24 @@ public:
             return *this;
         }
         
+        IncidentEdgeIterator operator++(int) {
+            IncidentEdgeIterator old = *this;
+            ++_i;
+            return old;
+        }
+        
         IncidentEdgeIterator& operator--() {
             std::optional<EdgeId> prev_id = _i->second.links[(int) _dir].prev;
             _i = prev_id
                 ? _graph->_edges.find(*prev_id)
                 : _graph->_edges.end();
             return *this;
+        }
+        
+        IncidentEdgeIterator operator--(int) {
+            IncidentEdgeIterator old = *this;
+            --_i;
+            return old;
         }
         
         template <Constness K>
@@ -757,10 +785,22 @@ public:
             return *this;
         }
         
+        VertexIterator operator++(int) {
+            VertexIterator old = *this;
+            ++_i;
+            return old;
+        }
+        
         /// Decrement this iterator.
         VertexIterator& operator--() {
             --_i;
             return *this;
+        }
+        
+        VertexIterator operator--(int) {
+            VertexIterator old = *this;
+            --_i;
+            return old;
         }
         
         template <Constness K>
@@ -883,6 +923,14 @@ public:
             return g->edges(_vertex, _dir).end();
         }
         
+        size_t size() const {
+            auto i = _graph->_verts.find(_vertex);
+            if (i == _graph->_verts.end()) {
+                return 0;
+            } else {
+                return i->second.edges[(int) _dir].size;
+            }
+        }
     };
     
     /**
@@ -1393,26 +1441,38 @@ public:
      */
     bool swap_edge_order(edge_iterator e0, edge_iterator e1, EdgeDir dir) {
         if (e0->vertex(dir) != e1->vertex(dir)) return false;
-        
-        EdgeNode* e0node = &e0.node();
-        EdgeNode* e1node = &e1.node();
+        if (e0 == e1) return true;
         
         int idx = (int) dir;
-        std::swap(e0node->links[idx], e1node->links[idx]);
+        EdgeLink e0link = e0.node().links[idx];
+        EdgeLink e1link = e1.node().links[idx];
         
-        if (not e0node->prev and e1node->prev) {
-            // one of the nodes was the head of the list.
+        // e0p <-> [e0] <-> e0n  ... e1p <-> [e1] <-> e1n
+        // e0p <-> [e1] <-> e0n  ... e1p <-> [e0] <-> e1n
+        
+        // repair the previous and next nodes
+        if (e0link.prev) _edges.find(*e0link.prev)->second.links[idx].next = e1->id();
+        if (e0link.next) _edges.find(*e0link.next)->second.links[idx].prev = e1->id();
+        if (e1link.prev) _edges.find(*e1link.prev)->second.links[idx].next = e0->id();
+        if (e1link.next) _edges.find(*e1link.next)->second.links[idx].prev = e0->id();
+        
+        // handle the head of the list
+        if (not (e0link.prev and e1link.prev)) {
+            // one of the nodes is the head of the list.
             // we need to fix up that vertex to point to the new head.
-            EdgeId new_head_id = e0->id();
-            if (e0node->prev) {
-                // ensure e0 is the one that holds the new head
-                new_head_id = e1->id();
-                std::swap(e0node, e1node);
+            if (e0link.prev) {
+                // e1 is the current head of the list
+                // ensure e0 is the current head
+                std::swap(e0, e1);
             }
-            VertexId vid  = e0node->vertex(dir);
+            // e1 will be the new head of the list
+            VertexId  vid = e1->vertex(dir);
             VertexNode& v = _verts.find(vid)->second;
-            v.edges[idx].head = new_head_id;
+            v.edges[idx].head = e1->id();
         }
+        
+        // exchange the links
+        std::swap(e0.node().links[idx], e1.node().links[idx]);
         
         return true;
     }
@@ -1744,6 +1804,14 @@ public:
     
     const_incident_edge_iterator cend_incident_edges() const {
         return end_incident_edges();
+    }
+    
+    /**
+     * @brief Return the number of edges incident to the given vertex in the given direction.
+     */
+    size_t incident_edges_size(const_vertex_iterator v, EdgeDir dir) const {
+        if (v == end_vertices()) return 0;
+        return v->node().edges[(int) dir].size;
     }
     
     /// @}
