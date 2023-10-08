@@ -1,0 +1,114 @@
+\hypertarget{traverse_8h_source}{}\doxysection{traverse.\+h}
+\label{traverse_8h_source}\index{graph/traverse.h@{graph/traverse.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <unordered\_set>}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{keyword}{namespace\ }graph\ \{}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00008\ \textcolor{comment}{//\ todo:\ InitialSet\ and\ AdjacentyFn(v)\ need\ to\ be\ a\ common\ type.}}
+\DoxyCodeLine{00009\ \textcolor{comment}{//\ \ \ what's\ a\ better\ way\ to\ do\ this?}}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{comment}{//\ todo:\ select\ preorder\ or\ postorder\ traversal?}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{comment}{//\ todo:\ bfs\ adds\ a\ lot\ of\ adjacent\ items\ to\ the\ queue\ early,\ which\ might\ mean}}
+\DoxyCodeLine{00014\ \textcolor{comment}{//\ \ \ explosive\ memory\ usage.\ could\ we\ reduce\ this\ by\ deferring\ something?}}
+\DoxyCodeLine{00015\ }
+\DoxyCodeLine{00016\ \textcolor{comment}{//\ todo:\ wrap\ these\ fns\ in\ iterators}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{comment}{//\ todo:\ should\ these\ things\ yield\ iters/ranges?\ write\ both\ and\ compare}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keyword}{typename}\ InitialSet,\ \ \textcolor{comment}{//\ initial()\ -\/>\ v}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keyword}{typename}\ VistFn,\ \ \ \ \ \ \textcolor{comment}{//\ visit(*v)}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keyword}{typename}\ AdjacencyFn,\ \textcolor{comment}{//\ adjacent(v)\ -\/>\ next;\ next()\ -\/>\ v}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{typename}\ FilterFn,\ \ \ \ \textcolor{comment}{//\ filter(*v)\ -\/>\ bool}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{typename}\ IdFn,\ \ \ \ \ \ \ \ \textcolor{comment}{//\ id(v)\ -\/>\ Id}}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}...>\ \textcolor{keyword}{typename}\ Set=std::unordered\_set}
+\DoxyCodeLine{00027\ >}
+\DoxyCodeLine{00028\ \textcolor{keywordtype}{void}\ dfs(}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ InitialSet\&\&\ \ initial,}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ VistFn\&\&\ \ \ \ \ \ visit,}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ AdjacencyFn\&\&\ adjacent,}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ FilterFn\&\&\ \ \ \ filter,}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ IdFn\&\&\ \ \ \ \ \ \ \ \textcolor{keywordtype}{id})}
+\DoxyCodeLine{00034\ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{using\ }VertexPtr\ \ \ \ =\ \textcolor{keyword}{decltype}(initial());}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keyword}{using\ }Vertex\ \ \ \ \ \ \ =\ \textcolor{keyword}{decltype}(*declval<VertexPtr>());}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keyword}{using\ }VertexId\ \ \ \ \ =\ \textcolor{keyword}{decltype}(id(declval<Vertex>()));}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keyword}{using\ }AdjacencySet\ =\ \textcolor{keyword}{decltype}(std::remove\_cvref\_t<(declval<Vertex>())>);}
+\DoxyCodeLine{00039\ \ \ \ \ Set<VertexId>\ visited;}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//\ xxx:\ this\ has\ to\ be\ a\ queue,\ otherwise\ it\ implements\ a\ preorder\ dfs}}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ \ \ \ the\ problem\ is\ that\ vector::pop\_front()\ is\ slow;\ and\ deque::anything()\ is\ slow.}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ \ \ \ we\ need\ a\ better\ queue\ class.}}
+\DoxyCodeLine{00043\ \ \ \ \ std::vector<AdjacencySet>\ stack;}
+\DoxyCodeLine{00044\ \ \ \ \ stack.push\_back(initial);}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keywordflow}{while}\ (!stack.empty())\ \{}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\&\ next\ =\ stack.back();}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ vp\ =\ next();}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (not\ vp)\ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ no\ more\ successors\ in\ this\ set}}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \ \ \ \ stack.pop\_back();}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ v\ \ \ =\ *vp;}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ vid\ =\ id(vp);}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (visited.contains(vid))\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ already\ visited}}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter(v))\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ visit(v);}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \ \ \ \ stack.push\_back(adjacent(vp));}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ visited.insert(vid);}
+\DoxyCodeLine{00064\ \ \ \ \ \}}
+\DoxyCodeLine{00065\ \}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \textcolor{keyword}{template}\ <}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{typename}\ InitialSet,\ \ \textcolor{comment}{//\ initial()\ -\/>\ v}}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keyword}{typename}\ VistFn,\ \ \ \ \ \ \textcolor{comment}{//\ visit(*v)}}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{keyword}{typename}\ AdjacencyFn,\ \textcolor{comment}{//\ adjacent(v)\ -\/>\ next;\ next()\ -\/>\ v}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{typename}\ FilterFn,\ \ \ \ \textcolor{comment}{//\ filter(*v)\ -\/>\ bool}}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{typename}\ IdFn,\ \ \ \ \ \ \ \ \textcolor{comment}{//\ id(v)\ -\/>\ Id}}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keyword}{template}\ <\textcolor{keyword}{typename}...>\ \textcolor{keyword}{typename}\ Set=std::unordered\_set}
+\DoxyCodeLine{00075\ >}
+\DoxyCodeLine{00076\ \textcolor{keywordtype}{void}\ bfs(}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ InitialSet\&\&\ \ initial,}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ VistFn\&\&\ \ \ \ \ \ visit,}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ AdjacencyFn\&\&\ adjacent,}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ FilterFn\&\&\ \ \ \ filter,}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ IdFn\&\&\ \ \ \ \ \ \ \ \textcolor{keywordtype}{id})}
+\DoxyCodeLine{00082\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keyword}{using\ }VertexPtr\ \ \ \ =\ \textcolor{keyword}{decltype}(initial());}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keyword}{using\ }Vertex\ \ \ \ \ \ \ =\ \textcolor{keyword}{decltype}(*declval<VertexPtr>());}
+\DoxyCodeLine{00085\ \ \ \ \ \textcolor{keyword}{using\ }VertexId\ \ \ \ \ =\ \textcolor{keyword}{decltype}(id(declval<Vertex>()));}
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{keyword}{using\ }AdjacencySet\ =\ \textcolor{keyword}{decltype}(adjacent(declval<Vertex>()));}
+\DoxyCodeLine{00087\ \ \ \ \ Set<VertexId>\ visited;}
+\DoxyCodeLine{00088\ \ \ \ \ std::vector<AdjacencySet>\ stack;}
+\DoxyCodeLine{00089\ \ \ \ \ queue.push\_back(initial);}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordflow}{while}\ (!stack.empty())\ \{}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\&\ next\ =\ queue.pop\_back();}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (\textcolor{keyword}{auto}\ vp\ =\ next())\ \{}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ v\ \ \ =\ *vp;}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ vid\ =\ id(vp);}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (visited.contains(vid))\ \{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ already\ visited}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (filter(v))\ \{}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ visit(v);}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ stack.push\_back(adjacent(vp));}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \ \ \ \ visited.insert(vid);}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00105\ \ \ \ \ \}}
+\DoxyCodeLine{00106\ \}}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00108\ \}\ \textcolor{comment}{//\ namespace\ graph}}
+
+\end{DoxyCode}
