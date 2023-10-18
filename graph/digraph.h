@@ -55,39 +55,39 @@ enum struct VertexId : uint64_t {};
 /// @brief Unique identifier for an edge in a graph.
 enum struct EdgeId   : uint64_t {};
 
-VertexId operator+(VertexId v, uint64_t n) {
+inline VertexId operator+(VertexId v, uint64_t n) {
     return static_cast<VertexId>(static_cast<uint64_t>(v) + n);
 }
 
-VertexId operator+(VertexId v0, VertexId v1) {
+inline VertexId operator+(VertexId v0, VertexId v1) {
     return static_cast<VertexId>(static_cast<uint64_t>(v0) + static_cast<uint64_t>(v1));
 }
 
-VertexId& operator+=(VertexId& v, uint64_t n) {
+inline VertexId& operator+=(VertexId& v, uint64_t n) {
     v = v + n;
     return v;
 }
 
-VertexId operator++(VertexId& v, int) {
+inline VertexId operator++(VertexId& v, int) {
     VertexId old = v;
     v = v + 1;
     return old;
 }
 
-EdgeId operator+(EdgeId e, uint64_t n) {
+inline EdgeId operator+(EdgeId e, uint64_t n) {
     return static_cast<EdgeId>(static_cast<uint64_t>(e) + n);
 }
 
-EdgeId operator+(EdgeId e0, EdgeId e1) {
+inline EdgeId operator+(EdgeId e0, EdgeId e1) {
     return static_cast<EdgeId>(static_cast<uint64_t>(e0) + static_cast<uint64_t>(e1));
 }
 
-EdgeId& operator+=(EdgeId& e, uint64_t n) {
+inline EdgeId& operator+=(EdgeId& e, uint64_t n) {
     e = e + n;
     return e;
 }
 
-EdgeId operator++(EdgeId& e, int) {
+inline EdgeId operator++(EdgeId& e, int) {
     EdgeId old = e;
     e = e + 1;
     return old;
@@ -118,7 +118,7 @@ enum struct EdgeDir {
     Outgoing = 1,
 };
 
-EdgeDir operator~(EdgeDir dir) {
+inline EdgeDir operator~(EdgeDir dir) {
     return dir == EdgeDir::Incoming ? EdgeDir::Outgoing : EdgeDir::Incoming;
 }
     

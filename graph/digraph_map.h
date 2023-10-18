@@ -73,6 +73,13 @@ struct Instrumentation {
 } // namespace detail
 
 
+enum struct EdgeChange {
+    CREATED,
+    REDIRECTED,
+    MODIFIED
+};
+
+
 /**
  * @brief A digraph class that allows vertices and/or edges to be indexed by a custom type
  * in O(1) time.
@@ -790,7 +797,7 @@ public:
      * as well.
      */
     template <typename... Args>
-    std::pair<edge_iterator, bool> redirect_edge(
+    std::pair<edge_iterator, EdgeChange> redirect_edge(
             const EdgeKey& key,
             vertex_iterator src,
             vertex_iterator dst,
@@ -805,7 +812,7 @@ public:
                     // replace the existing value
                     e->value() = VertVal{std::forward<Args>(args)...};
                 }
-                return {e, false};
+                return {e, EdgeChange::MODIFIED};
             } else {
                 // edge exists, but points to the wrong verts
                 this->erase(e);
@@ -816,14 +823,14 @@ public:
                             dst,
                             std::forward<Args>(args)...
                         ).first,
-                    false
+                    EdgeChange::REDIRECTED
                 );
             }
         } else {
             // edge does not exist. emplace it.
             return std::make_pair(
                 this->emplace_directed_edge(key, src, dst, std::forward<Args>(args)...).first,
-                true
+                EdgeChange::CREATED
             );
         }
     }
