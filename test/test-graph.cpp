@@ -56,7 +56,7 @@ auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
     EXPECT_EQ(g.vertices_size(), 0);
     auto v0 = g.insert_vertex();
     v0->value() = 9999;
-    VertexId v0_id = v0;
+    VertexId v0_id = v0.id();
     for (int i = 0; i < n_verts; ++i) {
         auto v = g.insert_vertex();
         v->value() = i;
@@ -119,13 +119,13 @@ TEST(TEST_MODULE_NAME, test_access) {
     v0->value() = 1;
     EXPECT_EQ(g.vertices_size(), 1);
     EXPECT_EQ(*v0, 1);
-    VertexId v0_id = v0;
+    VertexId v0_id = v0.id();
     
     auto v1 = g.insert_vertex();
     v1->value() = 2;
     EXPECT_EQ(g.vertices_size(), 2);
     EXPECT_EQ(*v1, 2);
-    VertexId v1_id = v1;
+    VertexId v1_id = v1.id();
     EXPECT_EQ(g.edges_size(), 0);
     
     EXPECT_TRUE(g.contains(v0_id));
@@ -180,7 +180,7 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
     // remove all of the edges incident to v0
     ct = 0;
     for (auto e = g.begin_incident_edges(v0, EdgeDir::Outgoing);
-         e != g.end_incident_edges(); )
+         e != g.end_edges(); )
     {
         e = g.erase(e);
         ++ct;

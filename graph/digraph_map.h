@@ -169,7 +169,7 @@ private:
             // delete the keys for all edges incident to the deleted vert
             for (EdgeDir dir : {EdgeDir::Incoming, EdgeDir::Outgoing}) {
                 for (auto e = this->begin_incident_edges({this, v_iter}, dir);
-                     e != this->end_incident_edges();
+                     e != this->end_edges();
                      ++e)
                 {
                     _unregister_edge(e->id());
@@ -727,8 +727,8 @@ public:
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge_before(
             const EdgeKey& new_key,
-            std::variant<edge_iterator, vertex_iterator> before_outgoing,
-            std::variant<edge_iterator, vertex_iterator> before_incoming,
+            std::variant<edge_iterator, vertex_iterator> src,
+            std::variant<edge_iterator, vertex_iterator> dst,
             Args&&... args)
         requires (HasEdgeKey())
     {
@@ -745,8 +745,8 @@ public:
             };
         }
         auto e_i = _base()->emplace_directed_edge_before(
-            before_outgoing,
-            before_incoming,
+            src,
+            dst,
             std::forward<Args>(args)...
         );
         _register_edge(e_i->id(), new_key);
@@ -805,7 +805,7 @@ public:
         requires (HasEdgeKey())
     {
         auto e = this->find_edge(key);
-        if (e != this->end_incident_edges()) {
+        if (e != this->end_edges()) {
             if (e->source_id() == src->id() and e->target_id() == dst) {
                 // edge already exists with this key and endpoints
                 if constexpr (HasVertexValue()) {
@@ -861,7 +861,7 @@ public:
         requires (HasEdgeKey() and HasEdgeValue())
     {
         auto e = this->find_edge(key);
-        if (e != this->end_incident_edges()) {
+        if (e != this->end_edges()) {
             // edge exists; save the existing value
             EdgeVal v { std::move(e->value()) };
             this->erase(e);
