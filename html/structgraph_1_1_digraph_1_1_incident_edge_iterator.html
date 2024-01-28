@@ -104,7 +104,7 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a8b506c84a0c4986fd8287f1503308e9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4ece74222217a1c4bbc0906c6d0a545"><td class="memItemLeft" align="right" valign="top"><a id="ae4ece74222217a1c4bbc0906c6d0a545" name="ae4ece74222217a1c4bbc0906c6d0a545"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>operator IncidentEdgeIterator&lt; Constness::Const &gt;</b> () const</td></tr>
-<tr class="memdesc:ae4ece74222217a1c4bbc0906c6d0a545"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implicit conversion to the edge ID. <br /></td></tr>
+<tr class="memdesc:ae4ece74222217a1c4bbc0906c6d0a545"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implicit conversion to a const iterator. <br /></td></tr>
 <tr class="separator:ae4ece74222217a1c4bbc0906c6d0a545"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae2ac94d85f09084726fe59f4f6072f5d"><td class="memItemLeft" align="right" valign="top"><a id="ae2ac94d85f09084726fe59f4f6072f5d" name="ae2ac94d85f09084726fe59f4f6072f5d"></a>
 <a class="el" href="structgraph_1_1_digraph_1_1_edge_ref.html">EdgeRef</a>&lt; Const &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>operator*</b> () const</td></tr>
@@ -128,6 +128,9 @@ EdgeDir&#160;</td><td class="memItemRight" valign="bottom"><b>traversal_directio
 <a class="el" href="structgraph_1_1_digraph_1_1_vertex_ref.html">VertexRef</a>&lt; Const &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>pivot</b> () const</td></tr>
 <tr class="memdesc:ac0f3e480f81c836dbade8a7fe7acb642"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve a reference to the vertex about which this iterator is traversing. <br /></td></tr>
 <tr class="separator:ac0f3e480f81c836dbade8a7fe7acb642"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8275a06d173cd1404e4a71367f273c86"><td class="memItemLeft" align="right" valign="top"><a id="a8275a06d173cd1404e4a71367f273c86" name="a8275a06d173cd1404e4a71367f273c86"></a>
+VertexId&#160;</td><td class="memItemRight" valign="bottom"><b>pivot_id</b> () const</td></tr>
+<tr class="separator:a8275a06d173cd1404e4a71367f273c86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a167c65601c1c9ee93d686ce9b45835b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">IncidentEdgeIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html#a167c65601c1c9ee93d686ce9b45835b0">with_traversal_direction</a> (EdgeDir dir) const</td></tr>
 <tr class="memdesc:a167c65601c1c9ee93d686ce9b45835b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns an iterator with the given traversal direction.  <br /></td></tr>
 <tr class="separator:a167c65601c1c9ee93d686ce9b45835b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,9 +148,9 @@ EdgeDir&#160;</td><td class="memItemRight" valign="bottom"><b>traversal_directio
 <tr class="memitem:ab45ec1dff7648def4f1859fe1377875b"><td class="memItemLeft" align="right" valign="top"><a id="ab45ec1dff7648def4f1859fe1377875b" name="ab45ec1dff7648def4f1859fe1377875b"></a>
 <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">IncidentEdgeIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operator--</b> (int)</td></tr>
 <tr class="separator:ab45ec1dff7648def4f1859fe1377875b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60daf3d62f7c1ba96418c3e5a90a4a0a"><td class="memTemplParams" colspan="2"><a id="a60daf3d62f7c1ba96418c3e5a90a4a0a" name="a60daf3d62f7c1ba96418c3e5a90a4a0a"></a>
-template&lt;Constness K&gt; </td></tr>
-<tr class="memitem:a60daf3d62f7c1ba96418c3e5a90a4a0a"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">IncidentEdgeIterator</a>&lt; K &gt; &amp;other) const</td></tr>
+<tr class="memitem:a60daf3d62f7c1ba96418c3e5a90a4a0a"><td class="memTemplParams" colspan="2">template&lt;Constness K&gt; </td></tr>
+<tr class="memitem:a60daf3d62f7c1ba96418c3e5a90a4a0a"><td class="memTemplItemLeft" align="right" valign="top">bool&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html#a60daf3d62f7c1ba96418c3e5a90a4a0a">operator==</a> (const <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">IncidentEdgeIterator</a>&lt; K &gt; &amp;other) const</td></tr>
+<tr class="memdesc:a60daf3d62f7c1ba96418c3e5a90a4a0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Equality comparison.  <br /></td></tr>
 <tr class="separator:a60daf3d62f7c1ba96418c3e5a90a4a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac0762bc0229e8ab3d1428c431ecc5553"><td class="memTemplParams" colspan="2"><a id="ac0762bc0229e8ab3d1428c431ecc5553" name="ac0762bc0229e8ab3d1428c431ecc5553"></a>
 template&lt;Constness K&gt; </td></tr>
@@ -167,11 +170,16 @@ template&lt;typename VertKey , typename VertVal , typename EdgeKey , typename Ed
 template&lt;Constness K&gt; </td></tr>
 <tr class="memitem:a960637de18030d474a97492930d4313c"><td class="memTemplItemLeft" align="right" valign="top">struct&#160;</td><td class="memTemplItemRight" valign="bottom"><b>EdgeIterator</b></td></tr>
 <tr class="separator:a960637de18030d474a97492930d4313c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76d5d0cbc590ced4c829939ac468904f"><td class="memTemplParams" colspan="2"><a id="a76d5d0cbc590ced4c829939ac468904f" name="a76d5d0cbc590ced4c829939ac468904f"></a>
+template&lt;Constness K&gt; </td></tr>
+<tr class="memitem:a76d5d0cbc590ced4c829939ac468904f"><td class="memTemplItemLeft" align="right" valign="top">struct&#160;</td><td class="memTemplItemRight" valign="bottom"><b>IncidentEdgeRange</b></td></tr>
+<tr class="separator:a76d5d0cbc590ced4c829939ac468904f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename V = void, typename E = void, template&lt; class... &gt; class Map = std::unordered_map&gt;<br />
 template&lt;Constness Const&gt;<br />
 struct graph::Digraph&lt; V, E, Map &gt;::IncidentEdgeIterator&lt; Const &gt;</div><p>An iterator over the edges incident to a vertex. </p>
+<p>IncidentEdgeIterators can be compared for equality with EdgeIterators; the direction of traversal is ignored; the iterators are equal iff they point to the same edge.</p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
     <tr><td class="paramname">Const</td><td>Whether the referenced edges are mutable or const. </td></tr>
@@ -179,6 +187,41 @@ struct graph::Digraph&lt; V, E, Map &gt;::IncidentEdgeIterator&lt; Const &gt;</d
   </dd>
 </dl>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a60daf3d62f7c1ba96418c3e5a90a4a0a" name="a60daf3d62f7c1ba96418c3e5a90a4a0a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a60daf3d62f7c1ba96418c3e5a90a4a0a">&#9670;&#160;</a></span>operator==()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename V  = void, typename E  = void, template&lt; class... &gt; class Map = std::unordered_map&gt; </div>
+<div class="memtemplate">
+template&lt;Constness Const&gt; </div>
+<div class="memtemplate">
+template&lt;Constness K&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="structgraph_1_1_digraph.html">graph::Digraph</a>&lt; V, E, Map &gt;::IncidentEdgeIterator&lt; Const &gt;::operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">IncidentEdgeIterator</a>&lt; K &gt; &amp;&#160;</td>
+          <td class="paramname"><em>other</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Equality comparison. </p>
+<p>IncidentEdgeIterators are equal if they point to the same edge, regardless of the direction of traversal. </p>
+
+</div>
+</div>
 <a id="a167c65601c1c9ee93d686ce9b45835b0" name="a167c65601c1c9ee93d686ce9b45835b0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a167c65601c1c9ee93d686ce9b45835b0">&#9670;&#160;</a></span>with_traversal_direction()</h2>
 

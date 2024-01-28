@@ -39,6 +39,12 @@ using {\bfseries value\+\_\+type} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a7778384122737846863f7ed1196081c2}\label{structgraph_1_1_digraph_1_1_edge_iterator_a7778384122737846863f7ed1196081c2}} 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries target} () const
 \begin{DoxyCompactList}\small\item\em Retrieve a reference to the target vertex of the referenced edge. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_af21bebaac3b13342126b3add167fac15}\label{structgraph_1_1_digraph_1_1_edge_iterator_af21bebaac3b13342126b3add167fac15}} 
+Vertex\+Id {\bfseries source\+\_\+id} () const
+\begin{DoxyCompactList}\small\item\em The ID of the source vertex. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a61fbbc97eacba68811a675e28a93cea2}\label{structgraph_1_1_digraph_1_1_edge_iterator_a61fbbc97eacba68811a675e28a93cea2}} 
+Vertex\+Id {\bfseries target\+\_\+id} () const
+\begin{DoxyCompactList}\small\item\em The ID of the target vertex. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_aa70a5cd3e8c378ccf28018d578dcd0d8}\label{structgraph_1_1_digraph_1_1_edge_iterator_aa70a5cd3e8c378ccf28018d578dcd0d8}} 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}} \& {\bfseries operator++} ()
 \begin{DoxyCompactList}\small\item\em Advance the iterator to the next edge in the graph. \end{DoxyCompactList}\item 
@@ -53,10 +59,9 @@ using {\bfseries value\+\_\+type} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1
 \item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_ad56a549a094ba50d34058e5cc5056397}\label{structgraph_1_1_digraph_1_1_edge_iterator_ad56a549a094ba50d34058e5cc5056397}} 
 {\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}}$<$ K $>$ \&other) const
-\item 
-\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a8266d87ad50318d46f7485df9da7e425}\label{structgraph_1_1_digraph_1_1_edge_iterator_a8266d87ad50318d46f7485df9da7e425}} 
-{\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&other) const
-\item 
+\begin{DoxyCompactList}\small\item\em Equality comparison. \end{DoxyCompactList}\item 
+{\footnotesize template$<$Constness K$>$ }\\bool \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator_a8266d87ad50318d46f7485df9da7e425}{operator==}} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&other) const
+\begin{DoxyCompactList}\small\item\em Equality comparison. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a2a9face91a864f6ed55595986191e487}\label{structgraph_1_1_digraph_1_1_edge_iterator_a2a9face91a864f6ed55595986191e487}} 
 {\bfseries operator Edge\+Id} () const
 \end{DoxyCompactItemize}
@@ -80,6 +85,22 @@ An iterator over all the edges in a graph.
 \hline
 \end{DoxyTemplParams}
 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_edge_iterator_a8266d87ad50318d46f7485df9da7e425}\label{structgraph_1_1_digraph_1_1_edge_iterator_a8266d87ad50318d46f7485df9da7e425}} 
+\index{graph::Digraph$<$ V, E, Map $>$::EdgeIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::EdgeIterator$<$ Const $>$}!operator==@{operator==}}
+\index{operator==@{operator==}!graph::Digraph$<$ V, E, Map $>$::EdgeIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::EdgeIterator$<$ Const $>$}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$Constness Const$>$ \\
+template$<$Constness K$>$ \\
+bool \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::\+Edge\+Iterator$<$ Const $>$\+::operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&}]{other }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Equality comparison. 
+
+Iterators are equal if they point to the same edge, regardless of the direction of traversal. 
 
 The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 

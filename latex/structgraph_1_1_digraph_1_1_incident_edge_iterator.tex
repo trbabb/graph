@@ -26,7 +26,7 @@ using {\bfseries value\+\_\+type} = \mbox{\hyperlink{structgraph_1_1_digraph_1_1
 \item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_ae4ece74222217a1c4bbc0906c6d0a545}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_ae4ece74222217a1c4bbc0906c6d0a545}} 
 {\bfseries operator Incident\+Edge\+Iterator$<$ Constness\+::\+Const $>$} () const
-\begin{DoxyCompactList}\small\item\em Implicit conversion to the edge ID. \end{DoxyCompactList}\item 
+\begin{DoxyCompactList}\small\item\em Implicit conversion to a const iterator. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_ae2ac94d85f09084726fe59f4f6072f5d}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_ae2ac94d85f09084726fe59f4f6072f5d}} 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_ref}{Edge\+Ref}}$<$ Const $>$ {\bfseries operator$\ast$} () const
 \item 
@@ -45,6 +45,9 @@ Edge\+Dir {\bfseries traversal\+\_\+direction} () const
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_ac0f3e480f81c836dbade8a7fe7acb642}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_ac0f3e480f81c836dbade8a7fe7acb642}} 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_vertex_ref}{Vertex\+Ref}}$<$ Const $>$ {\bfseries pivot} () const
 \begin{DoxyCompactList}\small\item\em Retrieve a reference to the vertex about which this iterator is traversing. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_a8275a06d173cd1404e4a71367f273c86}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_a8275a06d173cd1404e4a71367f273c86}} 
+Vertex\+Id {\bfseries pivot\+\_\+id} () const
+\item 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}} \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_a167c65601c1c9ee93d686ce9b45835b0}{with\+\_\+traversal\+\_\+direction}} (Edge\+Dir dir) const
 \begin{DoxyCompactList}\small\item\em Returns an iterator with the given traversal direction. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_aa313f6777d62f883a11b3fd99da05341}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_aa313f6777d62f883a11b3fd99da05341}} 
@@ -60,9 +63,8 @@ Edge\+Dir {\bfseries traversal\+\_\+direction} () const
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_ab45ec1dff7648def4f1859fe1377875b}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_ab45ec1dff7648def4f1859fe1377875b}} 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}} {\bfseries operator-\/-\/} (int)
 \item 
-\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_a60daf3d62f7c1ba96418c3e5a90a4a0a}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_a60daf3d62f7c1ba96418c3e5a90a4a0a}} 
-{\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&other) const
-\item 
+{\footnotesize template$<$Constness K$>$ }\\bool \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator_a60daf3d62f7c1ba96418c3e5a90a4a0a}{operator==}} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&other) const
+\begin{DoxyCompactList}\small\item\em Equality comparison. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_ac0762bc0229e8ab3d1428c431ecc5553}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_ac0762bc0229e8ab3d1428c431ecc5553}} 
 {\footnotesize template$<$Constness K$>$ }\\bool {\bfseries operator==} (const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_edge_iterator}{Edge\+Iterator}}$<$ K $>$ \&other) const
 \item 
@@ -77,6 +79,9 @@ Edge\+Dir {\bfseries traversal\+\_\+direction} () const
 \item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_a960637de18030d474a97492930d4313c}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_a960637de18030d474a97492930d4313c}} 
 {\footnotesize template$<$Constness K$>$ }\\struct {\bfseries Edge\+Iterator}
+\item 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_a76d5d0cbc590ced4c829939ac468904f}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_a76d5d0cbc590ced4c829939ac468904f}} 
+{\footnotesize template$<$Constness K$>$ }\\struct {\bfseries Incident\+Edge\+Range}
 \end{DoxyCompactItemize}
 
 
@@ -86,6 +91,8 @@ template$<$Constness Const$>$\newline
 struct graph\+::\+Digraph$<$ V, E, Map $>$\+::\+Incident\+Edge\+Iterator$<$ Const $>$}
 An iterator over the edges incident to a vertex. 
 
+Incident\+Edge\+Iterators can be compared for equality with Edge\+Iterators; the direction of traversal is ignored; the iterators are equal iff they point to the same edge.
+
 
 \begin{DoxyTemplParams}{Template Parameters}
 {\em Const} & Whether the referenced edges are mutable or const. \\
@@ -94,7 +101,20 @@ An iterator over the edges incident to a vertex.
 
 
 \doxysubsection{Member Function Documentation}
-\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_a167c65601c1c9ee93d686ce9b45835b0}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_a167c65601c1c9ee93d686ce9b45835b0}} 
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_a60daf3d62f7c1ba96418c3e5a90a4a0a}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_a60daf3d62f7c1ba96418c3e5a90a4a0a}} 
+\index{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$}!operator==@{operator==}}
+\index{operator==@{operator==}!graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$}}
+\doxysubsubsection{\texorpdfstring{operator==()}{operator==()}}
+{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
+template$<$Constness Const$>$ \\
+template$<$Constness K$>$ \\
+bool \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::\+Incident\+Edge\+Iterator$<$ Const $>$\+::operator== (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ K $>$ \&}]{other }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Equality comparison. 
+
+Incident\+Edge\+Iterators are equal if they point to the same edge, regardless of the direction of traversal. \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_iterator_a167c65601c1c9ee93d686ce9b45835b0}\label{structgraph_1_1_digraph_1_1_incident_edge_iterator_a167c65601c1c9ee93d686ce9b45835b0}} 
 \index{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$}!with\_traversal\_direction@{with\_traversal\_direction}}
 \index{with\_traversal\_direction@{with\_traversal\_direction}!graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeIterator$<$ Const $>$}}
 \doxysubsubsection{\texorpdfstring{with\_traversal\_direction()}{with\_traversal\_direction()}}

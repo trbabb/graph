@@ -14,11 +14,13 @@ A range capturing all the edges incident to a vertex in a given direction.
 \item 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_af90528d14a74011f341947a346da4d1c}{begin}} () const
 \begin{DoxyCompactList}\small\item\em An iterator pointing to the first edge in the set of vertices incident to the given vertex in the current direction. \end{DoxyCompactList}\item 
-\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}{end}} () const
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}\label{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ {\bfseries end} () const
 \begin{DoxyCompactList}\small\item\em An iterator pointing to the end of the range. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_a945111ab9cf4a196949a6ee1178533e7}{cbegin}} () const
 \begin{DoxyCompactList}\small\item\em A const iterator pointing to the first edge in the set of vertices incident to the given vertex in the current direction. \end{DoxyCompactList}\item 
-\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_ade8a05c77113b83bc46a53e647e1b332}{cend}} () const
+\mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_range_ade8a05c77113b83bc46a53e647e1b332}\label{structgraph_1_1_digraph_1_1_incident_edge_range_ade8a05c77113b83bc46a53e647e1b332}} 
+\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Const $>$ {\bfseries cend} () const
 \begin{DoxyCompactList}\small\item\em A const iterator pointing to the end of the range. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_range_a1857a2bdf633874d437caac0c92f8cdb}\label{structgraph_1_1_digraph_1_1_incident_edge_range_a1857a2bdf633874d437caac0c92f8cdb}} 
 size\+\_\+t {\bfseries size} () const
@@ -63,31 +65,7 @@ template$<$Constness Const$>$ \\
 
 A const iterator pointing to the first edge in the set of vertices incident to the given vertex in the current direction. 
 
-If the vertex does not exist in the graph, this iterator will be equal to \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}{end()}}. \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_range_ade8a05c77113b83bc46a53e647e1b332}\label{structgraph_1_1_digraph_1_1_incident_edge_range_ade8a05c77113b83bc46a53e647e1b332}} 
-\index{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$}!cend@{cend}}
-\index{cend@{cend}!graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$}}
-\doxysubsubsection{\texorpdfstring{cend()}{cend()}}
-{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
-template$<$Constness Const$>$ \\
-\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Constness\+::\+Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::\+Incident\+Edge\+Range$<$ Const $>$\+::cend (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-A const iterator pointing to the end of the range. 
-
-This iterator can never be reached by incrementing a valid iterator. \mbox{\Hypertarget{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}\label{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}} 
-\index{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$}!end@{end}}
-\index{end@{end}!graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$@{graph::Digraph$<$ V, E, Map $>$::IncidentEdgeRange$<$ Const $>$}}
-\doxysubsubsection{\texorpdfstring{end()}{end()}}
-{\footnotesize\ttfamily template$<$typename V  = void, typename E  = void, template$<$ class... $>$ class Map = std\+::unordered\+\_\+map$>$ \\
-template$<$Constness Const$>$ \\
-\mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_iterator}{Incident\+Edge\+Iterator}}$<$ Const $>$ \mbox{\hyperlink{structgraph_1_1_digraph}{graph\+::\+Digraph}}$<$ V, E, Map $>$\+::\+Incident\+Edge\+Range$<$ Const $>$\+::end (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption}) const\hspace{0.3cm}{\ttfamily [inline]}}
-
-
-
-An iterator pointing to the end of the range. 
-
-This iterator can never be reached by incrementing a valid iterator. 
+If the vertex does not exist in the graph, this iterator will be equal to \mbox{\hyperlink{structgraph_1_1_digraph_1_1_incident_edge_range_abacb86bf7cd9e179f4eb6707bc21b456}{end()}}. 
 
 The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
