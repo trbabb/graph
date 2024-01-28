@@ -1590,69 +1590,6 @@ public:
         
         return true;
     }
-    
-    /// xxx todo unfinished; requires implementing tail pointers in vertex nodes
-    bool splice_edge(edge_iterator e, edge_iterator before, EdgeDir dir) {
-        if (e->vertex(dir) != before->vertex(dir)) return false;
-        if (e == before) return true;
-        
-        //       head?              ? ?
-        //         ↓                ↓ ↓
-        //  ... e0 e e1 ...  ... b0   before b1 ...
-        //  ... e0   e1 ...  ... b0 e before b1 ...
-        //         ↑                ↑
-        //        tail?             ?
-        
-        int idx = (int) dir;
-        vertex_iterator v;        
-        EdgeLink& e_link = e.node().links[idx];
-        EdgeLink old_e_link = e_link;
-        
-        // insert e before `before`
-        if (before != end_edges()) {
-            EdgeLink& b_link = before.node().links[idx];
-            if (b_link.prev) _edges.find(*b_link.prev)->second.links[idx].next = e->id();
-            b_link.prev = e->id();
-            e_link.next = before->id();
-        } else {
-            // add e to the end of the list.
-            // find the current tail:
-            VertexId vid   = e->vertex(dir);
-            v = find_vertex(vid);
-            std::optional<EdgeId> tail_id = v->second.edges[idx].tail;
-            edge_iterator tail = find_edge(*tail_id, dir);
-            
-            // tail node now points to e
-            tail.node().links[idx].next = e->id();
-            // e is the new tail
-            v.edges[idx].tail = e->id();
-            e_link.next = std::nullopt;
-        }
-        
-        // xxx handle head and tail cases
-        if (not (before != end_edges() and old_e_link.prev and old_e_link.next)) {
-            VertexId vid = e->vertex(dir);
-            vertex_iterator v = find_vertex(vid);
-            
-            // xxx case: put e at the end when it's the only element
-            // xxx case: put e before its current neighbor (noop)
-            // e was the head of the list
-            if (not old_e_link.prev) v.edges[idx].head = old_e_link.next;
-            // e was the tail of the list
-            if (not old_e_link.next) v.edges[idx].tail = old_e_link.prev;
-            if (before == end_edges()) {
-                // e is the new tail
-                v.edges[idx].tail = e->id();
-                // xxx check me
-                edge_iterator tail = find_edge(*v.edges[idx].tail, dir);
-            }
-        }
-        
-        // excise e from its position
-        if (e_link.prev) _edges.find(*e_link.prev)->second.links[idx].next = e_link.next;
-        if (e_link.next) _edges.find(*e_link.next)->second.links[idx].prev = e_link.prev;
-        
-    }
 
 private:
 
