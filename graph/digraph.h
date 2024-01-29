@@ -6,6 +6,7 @@
 // todo: remove all insert_() functions
 //   x insert_..._edge()
 //   - insert_..._vertex()
+// todo: expose methods to push to front/back of edge list
 // xxx: update docs re: whether edges are prepended or appended.
 //   (I think we've just changed it to append).
 // todo: reorder_edge(edge_iterator edge, edge_iterator before)
@@ -628,6 +629,13 @@ public:
             return _i->first;
         }
         
+        /**
+         * @brief Convert to `true` iff the iterator is not the end iterator.
+         */
+        operator bool() const {
+            return _i != _graph->_edges.end();
+        }
+        
     };
     
 
@@ -787,8 +795,15 @@ public:
             return _i == other._i;
         }
         
-        operator EdgeId() const {
+        explicit operator EdgeId() const {
             return _i->first;
+        }
+        
+        /**
+         * @brief Convert to `true` iff the iterator is not the end iterator.
+         */
+        operator bool() const {
+            return _i != _graph->_edges.end();
         }
     };
     
@@ -1325,6 +1340,22 @@ private:
         edge_list.size += 1;
     }
     
+    void _append_tail(EdgeNode& edge, VertexNode& v, EdgeDir dir, EdgeId eid) {
+        // the new edge points backwards to the previous tail
+        edge.links[(int) dir].prev = v.edges[(int) dir].tail;
+        EdgeList& edge_list = v.edges[(int) dir];
+        if (edge_list.tail) {
+            // the previous tail (if it exists) points forwards to the new tail
+            auto prev_tail = _edges.find(*edge_list.tail);
+            prev_tail->second.links[(int) dir].next = eid;
+        } else {
+            // the list was previously empty; the new edge is also the head
+            edge_list.head = eid;
+        }
+        edge_list.tail = eid;
+        edge_list.size += 1;
+    }
+    
     template <typename... Args>
     incident_edge_iterator _emplace_directed_edge(
             vertex_iterator src,
@@ -1339,19 +1370,20 @@ private:
         VertexNode& v0 = src->node();
         VertexNode& v1 = dst->node();
         
-        // todo: this should be try_emplace!
-        auto [new_edge, _] = _edges.insert({
-            eid,
-            EdgeNode {
-                edge,
-                .data { std::forward<Args>(args)... }
-            }
-        });
+        auto [new_edge, _] = _edges.emplace(
+            std::make_pair(
+                eid,
+                EdgeNode {
+                    edge,
+                    .data { std::forward<Args>(args)... }
+                }
+            )
+        );
         
-        _prepend_head(new_edge->second, v0, EdgeDir::Outgoing, eid);
-        _prepend_head(new_edge->second, v1, EdgeDir::Incoming, eid);
+        _append_tail(new_edge->second, v0, EdgeDir::Outgoing, eid);
+        _append_tail(new_edge->second, v1, EdgeDir::Incoming, eid);
         
-        return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing};
+        return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing, src.id()};
     }
     
     // insert `edge` into the linked list of edges before the node `before`.
@@ -1363,7 +1395,7 @@ private:
             EdgeId          eid)
     {
         EdgeLink& link = edge.links[(int) dir];
-        if (before != end_edges()) {
+        if (before) {
             // inserting before an existing edge
             EdgeLink& next_link = before.node().links[(int) dir];
             link.next      = before.id();
@@ -1423,11 +1455,11 @@ private:
         
         if (v0 == _verts.end() or v1 == _verts.end()) {
             // one or more of the vertices doesn't exist. do not create an edge.
-            return incident_edge_iterator::global_end();
+            return incident_edge_iterator::global_end(this);
         }
         
-        Edge edge {v0.id(), v1.id()};
-        auto [new_edge, _] = _edges.insert({
+        Edge edge {v0->first, v1->first};
+        auto [new_edge, _] = _edges.emplace({
             eid,
             EdgeNode {
                 edge,
@@ -1440,7 +1472,24 @@ private:
         _splice_edge(
             new_edge->second, v1->second, get_edge_iterator(dst), EdgeDir::Incoming, eid);
         
-        return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing};
+        return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing, edge.v0};
+    }
+
+    std::pair<EdgePair<std::optional<EdgeId>>, typename Edges::iterator>
+    _impl_erase_edge(typename Edges::iterator edge) {
+        if (edge == _edges.end()) {
+            return {{std::nullopt, std::nullopt}, _edges.end()};
+        }
+        EdgeNode& edge_node = edge->second;
+        Edge              e = edge_node.edge;
+        vertex_iterator  v0 = find_vertex(e.v0);
+        vertex_iterator  v1 = find_vertex(e.v1);
+        
+        std::optional<EdgeId> out_id = _excise_from_list(v0, EdgeDir::Outgoing, edge);
+        std::optional<EdgeId>  in_id = _excise_from_list(v1, EdgeDir::Incoming, edge);
+        
+        auto next_edge = _edges.erase(edge);
+        return {{in_id, out_id}, next_edge};
     }
 
 public:
@@ -1456,7 +1505,7 @@ public:
      * Edges may be duplicated; a new edge will be created whether or not one between
      * the two vertices already exists.
      * 
-     * The inserted edge will become the first one in its adjacency lists. To insert an edge
+     * The inserted edge will be added to the end of its adjacency lists. To insert an edge
      * before a specific existing edge, use `emplace_directed_edge_before(...)`.
      */
     template <typename... Args>
@@ -1590,28 +1639,6 @@ public:
         
         return true;
     }
-
-private:
-
-    std::pair<EdgePair<std::optional<EdgeId>>, typename Edges::iterator>
-    _impl_erase_edge(typename Edges::iterator edge) {
-        if (edge == _edges.end()) {
-            return {{std::nullopt, std::nullopt}, _edges.end()};
-        }
-        EdgeNode& edge_node = edge->second;
-        Edge              e = edge_node.edge;
-        vertex_iterator  v0 = find_vertex(e.v0);
-        vertex_iterator  v1 = find_vertex(e.v1);
-        
-        std::optional<EdgeId> out_id = _excise_from_list(v0, EdgeDir::Outgoing, edge);
-        std::optional<EdgeId>  in_id = _excise_from_list(v1, EdgeDir::Incoming, edge);
-        
-        auto next_edge = _edges.erase(edge);
-        return {{in_id, out_id}, next_edge};
-    }
-
-public:
-
     
     /**
      * @brief Remove the given edge, and return the IDs of edges that followed it in the
@@ -1874,7 +1901,8 @@ public:
         return {
             this,
             first_edge_id ? _edges.find(*first_edge_id) : _edges.end(),
-            dir
+            dir,
+            v.id()
         };
     }
     
@@ -1903,7 +1931,8 @@ public:
         return {
             this,
             first_edge_id ? _edges.find(*first_edge_id) : _edges.end(),
-            dir
+            dir,
+            v.id()
         };
     }
     
@@ -1957,8 +1986,13 @@ public:
      * 
      * `dir` determines the direction of the iterator.
      */
-    incident_edge_iterator find_edge(EdgeId e, EdgeDir dir=EdgeDir::Outgoing) {
-        return incident_edge_iterator(this, _edges.find(e), EdgeDir::Outgoing);
+    incident_edge_iterator find_edge(EdgeId eid, EdgeDir dir=EdgeDir::Outgoing) {
+        auto e = _edges.find(eid);
+        if (e == _edges.end()) {
+            return incident_edge_iterator::global_end(this);
+        } else {
+            return incident_edge_iterator(this, e, dir);
+        }
     }
     
     /**
@@ -1966,8 +2000,13 @@ public:
      * 
      * `dir` determines the direction of the iterator.
      */
-    const_incident_edge_iterator find_edge(EdgeId e, EdgeDir dir=EdgeDir::Outgoing) const {
-        return const_incident_edge_iterator(this, _edges.find(e), EdgeDir::Outgoing);
+    const_incident_edge_iterator find_edge(EdgeId eid, EdgeDir dir=EdgeDir::Outgoing) const {
+        auto e = _edges.find(eid);
+        if (e == _edges.end()) {
+            return const_incident_edge_iterator::global_end(this);
+        } else {
+            return const_incident_edge_iterator(this, e, dir);
+        }
     }
     
     /**

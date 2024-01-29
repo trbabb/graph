@@ -40,6 +40,7 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
 
 // todo: test emplace_before()
 // todo: test swap_edge_order()
+// todo: test insertion order
 // todo: test that swap_edge_order() for edges that are not adjacent to the same vertex
 //   returns false and does not change the graph
 // todo: make a test with multiple edges between two vertices; try to delete some of them
@@ -56,7 +57,7 @@ auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
     EXPECT_EQ(g.vertices_size(), 0);
     auto v0 = g.insert_vertex();
     v0->value() = 9999;
-    VertexId v0_id = v0.id();
+    VertexId v0_id = v0->id();
     for (int i = 0; i < n_verts; ++i) {
         auto v = g.insert_vertex();
         v->value() = i;
@@ -66,10 +67,11 @@ auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
     
     // connect the central vertex to every other vertex
     size_t ct = 0;
+    int i = 0;
     for (auto v : g.vertices()) {
         ++ct;
         if (v != v0_id) {
-            g.emplace_directed_edge(v0_id, v.id());
+            g.emplace_directed_edge(v0_id, v.id(), (float) i++);
         }
     }
     EXPECT_EQ(ct, n_verts + 1);
@@ -82,7 +84,7 @@ auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
 template <template <typename...> typename Map>
 auto make_random_graph(Digraph<int,float,Map>& g, size_t n_verts, size_t n_incident_edges) {
     auto rng   = std::uniform_int_distribution<size_t>(0, n_verts - 1);
-    auto rng_d = std::uniform_real_distribution<double>(0, 1);
+    auto rng_f = std::uniform_real_distribution<float>(0, 1);
     
     auto v = g.begin_vertices();
     for (size_t i = 0; i < n_verts; ++i) {
@@ -94,12 +96,12 @@ auto make_random_graph(Digraph<int,float,Map>& g, size_t n_verts, size_t n_incid
     for (size_t i = 0; i < n_edges; ++i) {
         VertexId v0 = (VertexId) rng(rng_eng);
         VertexId v1 = (VertexId) rng(rng_eng);
-        g.emplace_directed_edge(v0, v1);
+        g.emplace_directed_edge(v0, v1, rng_f(rng_eng));
     }
     for (size_t i = 0; i < n_incident_edges; ++i) {
         VertexId v_id = (VertexId) rng(rng_eng);
         auto v1 = g.find_vertex(v_id);
-        g.emplace_directed_edge(v, v1);
+        g.emplace_directed_edge(v, v1, rng_f(rng_eng));
     }
     return v;
 }
@@ -119,13 +121,13 @@ TEST(TEST_MODULE_NAME, test_access) {
     v0->value() = 1;
     EXPECT_EQ(g.vertices_size(), 1);
     EXPECT_EQ(*v0, 1);
-    VertexId v0_id = v0.id();
+    VertexId v0_id = v0->id();
     
     auto v1 = g.insert_vertex();
     v1->value() = 2;
     EXPECT_EQ(g.vertices_size(), 2);
     EXPECT_EQ(*v1, 2);
-    VertexId v1_id = v1.id();
+    VertexId v1_id = v1->id();
     EXPECT_EQ(g.edges_size(), 0);
     
     EXPECT_TRUE(g.contains(v0_id));
@@ -139,11 +141,11 @@ TEST(TEST_MODULE_NAME, test_access) {
     e0->value() = 3;
     EXPECT_EQ(g.edges_size(), 1);
     EXPECT_EQ(*e0, 3);
-    EdgeId e0_id = e0;
+    EdgeId e0_id = e0->id();
     
     EXPECT_TRUE(g.contains(e0_id));
     EXPECT_EQ(g.find_edge(v0_id, v1_id), e0);
-    EXPECT_EQ(g.find_edge(v1_id, v0_id), g.end_edges());
+    EXPECT_EQ(g.find_edge(v1_id, v0_id), g.end_edges()); // xxx memory error here
     EXPECT_EQ(g[e0_id].value(), 3);
 }
 
@@ -164,13 +166,19 @@ TEST(TEST_MODULE_NAME, test_iteration_and_edge_deletion) {
         EXPECT_EQ(e.source_id(), *v0);
     }
     
+    // the edges were inserted in forward order
+    size_t ct = 0;
+    for (auto e : g.incident_edges(v0, EdgeDir::Outgoing)) {
+        EXPECT_EQ(e.value(), ct++);
+    }
+    
     // verify that we can delete an edge
     auto e0 = g.begin_edges();
     g.erase(e0);
     EXPECT_EQ(g.edges_size(), n_verts - 1);
     
     // iteration should still terminate, and touch exactly the remaining edges
-    size_t ct = 0;
+    ct = 0;
     for (auto e : g.incident_edges(v0, EdgeDir::Outgoing)) {
         EXPECT_EQ(e.source_id(), *v0);
         ++ct;
