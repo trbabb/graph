@@ -176,6 +176,12 @@ using&#160;</td><td class="memItemRight" valign="bottom"><b>edge_ref</b> = <a cl
 <tr class="memitem:a985959e1242e88857f3d47a5cf8c2f35"><td class="memItemLeft" align="right" valign="top"><a id="a985959e1242e88857f3d47a5cf8c2f35" name="a985959e1242e88857f3d47a5cf8c2f35"></a>
 using&#160;</td><td class="memItemRight" valign="bottom"><b>const_edge_ref</b> = <a class="el" href="structgraph_1_1_digraph_1_1_edge_ref.html">EdgeRef</a>&lt; Constness::Const &gt;</td></tr>
 <tr class="separator:a985959e1242e88857f3d47a5cf8c2f35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a913381f5f06abe9d46272d38f49ad49e"><td class="memItemLeft" align="right" valign="top"><a id="a913381f5f06abe9d46272d38f49ad49e" name="a913381f5f06abe9d46272d38f49ad49e"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>edge_endpoint</b> = std::variant&lt; <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> &gt;</td></tr>
+<tr class="separator:a913381f5f06abe9d46272d38f49ad49e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade42e429ced5a406ee91152f0e06e0dc"><td class="memItemLeft" align="right" valign="top"><a id="ade42e429ced5a406ee91152f0e06e0dc" name="ade42e429ced5a406ee91152f0e06e0dc"></a>
+using&#160;</td><td class="memItemRight" valign="bottom"><b>const_edge_endpoint</b> = std::variant&lt; <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">const_edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">const_incident_edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">const_vertex_iterator</a> &gt;</td></tr>
+<tr class="separator:ade42e429ced5a406ee91152f0e06e0dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -218,6 +224,45 @@ requires (HasVertexValue())</td></tr>
 <tr class="memitem:a54c6a7d8c1e8358a6dac4c04103332ff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a54c6a7d8c1e8358a6dac4c04103332ff">erase</a> (VertexId vid)</td></tr>
 <tr class="memdesc:a54c6a7d8c1e8358a6dac4c04103332ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the vertex with the given ID, and return an iterator to the following vertex.  <br /></td></tr>
 <tr class="separator:a54c6a7d8c1e8358a6dac4c04103332ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Edge modifiers</div></td></tr>
+<tr class="memitem:a106798dd4433d287d473a7f1b3d9ca95"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a106798dd4433d287d473a7f1b3d9ca95"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a106798dd4433d287d473a7f1b3d9ca95">emplace_directed_edge</a> (<a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> src, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> dst, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a106798dd4433d287d473a7f1b3d9ca95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-place with the given arguments, and return an iterator to it.  <br /></td></tr>
+<tr class="separator:a106798dd4433d287d473a7f1b3d9ca95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="memTemplParams" colspan="2"><a id="a3837dab6fc913bdc0b7f553c9209ec7e" name="a3837dab6fc913bdc0b7f553c9209ec7e"></a>
+template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>emplace_directed_edge</b> (VertexId src, VertexId dst, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for <code>emplace_directed_edge(find_vertex(src), find_vertex(dst), ...)</code> <br /></td></tr>
+<tr class="separator:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81ae2dd4dc0a19a179b7c281ba140fc0"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a81ae2dd4dc0a19a179b7c281ba140fc0"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a81ae2dd4dc0a19a179b7c281ba140fc0">emplace_directed_edge_front</a> (<a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> src, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> dst, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a81ae2dd4dc0a19a179b7c281ba140fc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-place with the given arguments, and return an iterator to it.  <br /></td></tr>
+<tr class="separator:a81ae2dd4dc0a19a179b7c281ba140fc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1b50534467039c254228ee4c6caa1ee2"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
+<tr class="memitem:a1b50534467039c254228ee4c6caa1ee2"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a1b50534467039c254228ee4c6caa1ee2">emplace_directed_edge_before</a> (edge_endpoint before_outgoing, edge_endpoint before_incoming, Args &amp;&amp;... args)</td></tr>
+<tr class="memdesc:a1b50534467039c254228ee4c6caa1ee2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a new edge into the graph before each given edge.  <br /></td></tr>
+<tr class="separator:a1b50534467039c254228ee4c6caa1ee2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af851493b2f6a927bab78662a8c9be090"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#af851493b2f6a927bab78662a8c9be090">insert_undirected_edge</a> (VertexId a, VertexId b)</td></tr>
+<tr class="memdesc:af851493b2f6a927bab78662a8c9be090"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert an undirected edge between the two given vertices by inserting two directed edges in opposing directions.  <br /></td></tr>
+<tr class="separator:af851493b2f6a927bab78662a8c9be090"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6793c3de1ef4d741493585e33e3c8ede"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a6793c3de1ef4d741493585e33e3c8ede">swap_edge_order</a> (<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> e0, <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> e1, EdgeDir dir)</td></tr>
+<tr class="memdesc:a6793c3de1ef4d741493585e33e3c8ede"><td class="mdescLeft">&#160;</td><td class="mdescRight">In O(1) time, exchange the position of the two edges in their incident edge sequences.  <br /></td></tr>
+<tr class="separator:a6793c3de1ef4d741493585e33e3c8ede"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa37c145c8284d645a07b245313ad466a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_edge_pair.html">EdgePair</a>&lt; std::optional&lt; EdgeId &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#aa37c145c8284d645a07b245313ad466a">erase_and_next_ids</a> (<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html#ad383717d9f9dd6c07c6be47e6f0201e1">edge</a>)</td></tr>
+<tr class="memdesc:aa37c145c8284d645a07b245313ad466a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the given edge, and return the IDs of edges that followed it in the incoming and outgoing edge sequences.  <br /></td></tr>
+<tr class="separator:aa37c145c8284d645a07b245313ad466a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afee7b485c858855be94b6e1a831a8aab"><td class="memItemLeft" align="right" valign="top"><a id="afee7b485c858855be94b6e1a831a8aab" name="afee7b485c858855be94b6e1a831a8aab"></a>
+<a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>erase</b> (<a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html#ad383717d9f9dd6c07c6be47e6f0201e1">edge</a>)</td></tr>
+<tr class="memdesc:afee7b485c858855be94b6e1a831a8aab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the given edge, and return an iterator to the following edge in the given direction. <br /></td></tr>
+<tr class="separator:afee7b485c858855be94b6e1a831a8aab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a82b069fcdc9063498357ac8d029f9983"><td class="memItemLeft" align="right" valign="top"><a id="a82b069fcdc9063498357ac8d029f9983" name="a82b069fcdc9063498357ac8d029f9983"></a>
+<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>erase</b> (EdgeId eid)</td></tr>
+<tr class="memdesc:a82b069fcdc9063498357ac8d029f9983"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the edge with the given id, returning an iterator to the following edge in the graph. <br /></td></tr>
+<tr class="separator:a82b069fcdc9063498357ac8d029f9983"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3605392c9b72bcbd0bd7ad680a235953"><td class="memItemLeft" align="right" valign="top"><a id="a3605392c9b72bcbd0bd7ad680a235953" name="a3605392c9b72bcbd0bd7ad680a235953"></a>
+<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>erase</b> (<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html#ad383717d9f9dd6c07c6be47e6f0201e1">edge</a>)</td></tr>
+<tr class="memdesc:a3605392c9b72bcbd0bd7ad680a235953"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the given edge, returning an iterator to the following edge in the graph. <br /></td></tr>
+<tr class="separator:a3605392c9b72bcbd0bd7ad680a235953"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Vertex iteration</div></td></tr>
 <tr class="memitem:a62d66bc2cc6099934368b859cd12ea0a"><td class="memItemLeft" align="right" valign="top"><a id="a62d66bc2cc6099934368b859cd12ea0a" name="a62d66bc2cc6099934368b859cd12ea0a"></a>
 <a class="el" href="structgraph_1_1_digraph_1_1_vertex_range.html">VertexRange</a>&lt; Constness::Mutable &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>vertices</b> ()</td></tr>
@@ -274,6 +319,12 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>vertices_size</b> (
 <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>end_edges</b> () const</td></tr>
 <tr class="memdesc:aae3eb784540e7abc4d391ef670a17dea"><td class="mdescLeft">&#160;</td><td class="mdescRight">A const sentinel iterator pointing beyond the end of the range of edges. <br /></td></tr>
 <tr class="separator:aae3eb784540e7abc4d391ef670a17dea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e39261fc5a1fc26a4a5446b8f8addf5"><td class="memItemLeft" align="right" valign="top"><a id="a2e39261fc5a1fc26a4a5446b8f8addf5" name="a2e39261fc5a1fc26a4a5446b8f8addf5"></a>
+<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cbegin_edges</b> () const</td></tr>
+<tr class="separator:a2e39261fc5a1fc26a4a5446b8f8addf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a655648755fa02e023eb7934c8cba12ec"><td class="memItemLeft" align="right" valign="top"><a id="a655648755fa02e023eb7934c8cba12ec" name="a655648755fa02e023eb7934c8cba12ec"></a>
+<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">const_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cend_edges</b> () const</td></tr>
+<tr class="separator:a655648755fa02e023eb7934c8cba12ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62036a949a11e641a53bbb2b1c8a0b51"><td class="memItemLeft" align="right" valign="top"><a id="a62036a949a11e641a53bbb2b1c8a0b51" name="a62036a949a11e641a53bbb2b1c8a0b51"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>edges_size</b> () const</td></tr>
 <tr class="memdesc:a62036a949a11e641a53bbb2b1c8a0b51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of edges in the graph. <br /></td></tr>
@@ -334,12 +385,12 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>incident_edges</b> (<
 <tr class="memdesc:ae0e0b8fb0592a524b3ceebd8953262c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of edges incident to the given vertex in the given direction.  <br /></td></tr>
 <tr class="separator:ae0e0b8fb0592a524b3ceebd8953262c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Edge access</div></td></tr>
-<tr class="memitem:aa51033fff8c4dcab66007bec179c2e50"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#aa51033fff8c4dcab66007bec179c2e50">find_edge</a> (EdgeId e, EdgeDir dir=EdgeDir::Outgoing)</td></tr>
-<tr class="memdesc:aa51033fff8c4dcab66007bec179c2e50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an iterator pointing to the vertex with the given id.  <br /></td></tr>
-<tr class="separator:aa51033fff8c4dcab66007bec179c2e50"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a72d6728dca23fc72667089d763fe953b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">const_incident_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a72d6728dca23fc72667089d763fe953b">find_edge</a> (EdgeId e, EdgeDir dir=EdgeDir::Outgoing) const</td></tr>
-<tr class="memdesc:a72d6728dca23fc72667089d763fe953b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a const iterator pointing to the vertex with the given id.  <br /></td></tr>
-<tr class="separator:a72d6728dca23fc72667089d763fe953b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5efce48f1b4d691030191a9db78ad0e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#ae5efce48f1b4d691030191a9db78ad0e">find_edge</a> (EdgeId eid, EdgeDir dir=EdgeDir::Outgoing)</td></tr>
+<tr class="memdesc:ae5efce48f1b4d691030191a9db78ad0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an iterator pointing to the vertex with the given id.  <br /></td></tr>
+<tr class="separator:ae5efce48f1b4d691030191a9db78ad0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a643cb90c6260903794eaa857440dbbba"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">const_incident_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a643cb90c6260903794eaa857440dbbba">find_edge</a> (EdgeId eid, EdgeDir dir=EdgeDir::Outgoing) const</td></tr>
+<tr class="memdesc:a643cb90c6260903794eaa857440dbbba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a const iterator pointing to the vertex with the given id.  <br /></td></tr>
+<tr class="separator:a643cb90c6260903794eaa857440dbbba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae805ed41f16480845c0b8c080d89fb7b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#ae805ed41f16480845c0b8c080d89fb7b">find_edge</a> (<a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">const_vertex_iterator</a> v0, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">const_vertex_iterator</a> v1)</td></tr>
 <tr class="memdesc:ae805ed41f16480845c0b8c080d89fb7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the edge connecting the two given vertices.  <br /></td></tr>
 <tr class="separator:ae805ed41f16480845c0b8c080d89fb7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -389,42 +440,6 @@ Friends</h2></td></tr>
 template&lt;typename VertKey , typename VertVal , typename EdgeKey , typename EdgeVal , template&lt; class... &gt; class M&gt; </td></tr>
 <tr class="memitem:a3f5f04861e9fe4dbf9d24d988fb9b105"><td class="memTemplItemLeft" align="right" valign="top">struct&#160;</td><td class="memTemplItemRight" valign="bottom"><b>DigraphMap</b></td></tr>
 <tr class="separator:a3f5f04861e9fe4dbf9d24d988fb9b105"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader">Edge modifiers</h2></td></tr>
-<tr class="memitem:a106798dd4433d287d473a7f1b3d9ca95"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a106798dd4433d287d473a7f1b3d9ca95"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a106798dd4433d287d473a7f1b3d9ca95">emplace_directed_edge</a> (<a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> src, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> dst, Args &amp;&amp;... args)</td></tr>
-<tr class="memdesc:a106798dd4433d287d473a7f1b3d9ca95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-place with the given arguments, and return an iterator to it.  <br /></td></tr>
-<tr class="separator:a106798dd4433d287d473a7f1b3d9ca95"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="memTemplParams" colspan="2"><a id="a3837dab6fc913bdc0b7f553c9209ec7e" name="a3837dab6fc913bdc0b7f553c9209ec7e"></a>
-template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><b>emplace_directed_edge</b> (VertexId src, VertexId dst, Args &amp;&amp;... args)</td></tr>
-<tr class="memdesc:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alias for <code>emplace_directed_edge(find_vertex(src), find_vertex(dst), ...)</code> <br /></td></tr>
-<tr class="separator:a3837dab6fc913bdc0b7f553c9209ec7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae849a778c5008eb7807ac70c0645dd8c"><td class="memTemplParams" colspan="2">template&lt;typename... Args&gt; </td></tr>
-<tr class="memitem:ae849a778c5008eb7807ac70c0645dd8c"><td class="memTemplItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#ae849a778c5008eb7807ac70c0645dd8c">emplace_directed_edge_before</a> (std::variant&lt; <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> &gt; before_outgoing, std::variant&lt; <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> &gt; before_incoming, Args &amp;&amp;... args)</td></tr>
-<tr class="memdesc:ae849a778c5008eb7807ac70c0645dd8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert a new edge into the graph before each given edge.  <br /></td></tr>
-<tr class="separator:ae849a778c5008eb7807ac70c0645dd8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af851493b2f6a927bab78662a8c9be090"><td class="memItemLeft" align="right" valign="top">std::pair&lt; <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#af851493b2f6a927bab78662a8c9be090">insert_undirected_edge</a> (VertexId a, VertexId b)</td></tr>
-<tr class="memdesc:af851493b2f6a927bab78662a8c9be090"><td class="mdescLeft">&#160;</td><td class="mdescRight">Insert an undirected edge between the two given vertices by inserting two directed edges in opposing directions.  <br /></td></tr>
-<tr class="separator:af851493b2f6a927bab78662a8c9be090"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6793c3de1ef4d741493585e33e3c8ede"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#a6793c3de1ef4d741493585e33e3c8ede">swap_edge_order</a> (<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> e0, <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> e1, EdgeDir dir)</td></tr>
-<tr class="memdesc:a6793c3de1ef4d741493585e33e3c8ede"><td class="mdescLeft">&#160;</td><td class="mdescRight">In O(1) time, exchange the position of the two edges in their incident edge sequences.  <br /></td></tr>
-<tr class="separator:a6793c3de1ef4d741493585e33e3c8ede"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa37c145c8284d645a07b245313ad466a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structgraph_1_1_digraph_1_1_edge_pair.html">EdgePair</a>&lt; std::optional&lt; EdgeId &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgraph_1_1_digraph.html#aa37c145c8284d645a07b245313ad466a">erase_and_next_ids</a> (<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html#ad383717d9f9dd6c07c6be47e6f0201e1">edge</a>)</td></tr>
-<tr class="memdesc:aa37c145c8284d645a07b245313ad466a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the given edge, and return the IDs of edges that followed it in the incoming and outgoing edge sequences.  <br /></td></tr>
-<tr class="separator:aa37c145c8284d645a07b245313ad466a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afee7b485c858855be94b6e1a831a8aab"><td class="memItemLeft" align="right" valign="top"><a id="afee7b485c858855be94b6e1a831a8aab" name="afee7b485c858855be94b6e1a831a8aab"></a>
-<a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>erase</b> (<a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html#ad383717d9f9dd6c07c6be47e6f0201e1">edge</a>)</td></tr>
-<tr class="memdesc:afee7b485c858855be94b6e1a831a8aab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the given edge, and return an iterator to the following edge in the given direction. <br /></td></tr>
-<tr class="separator:afee7b485c858855be94b6e1a831a8aab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a82b069fcdc9063498357ac8d029f9983"><td class="memItemLeft" align="right" valign="top"><a id="a82b069fcdc9063498357ac8d029f9983" name="a82b069fcdc9063498357ac8d029f9983"></a>
-<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>erase</b> (EdgeId eid)</td></tr>
-<tr class="memdesc:a82b069fcdc9063498357ac8d029f9983"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the edge with the given id, returning an iterator to the following edge in the graph. <br /></td></tr>
-<tr class="separator:a82b069fcdc9063498357ac8d029f9983"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3605392c9b72bcbd0bd7ad680a235953"><td class="memItemLeft" align="right" valign="top"><a id="a3605392c9b72bcbd0bd7ad680a235953" name="a3605392c9b72bcbd0bd7ad680a235953"></a>
-<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>&#160;</td><td class="memItemRight" valign="bottom"><b>erase</b> (<a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html#ad383717d9f9dd6c07c6be47e6f0201e1">edge</a>)</td></tr>
-<tr class="memdesc:a3605392c9b72bcbd0bd7ad680a235953"><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove the given edge, returning an iterator to the following edge in the graph. <br /></td></tr>
-<tr class="separator:a3605392c9b72bcbd0bd7ad680a235953"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename V = void, typename E = void, template&lt; class... &gt; class Map = std::unordered_map&gt;<br />
@@ -709,12 +724,12 @@ template&lt;typename... Args&gt; </div>
 
 <p>Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-place with the given arguments, and return an iterator to it. </p>
 <p>Edges may be duplicated; a new edge will be created whether or not one between the two vertices already exists.</p>
-<p>The inserted edge will become the first one in its adjacency lists. To insert an edge before a specific existing edge, use <code>emplace_directed_edge_before(...)</code>. </p>
+<p>The inserted edge will be added to the end of its adjacency lists. To insert to the front of the lists, use <code><a class="el" href="structgraph_1_1_digraph.html#a81ae2dd4dc0a19a179b7c281ba140fc0" title="Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-...">emplace_directed_edge_front()</a></code>. To insert an edge before specific existing edges, use <code>emplace_directed_edge_before(...)</code>. </p>
 
 </div>
 </div>
-<a id="ae849a778c5008eb7807ac70c0645dd8c" name="ae849a778c5008eb7807ac70c0645dd8c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae849a778c5008eb7807ac70c0645dd8c">&#9670;&#160;</a></span>emplace_directed_edge_before()</h2>
+<a id="a1b50534467039c254228ee4c6caa1ee2" name="a1b50534467039c254228ee4c6caa1ee2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b50534467039c254228ee4c6caa1ee2">&#9670;&#160;</a></span>emplace_directed_edge_before()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -729,13 +744,13 @@ template&lt;typename... Args&gt; </div>
         <tr>
           <td class="memname"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html">graph::Digraph</a>&lt; V, E, Map &gt;::emplace_directed_edge_before </td>
           <td>(</td>
-          <td class="paramtype">std::variant&lt; <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> &gt;&#160;</td>
+          <td class="paramtype">edge_endpoint&#160;</td>
           <td class="paramname"><em>before_outgoing</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::variant&lt; <a class="el" href="structgraph_1_1_digraph_1_1_edge_iterator.html">edge_iterator</a>, <a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a> &gt;&#160;</td>
+          <td class="paramtype">edge_endpoint&#160;</td>
           <td class="paramname"><em>before_incoming</em>, </td>
         </tr>
         <tr>
@@ -761,6 +776,55 @@ template&lt;typename... Args&gt; </div>
 <p>Each vertex argument can be either a vertex or an edge iterator. If it is an edge, the new edge will be inserted before the given edge, and the vertex will be taken from the same endpoint. If it is a vertex, the edge will be inserted before the first edge in the given direction.</p>
 <p>The <code>before_outgoing</code> edge provides the source vertex for the new edge, and the <code>before_incoming</code> edge provides the target vertex.</p>
 <p>If the graph has edge values, the new edge will be constructed in-place with the given arguments. </p>
+
+</div>
+</div>
+<a id="a81ae2dd4dc0a19a179b7c281ba140fc0" name="a81ae2dd4dc0a19a179b7c281ba140fc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81ae2dd4dc0a19a179b7c281ba140fc0">&#9670;&#160;</a></span>emplace_directed_edge_front()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename V  = void, typename E  = void, template&lt; class... &gt; class Map = std::unordered_map&gt; </div>
+<div class="memtemplate">
+template&lt;typename... Args&gt; </div>
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html">graph::Digraph</a>&lt; V, E, Map &gt;::emplace_directed_edge_front </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a>&#160;</td>
+          <td class="paramname"><em>src</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structgraph_1_1_digraph_1_1_vertex_iterator.html">vertex_iterator</a>&#160;</td>
+          <td class="paramname"><em>dst</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">Args &amp;&amp;...&#160;</td>
+          <td class="paramname"><em>args</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-place with the given arguments, and return an iterator to it. </p>
+<p>This function is the same as <code><a class="el" href="structgraph_1_1_digraph.html#a106798dd4433d287d473a7f1b3d9ca95" title="Insert a new edge into the graph connecting the two given vertices, constructing a new edge value in-...">emplace_directed_edge()</a></code>, except that the new edge will be added to the front of its adjacency lists. </p>
 
 </div>
 </div>
@@ -1019,8 +1083,8 @@ template&lt;typename V  = void, typename E  = void, template&lt; class... &gt; c
 
 </div>
 </div>
-<a id="aa51033fff8c4dcab66007bec179c2e50" name="aa51033fff8c4dcab66007bec179c2e50"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa51033fff8c4dcab66007bec179c2e50">&#9670;&#160;</a></span>find_edge() <span class="overload">[3/4]</span></h2>
+<a id="ae5efce48f1b4d691030191a9db78ad0e" name="ae5efce48f1b4d691030191a9db78ad0e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5efce48f1b4d691030191a9db78ad0e">&#9670;&#160;</a></span>find_edge() <span class="overload">[3/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1034,7 +1098,7 @@ template&lt;typename V  = void, typename E  = void, template&lt; class... &gt; c
           <td class="memname"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">incident_edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html">graph::Digraph</a>&lt; V, E, Map &gt;::find_edge </td>
           <td>(</td>
           <td class="paramtype">EdgeId&#160;</td>
-          <td class="paramname"><em>e</em>, </td>
+          <td class="paramname"><em>eid</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1060,8 +1124,8 @@ template&lt;typename V  = void, typename E  = void, template&lt; class... &gt; c
 
 </div>
 </div>
-<a id="a72d6728dca23fc72667089d763fe953b" name="a72d6728dca23fc72667089d763fe953b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a72d6728dca23fc72667089d763fe953b">&#9670;&#160;</a></span>find_edge() <span class="overload">[4/4]</span></h2>
+<a id="a643cb90c6260903794eaa857440dbbba" name="a643cb90c6260903794eaa857440dbbba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a643cb90c6260903794eaa857440dbbba">&#9670;&#160;</a></span>find_edge() <span class="overload">[4/4]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1075,7 +1139,7 @@ template&lt;typename V  = void, typename E  = void, template&lt; class... &gt; c
           <td class="memname"><a class="el" href="structgraph_1_1_digraph_1_1_incident_edge_iterator.html">const_incident_edge_iterator</a> <a class="el" href="structgraph_1_1_digraph.html">graph::Digraph</a>&lt; V, E, Map &gt;::find_edge </td>
           <td>(</td>
           <td class="paramtype">EdgeId&#160;</td>
-          <td class="paramname"><em>e</em>, </td>
+          <td class="paramname"><em>eid</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
