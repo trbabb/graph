@@ -39,7 +39,8 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
 }
 
 // todo: test bidirectional iteration of edges
-// todo: test swap_edge_order()
+// todo: more tests to shake out iterator invalidation: interleaved addition/deletion
+//   of verts/edges
 // todo: test that swap_edge_order() for edges that are not adjacent to the same vertex
 //   returns false and does not change the graph
 // todo: make a test with multiple edges between two vertices; try to delete some of them

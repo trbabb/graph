@@ -6,21 +6,7 @@
 // todo: remove all insert_() functions
 //   x insert_..._edge()
 //   - insert_..._vertex()
-// todo: expose methods to push to front/back of edge list
-// xxx: update docs re: whether edges are prepended or appended.
-//   (I think we've just changed it to append).
 // todo: reorder_edge(edge_iterator edge, edge_iterator before)
-//   - this requires storing the tail of the edge list in the vertex node,
-//     otherwise it's O(n) to insert at the end of the edge sequence
-//   - if you do this, you can also make the `end` incident edge iterators able
-//     to decrement. they can't do that now
-//   - xxx: need to make the iterator point to the vertex, and get the tail edge live,
-//     so that reordering ops don't invalidate iterators. we don't want to copies of 'prev',
-//     that would make subtle bugs.
-//     - q: do we currently require that vert iterators remaind valid for the lifetime of
-//       incident edge iters? I feel like not. those being orthogonal is good
-//       - which means we'd have to keep the vert id and seach for it when decrementing
-//         end edge iterators.
 // todo: add insertion, reordering, sorting, etc. to the edge range
  
 // todo: testing. exercise all the code paths
@@ -29,7 +15,7 @@
 //    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
 //    invalidate the key-value mapping.
 //    > consider also the access granted by shared iterator and range classes.
-// todo: edge insertion should use try_emplace for better forwarding semantics.
+// todo: edge insertion could use try_emplace for better forwarding semantics.
 //    also document that behavior
 // todo: wbn to have a pre-built class that indexes edges by Pair<VertexId>
 // todo: expose pseudo-containers for the verts and edges?
@@ -52,6 +38,11 @@ struct arrow_proxy {
     Ref ref;
     
     Ref* operator->() { return &ref; }
+};
+
+enum struct End {
+    Front,
+    Back,
 };
 
 } // namespace detail
@@ -1374,6 +1365,7 @@ private:
     incident_edge_iterator _emplace_directed_edge(
             vertex_iterator src,
             vertex_iterator dst,
+            detail::End which_end,
             Args&&... args)
     {
         if (src == end_vertices() or dst == end_vertices()) {
@@ -1394,8 +1386,16 @@ private:
             )
         );
         
-        _append_tail(new_edge->second, v0, EdgeDir::Outgoing, eid);
-        _append_tail(new_edge->second, v1, EdgeDir::Incoming, eid);
+        switch (which_end) {
+            case detail::End::Front: {
+                _prepend_head(new_edge->second, v0, EdgeDir::Outgoing, eid);
+                _prepend_head(new_edge->second, v1, EdgeDir::Incoming, eid);
+            } break;
+            case detail::End::Back: {
+                _append_tail(new_edge->second, v0, EdgeDir::Outgoing, eid);
+                _append_tail(new_edge->second, v1, EdgeDir::Incoming, eid);
+            } break;
+        }
         
         return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing, src.id()};
     }
@@ -1536,8 +1536,9 @@ public:
      * Edges may be duplicated; a new edge will be created whether or not one between
      * the two vertices already exists.
      * 
-     * The inserted edge will be added to the end of its adjacency lists. To insert an edge
-     * before a specific existing edge, use `emplace_directed_edge_before(...)`.
+     * The inserted edge will be added to the end of its adjacency lists. To insert to
+     * the front of the lists, use `emplace_directed_edge_front()`. To insert an edge
+     * before specific existing edges, use `emplace_directed_edge_before(...)`.
      */
     template <typename... Args>
     incident_edge_iterator emplace_directed_edge(
@@ -1545,7 +1546,12 @@ public:
             vertex_iterator dst,
             Args&&... args)
     {
-        return _emplace_directed_edge(src, dst, std::forward<Args>(args)...);
+        return _emplace_directed_edge(
+            src,
+            dst,
+            detail::End::Back,
+            std::forward<Args>(args)...
+        );
     }
     
     /**
@@ -1560,6 +1566,29 @@ public:
         return _emplace_directed_edge(
             find_vertex(src),
             find_vertex(dst),
+            detail::End::Back,
+            std::forward<Args>(args)...
+        );
+    }
+    
+    /**
+     * @brief Insert a new edge into the graph connecting the two given vertices,
+     * constructing a new edge value in-place with the given arguments, and return
+     * an iterator to it.
+     * 
+     * This function is the same as `emplace_directed_edge()`, except that the new
+     * edge will be added to the front of its adjacency lists.
+     */
+    template <typename... Args>
+    incident_edge_iterator emplace_directed_edge_front(
+            vertex_iterator src,
+            vertex_iterator dst,
+            Args&&... args)
+    {
+        return _emplace_directed_edge(
+            src,
+            dst,
+            detail::End::Front,
             std::forward<Args>(args)...
         );
     }
