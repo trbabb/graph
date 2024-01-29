@@ -192,6 +192,9 @@ public:
     using typename Base::edge_ref;
     using typename Base::const_edge_ref;
     
+    using typename Base::edge_endpoint;
+    using typename Base::const_edge_endpoint;
+    
     using Base::HasVertexValue;
     using Base::HasEdgeValue;
     
@@ -727,8 +730,8 @@ public:
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge_before(
             const EdgeKey& new_key,
-            std::variant<edge_iterator, vertex_iterator> src,
-            std::variant<edge_iterator, vertex_iterator> dst,
+            edge_endpoint src,
+            edge_endpoint dst,
             Args&&... args)
         requires (HasEdgeKey())
     {
@@ -763,8 +766,8 @@ public:
      */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge_before(
-            std::variant<edge_iterator, vertex_iterator> src,
-            std::variant<edge_iterator, vertex_iterator> dst,
+            edge_endpoint src,
+            edge_endpoint dst,
             Args&&... args)
         requires (not HasVertKey())
     {

@@ -38,9 +38,8 @@ std::ostream& operator<<(std::ostream& os, const EdgeId& id) {
     return os;
 }
 
-// todo: test emplace_before()
+// todo: test bidirectional iteration of edges
 // todo: test swap_edge_order()
-// todo: test insertion order
 // todo: test that swap_edge_order() for edges that are not adjacent to the same vertex
 //   returns false and does not change the graph
 // todo: make a test with multiple edges between two vertices; try to delete some of them
@@ -287,6 +286,66 @@ TEST(TEST_MODULE_NAME, test_reorder_edge) {
             EXPECT_EQ(e.value(), vals[j]);
             j += 1;
         }
+    }
+}
+
+
+TEST(TEST_MODULE_NAME, test_insert_before) {
+    Digraph<int, float, Map> g;
+    size_t n_verts  = 60;
+    size_t n_trials = 255;
+    auto rng   = std::uniform_int_distribution<size_t>(0, n_verts - 1);
+    auto rng_f = std::uniform_real_distribution<float>(0, 1);
+    
+    for (auto trial = 0; trial < n_trials; ++trial) {
+        auto v = make_random_graph(g, n_verts, 10);
+        
+        std::vector<float> vals;
+        
+        // force the existing edges to be in order
+        auto edges = g.incident_edges(v, EdgeDir::Outgoing);
+        int i = 0;
+        float n = edges.size();
+        for (auto e : edges) {
+            float val = (i++ + rng_f(rng_eng)) / n;
+            e.value() = val;
+            vals.push_back(val);
+        }
+        
+        int n_extra = 20;
+        for (int i = 0; i < n_extra; ++i) {
+            // pick a vertex to connect to
+            size_t other_v = rng(rng_eng);
+            auto v1 = g.find_vertex((VertexId) other_v);
+            EXPECT_NE(v1, g.end_vertices());
+            // pick a value for the new edge
+            float val = rng_f(rng_eng);
+            vals.push_back(val);
+            
+            // insert the edge in order
+            auto edges = g.incident_edges(v, EdgeDir::Outgoing);
+            auto e = edges.begin();
+            while (e != edges.end() and e->value() < val) ++e;
+            auto e_new = g.emplace_directed_edge_before(e, v1, val);
+            
+            EXPECT_TRUE(e_new);
+            EXPECT_EQ(e_new->value(), val);
+        }
+        
+        std::sort(vals.begin(), vals.end());
+        
+        EXPECT_EQ(edges.size(), n + n_extra);
+        
+        // validate that the edges are in sorted order
+        float last = -100;
+        size_t ct = 0;
+        for (auto e : edges) {
+            EXPECT_LE(last, e.value());
+            last = e.value();
+            ++ct;
+        }
+        
+        EXPECT_EQ(ct, edges.size());
     }
 }
 

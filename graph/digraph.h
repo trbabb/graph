@@ -21,7 +21,6 @@
 //       incident edge iters? I feel like not. those being orthogonal is good
 //       - which means we'd have to keep the vert id and seach for it when decrementing
 //         end edge iterators.
-// todo: emplace_edge_before() cannot insert at the end
 // todo: add insertion, reordering, sorting, etc. to the edge range
  
 // todo: testing. exercise all the code paths
@@ -926,6 +925,17 @@ public:
     using edge_ref                     = EdgeRef<Constness::Mutable>;
     using const_edge_ref               = EdgeRef<Constness::Const>;
     
+    using edge_endpoint = std::variant<
+        edge_iterator,
+        incident_edge_iterator,
+        vertex_iterator
+    >;
+    using const_edge_endpoint = std::variant<
+        const_edge_iterator,
+        const_incident_edge_iterator,
+        const_vertex_iterator
+    >;
+    
     
     /**
      * @brief A range capturing all the edges incident to a vertex in a given direction.
@@ -1326,8 +1336,10 @@ private:
     
     void _prepend_head(EdgeNode& edge, VertexNode& v, EdgeDir dir, EdgeId eid) {
         // the new edge points forwards to the previous head
-        edge.links[(int) dir].next = v.edges[(int) dir].head;
         EdgeList& edge_list = v.edges[(int) dir];
+        EdgeLink& link = edge.links[(int) dir];
+        link.next = edge_list.head;
+        link.prev = std::nullopt;
         if (edge_list.head) {
             // the previous head (if it exists) points backwards to the new head
             auto prev_head = _edges.find(*edge_list.head);
@@ -1342,8 +1354,10 @@ private:
     
     void _append_tail(EdgeNode& edge, VertexNode& v, EdgeDir dir, EdgeId eid) {
         // the new edge points backwards to the previous tail
-        edge.links[(int) dir].prev = v.edges[(int) dir].tail;
         EdgeList& edge_list = v.edges[(int) dir];
+        EdgeLink& link = edge.links[(int) dir];
+        link.prev = edge_list.tail;
+        link.next = std::nullopt;
         if (edge_list.tail) {
             // the previous tail (if it exists) points forwards to the new tail
             auto prev_tail = _edges.find(*edge_list.tail);
@@ -1388,61 +1402,73 @@ private:
     
     // insert `edge` into the linked list of edges before the node `before`.
     void _splice_edge(
-            EdgeNode&       edge,
-            VertexNode&     shared_vert,
-            edge_iterator   before,
-            EdgeDir         dir,
-            EdgeId          eid)
+            EdgeNode&     edge,
+            VertexNode&   shared_vert,
+            edge_iterator before,
+            EdgeDir       dir,
+            EdgeId        eid)
     {
         EdgeLink& link = edge.links[(int) dir];
+        EdgeList& edge_list = shared_vert.edges[(int) dir];
         if (before) {
             // inserting before an existing edge
             EdgeLink& next_link = before.node().links[(int) dir];
-            link.next      = before.id();
+            if (next_link.prev) {
+                // the previous edge should point forwards to the new edge
+                auto prev = _edges.find(*next_link.prev);
+                prev->second.links[(int) dir].next = eid;
+            }
+            link.next      = before->id();
             link.prev      = next_link.prev;
             next_link.prev = eid;
         } else {
             // appending to the end of the list
-            EdgeList& edge_list = shared_vert.edges[(int) dir];
+            if (edge_list.tail) {
+                // previous tail should point forwards to the new tail
+                auto prev_tail = _edges.find(*edge_list.tail);
+                prev_tail->second.links[(int) dir].next = eid;
+            }
             link.next      = std::nullopt;
             link.prev      = edge_list.tail;
             edge_list.tail = eid; // incoming edge is the new tail
         }
         if (not link.prev) {
             // we're inserting a new list head
-            shared_vert.edges[(int) dir].head = eid;
+            edge_list.head = eid;
         }
+        edge_list.size += 1;
     }
     
     // insert a new edge into the graph, splicing the 
     template <typename... Args>
     incident_edge_iterator _emplace_directed_edge_before(
             // take the src vertex from this edge:
-            std::variant<edge_iterator, vertex_iterator> src,
+            edge_endpoint src,
             // and the target vertex from this edge:
-            std::variant<edge_iterator, vertex_iterator> dst,
+            edge_endpoint dst,
             Args&&... args)
     {
-        auto get_vert_iterator = [this](
-                std::variant<edge_iterator, vertex_iterator>& v,
-                EdgeDir dir)
-        {
+        auto get_vert_iterator = [this](edge_endpoint& v, EdgeDir dir) {
             if (std::holds_alternative<edge_iterator>(v)) {
                 auto& e = std::get<edge_iterator>(v);
                 if (e == end_edges()) return _verts.end();
                 VertexId v_id = (dir == EdgeDir::Outgoing) ? e->source_id() : e->target_id();
+                return _verts.find(v_id);
+            } else if (std::holds_alternative<incident_edge_iterator>(v)) {
+                auto& e = std::get<incident_edge_iterator>(v);
+                VertexId v_id = e.pivot_id(); // end iterators keep track of this
                 return _verts.find(v_id);
             } else {
                 return std::get<vertex_iterator>(v).inner_iterator();
             }
         };
         
-        auto get_edge_iterator = [this](
-                std::variant<edge_iterator, vertex_iterator>& v,
-                EdgeDir dir) -> edge_iterator
-        {
+        auto get_edge_iterator = [this](edge_endpoint& v) -> edge_iterator {
             if (std::holds_alternative<edge_iterator>(v)) {
                 return std::get<edge_iterator>(v);
+            } else if (std::holds_alternative<incident_edge_iterator>(v)) {
+                incident_edge_iterator i = std::get<incident_edge_iterator>(v);
+                return i;
             } else {
                 // insertion edge unspecified; insert at the end of the list
                 return end_edges();
@@ -1459,18 +1485,23 @@ private:
         }
         
         Edge edge {v0->first, v1->first};
-        auto [new_edge, _] = _edges.emplace({
-            eid,
-            EdgeNode {
-                edge,
-                .data { std::forward<Args>(args)... }
-            }
-        });
+        EdgeNode edge_node {
+            edge,
+            .data { std::forward<Args>(args)... }
+        };
         
         _splice_edge(
-            new_edge->second, v0->second, get_edge_iterator(src), EdgeDir::Outgoing, eid);
+            edge_node, v0->second, get_edge_iterator(src), EdgeDir::Outgoing, eid);
         _splice_edge(
-            new_edge->second, v1->second, get_edge_iterator(dst), EdgeDir::Incoming, eid);
+            edge_node, v1->second, get_edge_iterator(dst), EdgeDir::Incoming, eid);
+        
+        // we must do this _after_ splicing, so as not to invalidate the provided iterators
+        auto [new_edge, _] = _edges.emplace(
+            std::make_pair(
+                eid,
+                std::move(edge_node)
+            )
+        );
         
         return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing, edge.v0};
     }
@@ -1549,8 +1580,8 @@ public:
      */
     template <typename... Args>
     incident_edge_iterator emplace_directed_edge_before(
-        std::variant<edge_iterator, vertex_iterator> before_outgoing,
-        std::variant<edge_iterator, vertex_iterator> before_incoming,
+        edge_endpoint before_outgoing,
+        edge_endpoint before_incoming,
         Args&&... args)
     {
         return _emplace_directed_edge_before(
@@ -1783,6 +1814,14 @@ public:
     /// A const sentinel iterator pointing beyond the end of the range of edges.
     const_edge_iterator end_edges() const {
         return const_edge_iterator(this, _edges.end());
+    }
+    
+    const_edge_iterator cbegin_edges() const {
+        return begin_edges();
+    }
+    
+    const_edge_iterator cend_edges() const {
+        return end_edges();
     }
     
     /// Return the number of edges in the graph.
