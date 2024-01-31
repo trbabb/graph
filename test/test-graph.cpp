@@ -83,7 +83,7 @@ auto make_star_graph(Digraph<int,float,Map>& g, size_t n_verts) {
 // add `n_incident_edges` outgoing edges to the returned vertex.
 template <template <typename...> typename Map>
 auto make_random_graph(Digraph<int,float,Map>& g, size_t n_verts, size_t n_incident_edges) {
-    auto rng   = std::uniform_int_distribution<size_t>(0, n_verts - 1);
+    auto rng   = std::uniform_int_distribution<size_t>(1, n_verts);
     auto rng_f = std::uniform_real_distribution<float>(0, 1);
     
     auto v = g.begin_vertices();
@@ -122,6 +122,11 @@ TEST(TEST_MODULE_NAME, test_access) {
     EXPECT_EQ(g.vertices_size(), 1);
     EXPECT_EQ(*v0, 1);
     VertexId v0_id = v0->id();
+    
+    auto vx = g.find_vertex(VertexId::invalid());
+    EXPECT_EQ(vx, g.end_vertices());
+    EXPECT_FALSE(vx);
+    EXPECT_FALSE(g.contains(VertexId::invalid()));
     
     auto v1 = g.insert_vertex();
     v1->value() = 2;
@@ -295,7 +300,7 @@ TEST(TEST_MODULE_NAME, test_insert_before) {
     Digraph<int, float, Map> g;
     size_t n_verts  = 60;
     size_t n_trials = 255;
-    auto rng   = std::uniform_int_distribution<size_t>(0, n_verts - 1);
+    auto rng   = std::uniform_int_distribution<size_t>(1, n_verts);
     auto rng_f = std::uniform_real_distribution<float>(0, 1);
     
     for (auto trial = 0; trial < n_trials; ++trial) {
