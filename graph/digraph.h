@@ -10,6 +10,8 @@
 // todo: add insertion, reordering, sorting, etc. to the edge range
  
 // todo: testing. exercise all the code paths
+// todo: std::optional is taking up a lot of space. it makes all our IDs 16 bytes
+//    instead of 8. consider using a sentinel value (-1?) instead of std::optional.
 // todo: make Digraph and GraphMap inherit from a common [private] base class but not each
 //    other.
 //    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
@@ -235,7 +237,7 @@ namespace graph {
  *     Digraph<VertValue, EdgeValue> g = ...;
  *     auto v = g.find_vertex(...);
  *     for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) {
- *        EdgeId eid = e; // implicit conversion to EdgeId; may also call e.id()
+ *        EdgeId eid = e.id();
  *        EdgeValue& ev = e.value();
  *        ev = ...; // references to values are live and may be mutated
  *        // ...
@@ -298,8 +300,6 @@ private:
      * around the source vertex, and one of the incoming edges around the target
      * vertex.
      * 
-     * If the edge is the last in the list, it points to itself.
-     * 
      * If this graph stores edge values, the edge data is stored in `data`.
      */
     struct EdgeNode {
@@ -326,10 +326,10 @@ private:
     /**
      * @brief A node holding information about a vertex.
      * 
-     * Each vertex node carries the head and size of two linked lists of edges:
+     * Each vertex node carries the head, tail, and size of two linked lists of edges:
      * One of the incoming edges around the vertex, and one of the outgoing edges.
      * 
-     * If there are no edges in a list, the head points to `std::nullopt`.
+     * If there are no edges in a list, the head and tail point to `std::nullopt`.
      * 
      * If this graph stores vertex values, the vertex data is stored in `data`.
      */
