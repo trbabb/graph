@@ -238,8 +238,8 @@ template <
     template<class...> class Map=std::unordered_map>
 struct Digraph {
     
-    static constexpr bool HasVertexValue() { return not std::same_as<V, void>; }
-    static constexpr bool HasEdgeValue()   { return not std::same_as<E, void>; }
+    using HasVertexValue = std::bool_constant<!std::same_as<V, void>>;
+    using HasEdgeValue   = std::bool_constant<!std::same_as<E, void>>;
     
 private:
 
@@ -358,7 +358,6 @@ public:
     template <Constness Const>
     struct EdgeRef {
     private:
-        
         constexpr static bool IsConst() { return Const == Constness::Const; }
         using Graph = std::conditional_t<IsConst(), const Digraph, Digraph>;
         using Iter  = std::conditional_t<
@@ -366,7 +365,7 @@ public:
             typename Edges::const_iterator,
             typename Edges::iterator
         >;
-        using _SafeE = std::conditional_t<std::same_as<E, void>, int, E>;
+        using _SafeE = std::conditional_t<std::is_same_v<E, void>, int, E>;
         using Value  = std::conditional_t<IsConst(), const _SafeE, _SafeE>;
         using Node   = std::conditional_t<IsConst(), const EdgeNode, EdgeNode>;
         
@@ -395,7 +394,7 @@ public:
         /// The vertex IDs of the edge endpoints.
         Edge     edge()    const                           { return _i->second.edge; }
         /// The value stored on the edge.
-        Value&   value()   const requires (HasEdgeValue()) { return _i->second.data; }
+        Value&   value()   const requires (HasEdgeValue::value) { return _i->second.data; }
         /// Returns `true` if the edge begins and ends at the same vertex.
         bool     is_loop() const { return _i->second.edge.v0 == _i->second.edge.v1;}
         /// The ID of the source vertex.
@@ -411,9 +410,9 @@ public:
             return dir == EdgeDir::Outgoing ? source_id() : target_id();
         }
         
-        Value& operator*()  const requires (HasEdgeValue()) { return  value(); }
-        Value* operator->() const requires (HasEdgeValue()) { return &value(); }
-        operator Value&()   const requires (HasEdgeValue()) { return  value(); }
+        Value& operator*()  const requires (HasEdgeValue::value) { return  value(); }
+        Value* operator->() const requires (HasEdgeValue::value) { return &value(); }
+        operator Value&()   const requires (HasEdgeValue::value) { return  value(); }
         
         /// @brief Implicitly converts to the edge ID.
         operator EdgeId() const { return id(); }
@@ -458,7 +457,7 @@ public:
         /// An ID for this vertex which is unique to the graph container it belongs to.
         VertexId id()    const                             { return _i->first; }
         /// The value stored in this vertex.
-        Value&   value() const requires (HasVertexValue()) { return _i->second.data; }
+        Value&   value() const requires (HasVertexValue::value) { return _i->second.data; }
         /// The number of edges incident to this vertex in the given direction.
         size_t   degree(EdgeDir dir) const {
             return _i->second.edges[(int) dir].size;
@@ -468,9 +467,9 @@ public:
             return degree(EdgeDir::Incoming) + degree(EdgeDir::Outgoing);
         }
         
-        Value& operator*()  const requires (HasVertexValue()) { return  value(); }
-        Value* operator->() const requires (HasVertexValue()) { return &value(); }
-        operator Value&()   const requires (HasVertexValue()) { return  value(); }
+        Value& operator*()  const requires (HasVertexValue::value) { return  value(); }
+        Value* operator->() const requires (HasVertexValue::value) { return &value(); }
+        operator Value&()   const requires (HasVertexValue::value) { return  value(); }
         
         /// Implicit conversion to the vertex ID.
         operator VertexId() const { return id(); }
@@ -1214,7 +1213,7 @@ public:
     /// Insert a new vertex into the graph storing the given value, and return
     /// an iterator to it.
     template <Forwardable<V> T>
-    vertex_iterator insert_vertex(T&& v) requires (HasVertexValue()) {
+    vertex_iterator insert_vertex(T&& v) requires (HasVertexValue::value) {
         VertexId vid = _vertex_gen.next();
         auto [out, created] = _verts.insert(
             {
@@ -1230,7 +1229,7 @@ public:
     /// Insert a new vertex into the graph and construct it in-place with the given
     /// arguments, and return an iterator to it.
     template <typename... Args>
-    vertex_iterator emplace_vertex(Args&&... args) requires (HasVertexValue()) {
+    vertex_iterator emplace_vertex(Args&&... args) requires (HasVertexValue::value) {
         VertexId vid = _vertex_gen.next();
         auto [out, created] = _verts.insert(
             {
@@ -1599,7 +1598,7 @@ public:
     std::pair<incident_edge_iterator, incident_edge_iterator> insert_undirected_edge(
             VertexId a,
             VertexId b)
-        requires (not HasEdgeValue())
+        requires (not HasEdgeValue::value)
     {
         incident_edge_iterator e0 = emplace_directed_edge(a, b);
         incident_edge_iterator e1 = emplace_directed_edge(b, a);
