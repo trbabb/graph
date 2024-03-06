@@ -655,6 +655,7 @@ public:
         /// The graph this iterator belongs to.
         Graph&  graph()          const { return *_graph; }
         Iter    inner_iterator() const { return _i; }
+        EdgeNode& node()         const { return _i->second; }
         
     public:
     
@@ -722,7 +723,7 @@ public:
         IncidentEdgeIterator& operator--() {
             EdgeId prev_id = (_i != _graph->_edges.end())
                 ? _i->second.links[(int) _dir].prev
-                : _graph->find_vertex(_vertex_id)->second.edges[(int) _dir].tail;
+                : _graph->find_vertex(_vertex_id).node().edges[(int) _dir].tail;
             _i = prev_id
                 ? _graph->_edges.find(prev_id)
                 : _graph->_edges.end();
@@ -1992,8 +1993,19 @@ public:
         return {this, _edges.end(), EdgeDir::Outgoing, v};
     }
     
+    incident_edge_iterator end_incident_edges(const_vertex_iterator v, EdgeDir dir) {
+        return end_incident_edges(v.id(), dir);
+    }
+    
     const_incident_edge_iterator end_incident_edges(VertexId v, EdgeDir dir) const {
         return {this, _edges.end(), EdgeDir::Outgoing, v};
+    }
+    
+    const_incident_edge_iterator end_incident_edges(
+            const_vertex_iterator v,
+            EdgeDir dir) const 
+    {
+        return end_incident_edges(v.id(), dir);
     }
     
     const_incident_edge_iterator cbegin_incident_edges(VertexId v, EdgeDir dir) const {

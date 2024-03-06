@@ -4,7 +4,7 @@ A lightweight, header-only, zero-dependency, templated, C++ directed graph imple
 
 Graphs may optionally associate values with vertices and edges. Additionally, it
 is possible to index vertices and edges with custom types using the provided `DigraphMap`
-class.
+class. In all cases, vertices and edges use a lightweight integer ID as their primary index.
 
 Graphs are implemented using hash maps that associate unique identifiers with
 vertex and edge data. The hash map implementation may be provided as a template parameter,
