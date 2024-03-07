@@ -356,6 +356,26 @@ TEST(TEST_MODULE_NAME, test_insert_before) {
 }
 
 
+TEST(TEST_MODULE_NAME, test_digraph_size) {
+    using D          = Digraph<int, int, Map>;
+    using DNoEdge    = Digraph<int, void, Map>;
+    using DNoVert    = Digraph<void, int, Map>;
+    using DKeyMap    = DigraphMap<int, int, void, int>;
+    using DValMap    = DigraphMap<void, int, int, int>;
+    using DKeyValMap = DigraphMap<int, int, int, int>;
+    EXPECT_EQ(sizeof(D), sizeof(DNoEdge)); // this affects the internal node size;
+    EXPECT_EQ(sizeof(D), sizeof(DNoVert)); // not the structure size
+    
+    EXPECT_LT(sizeof(D), sizeof(DKeyMap)); // digraph maps keep structure that map
+    EXPECT_LT(sizeof(D), sizeof(DValMap)); // keys to vert and edge IDs, and back again
+    
+    EXPECT_EQ(sizeof(DKeyMap), sizeof(DValMap)); // a vert key index weighs the same
+                                                 // as a vert value index
+                                                 
+    EXPECT_LT(sizeof(DValMap), sizeof(DKeyValMap)); // two indices weigh more than one
+}
+
+
 TEST(TEST_MODULE_NAME, test_double_indirect_perf) {
     size_t n = 10'000;
     auto rng   = std::uniform_int_distribution<size_t>();

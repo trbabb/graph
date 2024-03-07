@@ -94,6 +94,11 @@ enum struct EdgeChange {
  * 
  * As in the base class, value types for vertices and edges may each be void / omitted.
  * 
+ * DigraphMap and Digraph inherit from the same (hidden) base class, so they have the same
+ * interface. It is not possible to convert between the two types (even by pointer casting),
+ * because the mutation methods of DigraphMap have been carefully overridden to update the key
+ * maps.
+ * 
  * @tparam VertKey Key type for vertices.
  * @tparam VertVal Value type for vertices.
  * @tparam EdgeKey Key type for edges.
@@ -107,10 +112,17 @@ template <
     typename EdgeKey,
     typename EdgeVal,
     template <class...> class Map=std::unordered_map>
-struct DigraphMap : public Digraph<VertVal, EdgeVal, Map> {
+struct DigraphMap : public detail::DigraphBase<VertVal, EdgeVal, Map> {
     
     using HasVertKey = std::bool_constant<not std::is_same<VertKey, void>::value>;
     using HasEdgeKey = std::bool_constant<not std::is_same<EdgeKey, void>::value>;
+    
+    // we have to typedef these because in the case where they're void, the functions
+    // that use them will produce compile errors.
+    using EdgeKeyRef = std::conditional_t<HasEdgeKey::value, EdgeKey, int>&;
+    using VertKeyRef = std::conditional_t<HasVertKey::value, VertKey, int>&;
+    using ConstEdgeKeyRef = std::conditional_t<HasEdgeKey::value, const EdgeKey, int>&;
+    using ConstVertKeyRef = std::conditional_t<HasVertKey::value, const VertKey, int>&;
     
 private:
     
@@ -118,7 +130,7 @@ private:
     friend struct detail::Instrumentation;
 #endif
 
-    using Base       = Digraph<VertVal, EdgeVal, Map>;
+    using Base       = detail::DigraphBase<VertVal, EdgeVal, Map>;
     using VertKeyMap = Map<VertKey, VertexId>;
     using EdgeKeyMap = Map<EdgeKey, EdgeId>;
     using KeyVertMap = Map<VertexId, VertKey>;
@@ -138,12 +150,12 @@ private:
     Base*       _base()       { return static_cast<Base*>(this); }
     const Base* _base() const { return static_cast<const Base*>(this); }
     
-    void _register_vert(VertexId v_id, const VertKey& key) requires (HasVertKey::value) {
+    void _register_vert(VertexId v_id, ConstVertKeyRef key) requires (HasVertKey::value) {
         _vert_ids_by_key.insert({key, v_id});
         _vert_keys_by_id.insert({v_id, key});
     }
     
-    void _register_edge(EdgeId e_id, const EdgeKey& key) requires (HasEdgeKey::value) {
+    void _register_edge(EdgeId e_id, ConstEdgeKeyRef key) requires (HasEdgeKey::value) {
         _edge_ids_by_key.insert({key, e_id});
         _edge_keys_by_id.insert({e_id, key});
     }
@@ -203,7 +215,7 @@ public:
      * 
      * If the key is not present in the graph, a `std::out_of_range` exception is thrown.
      */
-    const_vertex_ref operator[](const VertKey& key) const requires (HasVertKey::value) {
+    const_vertex_ref operator[](ConstVertKeyRef key) const requires (HasVertKey::value) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
             throw std::out_of_range("vertex key not found");
@@ -217,7 +229,7 @@ public:
      * If the key is not present in the graph, a new vertex is created with the given key
      * and a reference to it is returned.
      */
-    vertex_ref operator[](const VertKey& key) requires (HasVertKey::value) {
+    vertex_ref operator[](ConstVertKeyRef key) requires (HasVertKey::value) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
             auto v_i = _base()->insert_vertex();
@@ -247,7 +259,7 @@ public:
      * 
      * If the key is not present in the graph, a `std::out_of_range` exception is thrown.
      */
-    const_edge_ref operator[](const EdgeKey& key) const requires (HasEdgeKey::value) {
+    const_edge_ref operator[](ConstEdgeKeyRef key) const requires (HasEdgeKey::value) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
             throw std::out_of_range("edge key not found");
@@ -260,7 +272,7 @@ public:
      * 
      * If the key is not present in the graph, a `std::out_of_range` exception is thrown.
      */
-    edge_ref operator[](const EdgeKey& key) requires (HasEdgeKey::value) {
+    edge_ref operator[](ConstEdgeKeyRef key) requires (HasEdgeKey::value) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
             throw std::out_of_range("edge key not found");
@@ -286,12 +298,12 @@ public:
     using Base::contains;
     
     /// Returns true if a vertex with the given key is present in the graph.
-    bool contains(const VertKey& key) const requires (HasVertKey::value) {
+    bool contains(ConstVertKeyRef key) const requires (HasVertKey::value) {
         return _vert_ids_by_key.contains(key);
     }
     
     /// Returns true if an edge with the given key is present in the graph.
-    bool contains(const EdgeKey& key) const requires (HasEdgeKey::value) {
+    bool contains(ConstEdgeKeyRef key) const requires (HasEdgeKey::value) {
         return _edge_ids_by_key.contains(key);
     }
     
@@ -300,7 +312,7 @@ public:
      * 
      * Throws `std::out_of_range` if the vertex is not in the graph.
      */
-    const VertKey& key_for(VertexId v) const requires (HasVertKey::value) {
+    ConstVertKeyRef key_for(VertexId v) const requires (HasVertKey::value) {
         return _vert_keys_by_id.at(v);
     }
     
@@ -309,7 +321,7 @@ public:
      * 
      * Throws `std::out_of_range` if the edge is not in the graph.
      */
-    const EdgeKey& key_for(EdgeId e) const requires (HasEdgeKey::value) {
+    ConstEdgeKeyRef key_for(EdgeId e) const requires (HasEdgeKey::value) {
         return _edge_keys_by_id.at(e);
     }
     
@@ -320,7 +332,7 @@ public:
      * 
      * If the key is not present in the graph, returns `this->end_vertices()`.
      */
-    vertex_iterator find_vertex(const VertKey& key) requires (HasVertKey::value) {
+    vertex_iterator find_vertex(ConstVertKeyRef key) requires (HasVertKey::value) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
             return {this, this->_verts.end()};
@@ -334,7 +346,7 @@ public:
      * 
      * If the key is not present in the graph, returns `this->end_vertices()`.
      */
-    const_vertex_iterator find_vertex(const VertKey& key) const requires (HasVertKey::value) {
+    const_vertex_iterator find_vertex(ConstVertKeyRef key) const requires (HasVertKey::value) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
             return {this, this->_verts.end()};
@@ -350,7 +362,7 @@ public:
      * 
      * If the key is not present in the graph, returns `this->end_edges()`.
      */
-    edge_iterator find_edge(const EdgeKey& key) requires (HasEdgeKey::value) {
+    edge_iterator find_edge(ConstEdgeKeyRef key) requires (HasEdgeKey::value) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
             return {this, this->_edges.end()};
@@ -364,7 +376,7 @@ public:
      * 
      * If the key is not present in the graph, returns `this->end_edges()`.
      */
-    const_edge_iterator find_edge(const EdgeKey& key) const requires (HasEdgeKey::value) {
+    const_edge_iterator find_edge(ConstEdgeKeyRef key) const requires (HasEdgeKey::value) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
             return {this, this->_edges.end()};
@@ -376,7 +388,7 @@ public:
     using Base::vertex;
     
     /// Returns a reference to the vertex with the given key, or `std::nullopt` if not found.
-    std::optional<vertex_ref> vertex(const VertKey& key) requires (HasVertKey::value) {
+    std::optional<vertex_ref> vertex(ConstVertKeyRef key) requires (HasVertKey::value) {
         auto i = _vert_ids_by_key.find(key);
         if (i == _vert_ids_by_key.end()) {
             return std::nullopt;
@@ -387,7 +399,7 @@ public:
     
     /// Returns a const reference to the vertex with the given key, or `std::nullopt`
     /// if not found.
-    std::optional<const_vertex_ref> vertex(const VertKey& key) const
+    std::optional<const_vertex_ref> vertex(ConstVertKeyRef key) const
             requires (HasVertKey::value)
     {
         auto i = _vert_ids_by_key.find(key);
@@ -399,7 +411,7 @@ public:
     }
     
     /// Returns a reference to the edge with the given key, or `std::nullopt` if not found.
-    std::optional<edge_ref> edge(const EdgeKey& key) requires (HasEdgeKey::value) {
+    std::optional<edge_ref> edge(ConstEdgeKeyRef key) requires (HasEdgeKey::value) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
             return std::nullopt;
@@ -410,7 +422,7 @@ public:
     
     /// Returns a const reference to the edge with the given key, or `std::nullopt` if
     /// not found.
-    std::optional<const_edge_ref> edge(const EdgeKey& key) const requires (HasEdgeKey::value) {
+    std::optional<const_edge_ref> edge(ConstEdgeKeyRef key) const requires (HasEdgeKey::value) {
         auto i = _edge_ids_by_key.find(key);
         if (i == _edge_ids_by_key.end()) {
             return std::nullopt;
@@ -426,7 +438,7 @@ public:
      * 
      * Returns the number of vertices (0 or 1) removed from the graph.
      */
-    size_t erase(const VertKey& key) requires (HasVertKey::value) {
+    size_t erase(ConstVertKeyRef key) requires (HasVertKey::value) {
         auto i = _vert_ids_by_key.find(key);
         if (i != _vert_ids_by_key.end()) {
             auto v_iter = this->_verts.find(i->second);
@@ -461,7 +473,7 @@ public:
      * Returns the value associated with the deleted edge, or `std::nullopt` if the edge
      * was not present in the graph.
      */
-    std::optional<EdgeVal> erase(const EdgeKey& key)
+    std::optional<EdgeVal> erase(ConstEdgeKeyRef key)
         requires (HasEdgeKey::value and HasEdgeValue::value)
     {
         auto i = _edge_ids_by_key.find(key);
@@ -487,7 +499,7 @@ public:
      * 
      * Returns the number of edges (0 or 1) removed from the graph.
      */
-    size_t erase(const EdgeKey& key) requires (HasEdgeKey::value and not HasEdgeValue::value) {
+    size_t erase(ConstEdgeKeyRef key) requires (HasEdgeKey::value and not HasEdgeValue::value) {
         auto i = _edge_ids_by_key.find(key);
         if (i != _edge_ids_by_key.end()) {
             EdgeId e_id = i->second;
@@ -522,7 +534,7 @@ public:
      * In the case where the vertex was inserted, the value is default-constructed.
      * Otherwise, the value is left unchanged.
      */
-    std::pair<vertex_iterator, bool> insert_vertex(const VertKey& key)
+    std::pair<vertex_iterator, bool> insert_vertex(ConstVertKeyRef key)
             requires (HasVertKey::value)
     {
         auto i = _vert_ids_by_key.find(key);
@@ -545,7 +557,7 @@ public:
      * given value. Otherwise, the value is left unchanged.
      */
     template <Forwardable<VertVal> T>
-    std::pair<vertex_iterator, bool> insert_vertex(const VertKey& key, T&& value)
+    std::pair<vertex_iterator, bool> insert_vertex(ConstVertKeyRef key, T&& value)
         requires (HasVertKey::value and HasVertexValue::value)
     {
         auto i = _vert_ids_by_key.find(key);
@@ -588,7 +600,7 @@ public:
      * from the given arguments. Otherwise, the value is left unchanged.
      */
     template <typename... Args>
-    std::pair<vertex_iterator, bool> emplace_vertex(const VertKey& key, Args&&... args)
+    std::pair<vertex_iterator, bool> emplace_vertex(ConstVertKeyRef key, Args&&... args)
         requires (HasVertKey::value and HasVertexValue::value)
     {
         auto i = _vert_ids_by_key.find(key);
@@ -620,7 +632,7 @@ public:
      * indicating whether the vertex was inserted (`true`) or already existed (`false`).
      */
     template <Forwardable<VertVal> T>
-    std::pair<vertex_iterator, bool> insert_or_assign_vertex(const VertKey& key, T&& value)
+    std::pair<vertex_iterator, bool> insert_or_assign_vertex(ConstVertKeyRef key, T&& value)
         requires (HasVertKey::value and HasVertexValue::value)
     {
         auto i = _vert_ids_by_key.find(key);
@@ -647,7 +659,7 @@ public:
      */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
-            const EdgeKey& new_key,
+            ConstEdgeKeyRef new_key,
             vertex_iterator src,
             vertex_iterator dst,
             Args&&... args)
@@ -673,9 +685,9 @@ public:
     /// Inserts a new edge from an `EdgeKey` and two `VertKey`s.
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
-            const EdgeKey& new_key,
-            const VertKey& src_key,
-            const VertKey& dst_key,
+            ConstEdgeKeyRef new_key,
+            ConstVertKeyRef src_key,
+            ConstVertKeyRef dst_key,
             Args&&... args)
         requires (HasEdgeKey::value and HasVertKey::value)
     {
@@ -709,8 +721,8 @@ public:
      */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge(
-            const VertKey& src_key,
-            const VertKey& dst_key,
+            ConstVertKeyRef src_key,
+            ConstVertKeyRef dst_key,
             Args&&... args)
         requires (not HasEdgeKey::value and HasVertKey::value)
     {
@@ -737,7 +749,7 @@ public:
      */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> emplace_directed_edge_before(
-            const EdgeKey& new_key,
+            ConstEdgeKeyRef new_key,
             edge_endpoint src,
             edge_endpoint dst,
             Args&&... args)
@@ -809,7 +821,7 @@ public:
      */
     template <typename... Args>
     std::pair<edge_iterator, EdgeChange> redirect_edge(
-            const EdgeKey& key,
+            ConstEdgeKeyRef key,
             vertex_iterator src,
             vertex_iterator dst,
             Args... args)
@@ -865,7 +877,7 @@ public:
      */
     template <typename... Args>
     std::pair<incident_edge_iterator, bool> try_redirect_edge(
-            const EdgeKey& key,
+            ConstEdgeKeyRef key,
             vertex_iterator src,
             vertex_iterator dst,
             Args... args)

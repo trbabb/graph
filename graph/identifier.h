@@ -11,6 +11,15 @@ template <typename Identifier>
 struct IdentifierAllocator;
 
 
+/**
+ * @brief A strongly typed integer identifier type.
+ * 
+ * Usage:
+ * 
+ *     struct MyId : public Identifier<MyId> {
+ *        using Identifier<MyId>::Identifier;
+ *     };
+ */
 template <typename Derived, typename T=uint64_t>
 struct Identifier {
     using self_t = Derived;

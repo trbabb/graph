@@ -57,13 +57,8 @@ To turn on address sanitization:
 
 # Todo
 
-- It is currently possible to slice a `DiagraphMap` into a `Digraph`, and mutations to the
-latter will invalidate the key-mapping in the former by failing to maintain it. This needs to
-be remedied by making a hidden base class which both classes derive from, instead of directly
-deriving one from the other.
-
 - The build system is rudimentary and is hard-coded to install to `/usr/local`. It would be
-better to provide a `.configure` script.
+better to make this more portable.
 
 - Performance comparisons with other libraries
 

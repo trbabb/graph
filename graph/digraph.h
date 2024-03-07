@@ -168,75 +168,18 @@ struct hash<graph::Edge> {
 
 
 namespace graph {
+namespace detail {
 
 /**
- * @brief A class representing a directed graph.
+ * @brief A hidden base class for the graph container.
  * 
- *     #include <graph/digraph.h>
- * 
- * Values may optionally be associated with either vertices or edges. If no value
- * is to be stored, the type `void` may be used, and no storage will be allocated
- * for that type.
- * 
- * The graph associates a unique ID with each vertex and edge. These IDs are unique
- * within the graph container they belong to, are 64-bit, and are never re-used by the
- * same container.
- * 
- * If you need to index edges or vertices by custom keys, use the `DigraphMap` class
- * defined in `<graph/digraph_map.h>`.
- * 
- * Iterator invalidation follows the same rules as the underlying map type, since
- * all graph iterators wrap the iterators of the underlying map.
- * 
- * Indexing by a valid iterator will generally be more performant than indexing by ID.
- * 
- * Indexing by ID will always be stable, regardless of mutations to other vertices and edges.
- * Indexing by a disused ID will return the corresponding `end()` iterator.
- * 
- * Iterators to vertices are independent of iterators to edges; i.e. mutations to the set of
- * edges will not invalidate vertex iterators. Additions to the set of vertices will not
- * invalidate edge iterators; however, deletion of vertices will also delete all edges
- * incident to that vertex, which in turn *may* invalidate edge iterators (depending on the
- * iterator stability guarantees of the underlying map).
- * 
- * Incident edges may be traversed using a c++ range-based for loop:
- * 
- *     Digraph<VertValue, EdgeValue> g = ...;
- *     auto v = g.find_vertex(...);
- *     for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) {
- *        EdgeId eid = e.id();
- *        EdgeValue& ev = e.value();
- *        ev = ...; // references to values are live and may be mutated
- *        // ...
- *     }
- * 
- * Self-loop edges are supported. Duplicate edges are also supported, and are distinguished
- * by their unique IDs.
- * 
- * The graph is implemented as two maps from IDs to data: One for vertices, and one for edges.
- * Edges belong to linked lists of edges incident to each vertex. An edge belongs to two
- * such lists: One for incoming edges, and one for outgoing edges. The edges in each
- * list are connected by their stable IDs, and edge ordering may be optionally specified
- * by inserting with `emplace_directed_edge_before(...)`, or altered with
- * `swap_edge_order(...)`.
- * 
- * The type of map which stores vertices and edges may be passed as a template template
- * parameter. The default map is `std::unordered_map`, but much better performance may
- * be obtained by using a modern third-party hash map such as `absl::flat_hash_map` or
- * `ankerl::unordered_dense::map`. The map parameter is a **template template**
- * parameter, so you must pass the template name itself without any template arguments, like:
- * `Digraph<int, int, std::unordered_map>`.
- * 
- * @tparam V Type associated with vertices (may be `void`).
- * @tparam E Type associated with edges (may be `void`).
- * @tparam Map Template class of an associative map type used to store the graph.
- * Defaults to `std::unordered_map`.
+ * Do not instantiate this class directly; use either Digraph or DigraphMap.
  */
 template <
     typename V=void,
     typename E=void,
     template<class...> class Map=std::unordered_map>
-struct Digraph {
+struct DigraphBase {
     
     using HasVertexValue = std::bool_constant<!std::same_as<V, void>>;
     using HasEdgeValue   = std::bool_constant<!std::same_as<E, void>>;
@@ -253,7 +196,7 @@ private:
         typename EdgeVal,
         template <class...> class M
     >
-    friend struct DigraphMap;
+    friend struct graph::DigraphMap;
     
     struct EdgeLink {
         EdgeId prev = EdgeId::invalid();
@@ -359,7 +302,7 @@ public:
     struct EdgeRef {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph, Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         using Iter  = std::conditional_t<
             IsConst(),
             typename Edges::const_iterator,
@@ -378,7 +321,7 @@ public:
             typename EdgeKey,
             typename EdgeVal,
             template <class...> class M>
-        friend struct DigraphMap;
+        friend struct graph::DigraphMap;
         
         Iter _i;
         
@@ -425,7 +368,7 @@ public:
     struct VertexRef {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph,   Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         using Iter  = std::conditional_t<
             IsConst(),
             typename Verts::const_iterator,
@@ -443,7 +386,7 @@ public:
             typename EdgeKey,
             typename EdgeVal,
             template <class...> class M>
-        friend struct DigraphMap;
+        friend struct graph::DigraphMap;
         
         Iter _i;
         
@@ -489,7 +432,7 @@ public:
     struct EdgeIterator {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph, Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         using Iter  = std::conditional_t<
             IsConst(),
             typename Edges::const_iterator,
@@ -505,7 +448,7 @@ public:
             typename EdgeKey,
             typename EdgeVal,
             template <class...> class M>
-        friend struct DigraphMap;
+        friend struct graph::DigraphMap;
         
         Graph* _graph;
         Iter   _i;
@@ -608,7 +551,7 @@ public:
     struct IncidentEdgeIterator {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph,   Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         using Iter  = std::conditional_t<
             IsConst(),
             typename Edges::const_iterator,
@@ -623,7 +566,7 @@ public:
             typename EdgeKey,
             typename EdgeVal,
             template <class...> class M>
-        friend struct DigraphMap;
+        friend struct graph::DigraphMap;
         template <Constness K>
         friend struct EdgeIterator;
         template <Constness K>
@@ -771,7 +714,7 @@ public:
     struct VertexIterator {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph,  Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         using Iter  = std::conditional_t<
             IsConst(),
             typename Verts::const_iterator,
@@ -786,7 +729,7 @@ public:
             typename EdgeKey,
             typename EdgeVal,
             template <class...> class M>
-        friend struct DigraphMap;
+        friend struct graph::DigraphMap;
         
         friend Graph;
         
@@ -908,7 +851,7 @@ public:
     struct IncidentEdgeRange {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph, Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         
         VertexId _vertex;
         Graph*   _graph;
@@ -993,7 +936,7 @@ public:
     struct VertexRange {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph, Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         
         Graph* _graph;
         
@@ -1050,7 +993,7 @@ public:
     struct EdgeRange {
     private:
         constexpr static bool IsConst() { return Const == Constness::Const; }
-        using Graph = std::conditional_t<IsConst(), const Digraph, Digraph>;
+        using Graph = std::conditional_t<IsConst(), const DigraphBase, DigraphBase>;
         
         Graph* _graph;
         
@@ -2170,5 +2113,81 @@ public:
     /// @}
     
 };
+
+} // namespace detail
+
+
+/**
+ * @brief A class representing a directed graph.
+ * 
+ *     #include <graph/digraph.h>
+ * 
+ * Values may optionally be associated with either vertices or edges. If no value
+ * is to be stored, the type `void` may be used, and no storage will be allocated
+ * for that type.
+ * 
+ * The graph associates a unique ID with each vertex and edge. These IDs are unique
+ * within the graph container they belong to, are 64-bit, and are never re-used by the
+ * same container.
+ * 
+ * If you need to index edges or vertices by custom keys, use the `DigraphMap` class
+ * defined in `<graph/digraph_map.h>`.
+ * 
+ * Iterator invalidation follows the same rules as the underlying map type, since
+ * all graph iterators wrap the iterators of the underlying map.
+ * 
+ * Indexing by a valid iterator will generally be more performant than indexing by ID.
+ * 
+ * Indexing by ID will always be stable, regardless of mutations to other vertices and edges.
+ * Indexing by a disused ID will return the corresponding `end()` iterator.
+ * 
+ * Iterators to vertices are independent of iterators to edges; i.e. mutations to the set of
+ * edges will not invalidate vertex iterators. Additions to the set of vertices will not
+ * invalidate edge iterators; however, deletion of vertices will also delete all edges
+ * incident to that vertex, which in turn *may* invalidate edge iterators (depending on the
+ * iterator stability guarantees of the underlying map).
+ * 
+ * Incident edges may be traversed using a c++ range-based for loop:
+ * 
+ *     Digraph<VertValue, EdgeValue> g = ...;
+ *     auto v = g.find_vertex(...);
+ *     for (auto e : g.incident_edges(v, EdgeDir::Outgoing)) {
+ *        EdgeId eid = e.id();
+ *        EdgeValue& ev = e.value();
+ *        ev = ...; // references to values are live and may be mutated
+ *        // ...
+ *     }
+ * 
+ * Self-loop edges are supported. Duplicate edges are also supported, and are distinguished
+ * by their unique IDs.
+ * 
+ * The graph is implemented as two maps from IDs to data: One for vertices, and one for edges.
+ * Edges belong to linked lists of edges incident to each vertex. An edge belongs to two
+ * such lists: One for incoming edges, and one for outgoing edges. The edges in each
+ * list are connected by their stable IDs, and edge ordering may be optionally specified
+ * by inserting with `emplace_directed_edge_before(...)`, or altered with
+ * `swap_edge_order(...)`.
+ * 
+ * The type of map which stores vertices and edges may be passed as a template template
+ * parameter. The default map is `std::unordered_map`, but much better performance may
+ * be obtained by using a modern third-party hash map such as `absl::flat_hash_map` or
+ * `ankerl::unordered_dense::map`. The map parameter is a **template template**
+ * parameter, so you must pass the template name itself without any template arguments, like:
+ * `Digraph<int, int, std::unordered_map>`.
+ * 
+ * @tparam V Type associated with vertices (may be `void`).
+ * @tparam E Type associated with edges (may be `void`).
+ * @tparam Map Template class of an associative map type used to store the graph.
+ * Defaults to `std::unordered_map`.
+ */
+template <
+    typename V=void,
+    typename E=void,
+    template<class...> class Map=std::unordered_map>
+struct Digraph : public detail::DigraphBase<V, E, Map> {
+    using Base = detail::DigraphBase<V, E, Map>;
+    using Base::Base;
+};
+
 
 } // namespace graph
