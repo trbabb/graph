@@ -21,7 +21,7 @@ double _dummy = 0;
 using namespace graph;
 
 using perftimer_t = std::chrono::steady_clock;
-using delta_t = std::chrono::duration<double, std::milli>;
+using delta_t     = std::chrono::duration<double, std::milli>;
 
 template <typename K, typename V>
 using Map = ankerl::unordered_dense::map<K, V>;

@@ -253,12 +253,12 @@ private:
         };
         VertexData data;
         
-        VertexNode():
-            incoming_edges{EdgeId::invalid(), EdgeId::invalid(), 0},
-            outgoing_edges{EdgeId::invalid(), EdgeId::invalid(), 0} {}
-        
         template <typename... Args>
-        VertexNode(Args... args): VertexNode(), data(std::forward<Args>(args)...) {}
+        VertexNode(Args&&... args):
+            incoming_edges{EdgeId::invalid(), EdgeId::invalid(), 0},
+            outgoing_edges{EdgeId::invalid(), EdgeId::invalid(), 0},
+            data(std::forward<Args>(args)...) {}
+        
     };
     
     using Edges = Map<EdgeId,   EdgeNode>;
@@ -1150,7 +1150,7 @@ public:
     /// Insert a new vertex into the graph, and return an iterator to it.
     vertex_iterator insert_vertex() {
         VertexId v = _vertex_gen.next();
-        auto [out, created] = _verts.insert({v, VertexNode{}});
+        auto [out, created] = _verts.emplace(std::make_pair(v, VertexNode{}));
         return {this, out};
     }
     
@@ -1159,13 +1159,13 @@ public:
     template <Forwardable<V> T>
     vertex_iterator insert_vertex(T&& v) requires (HasVertexValue::value) {
         VertexId vid = _vertex_gen.next();
-        auto [out, created] = _verts.insert(
-            {
+        auto [out, created] = _verts.emplace(
+            std::make_pair(
                 vid, 
                 VertexNode {
                     std::forward<T>(v)
                 }
-            }
+            )
         );
         return {this, out};
     }
@@ -1175,13 +1175,13 @@ public:
     template <typename... Args>
     vertex_iterator emplace_vertex(Args&&... args) requires (HasVertexValue::value) {
         VertexId vid = _vertex_gen.next();
-        auto [out, created] = _verts.insert(
-            {
+        auto [out, created] = _verts.emplace(
+            std::make_pair(
                 vid,
                 VertexNode {
                     std::forward<Args>(args)...
                 }
-            }
+            )
         );
         return {this, out};
     }
@@ -1274,11 +1274,10 @@ private:
         edge_list.size += 1;
     }
     
-    template <typename... Args>
+    template <detail::End WhichEnd, typename... Args>
     incident_edge_iterator _emplace_directed_edge(
             vertex_iterator src,
             vertex_iterator dst,
-            detail::End which_end,
             Args&&... args)
     {
         if (src == end_vertices() or dst == end_vertices()) {
@@ -1299,15 +1298,12 @@ private:
             )
         );
         
-        switch (which_end) {
-            case detail::End::Front: {
-                _prepend_head(new_edge->second, v0, EdgeDir::Outgoing, eid);
-                _prepend_head(new_edge->second, v1, EdgeDir::Incoming, eid);
-            } break;
-            case detail::End::Back: {
-                _append_tail(new_edge->second, v0, EdgeDir::Outgoing, eid);
-                _append_tail(new_edge->second, v1, EdgeDir::Incoming, eid);
-            } break;
+        if constexpr (WhichEnd == detail::End::Front) {
+            _prepend_head(new_edge->second, v0, EdgeDir::Outgoing, eid);
+            _prepend_head(new_edge->second, v1, EdgeDir::Incoming, eid);
+        } else {
+            _append_tail(new_edge->second, v0, EdgeDir::Outgoing, eid);
+            _append_tail(new_edge->second, v1, EdgeDir::Incoming, eid);
         }
         
         return incident_edge_iterator{this, new_edge, EdgeDir::Outgoing, src.id()};
@@ -1459,10 +1455,10 @@ public:
             vertex_iterator dst,
             Args&&... args)
     {
-        return _emplace_directed_edge(
+        return _emplace_directed_edge<detail::End::Back>(
             src,
             dst,
-            detail::End::Back,
+            // detail::End::Back,
             std::forward<Args>(args)...
         );
     }
@@ -1476,10 +1472,10 @@ public:
             VertexId dst,
             Args&&... args)
     {
-        return _emplace_directed_edge(
+        return _emplace_directed_edge<detail::End::Back>(
             find_vertex(src),
             find_vertex(dst),
-            detail::End::Back,
+            // detail::End::Back,
             std::forward<Args>(args)...
         );
     }
@@ -1498,10 +1494,10 @@ public:
             vertex_iterator dst,
             Args&&... args)
     {
-        return _emplace_directed_edge(
+        return _emplace_directed_edge<detail::End::Front>(
             src,
             dst,
-            detail::End::Front,
+            // detail::End::Front,
             std::forward<Args>(args)...
         );
     }
