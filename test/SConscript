@@ -11,8 +11,13 @@ def runUnitTest(env, target, source):
 Import("env")
 
 test_env = env.Clone()
-test_env.Append(LIBS=['gtest', 'gtest_main'])
+test_env.Append(LIBS=[
+    # 'stdc++',
+    'gtest', 
+    'gtest_main'
+])
 
+packages = ['absl_flat_hash_map', 'lemon']
 test_sources = Glob('*.cpp')
 
 wasm_flags = {
@@ -20,6 +25,9 @@ wasm_flags = {
 }
 
 test_objs = []
+
+for pkg in packages:
+    test_env.ParseConfig(f'pkg-config --cflags --libs --static {pkg}')
 
 for p in test_sources:
     name = Path(p.path).stem

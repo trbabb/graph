@@ -9,13 +9,14 @@ noopt = ARGUMENTS.get('noopt', False)
 
 env = Environment(
     CXX='clang++',
+    # CXX='gcc-13',
     CXXFLAGS=[
         '-O3' if not noopt else '-O0',
         '-std=c++20',
         '-fcolor-diagnostics',
         '-Wall',
         '-march=native',
-        # -fdiagnostics-color=auto
+        # '-fdiagnostics-color=always', # gcc color option
         # '-v'
     ],
     CPPPATH=['#','/usr/local/include'],

@@ -217,8 +217,8 @@ private:
         union {
             EdgeLink links[2];
             struct {
-                EdgeLink incoming = EdgeId::invalid();
-                EdgeLink outgoing = EdgeId::invalid();
+                EdgeLink incoming;
+                EdgeLink outgoing;
             };
         };
         EdgeData data;
@@ -228,9 +228,9 @@ private:
      * @brief The head, tail, and size of a linked list of edges.
      */
     struct EdgeList {
-        EdgeId head;
-        EdgeId tail;
-        size_t size;
+        EdgeId head = EdgeId::invalid();
+        EdgeId tail = EdgeId::invalid();
+        size_t size = 0;
     };
     
     /**
@@ -255,8 +255,8 @@ private:
         
         template <typename... Args>
         VertexNode(Args&&... args):
-            incoming_edges{EdgeId::invalid(), EdgeId::invalid(), 0},
-            outgoing_edges{EdgeId::invalid(), EdgeId::invalid(), 0},
+            incoming_edges{},
+            outgoing_edges{},
             data(std::forward<Args>(args)...) {}
         
     };
@@ -1292,7 +1292,7 @@ private:
             std::make_pair(
                 eid,
                 EdgeNode {
-                    edge,
+                    .edge = edge,
                     .data { std::forward<Args>(args)... }
                 }
             )
@@ -1395,7 +1395,7 @@ private:
         
         Edge edge {v0->first, v1->first};
         EdgeNode edge_node {
-            edge,
+            .edge = edge,
             .data { std::forward<Args>(args)... }
         };
         
