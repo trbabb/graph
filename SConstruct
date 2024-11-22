@@ -20,7 +20,11 @@ env = Environment(
         # '-v'
     ],
     CPPPATH=['#','/usr/local/include'],
-    LIBS=[])
+    LIBS=[],
+    COMPILATIONDB_USE_ABSPATH=True,
+)
+
+env.Tool('compilation_db')
 
 if debug:
     env.Append(CXXFLAGS='-g')
@@ -31,5 +35,6 @@ if GetOption('sanitize'):
 
 Export("env")
 test = SConscript('test/SConscript', variant_dir=f'build/test')
+comp_db = env.CompilationDatabase(target='compile_commands.json')
 
-Default(test)
+Default(test, comp_db)

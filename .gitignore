@@ -4,4 +4,6 @@ build
 .vscode
 bin/
 .sconsign.dblite
+.cache
+compile_commands.json
 

@@ -42,6 +42,19 @@ using Map = std::unordered_map<K, V>;
  * - guess: my node data structure is doing some heavy / redundant work in the ctor?
  * - guess: breaking "trivially constructible" is slowing things down?
  * - guess: nontrivial move/copy assignment is happening for some reason?
+ * 
+ * - observations:
+ *   - thirdparty maps are mainly faster when the stored data is only a word.
+ *     larger data sizes lose their advantage. in clang:
+ *     - unordered_dense is ~1.6x slower than unordered_map with a simple 56-byte struct
+ *     - flat_hash is ~3x slower than unordered_map
+ *   - thirdparty advantage is less in clang than gcc
+ *   - gcc is slower; unordered_dense is slightly faster in clang; unordered_map is much faster.
+ *     flat_hash is about the same. (bizarrely slow)
+ *  
+ * - conclusion: a malloc/free'd node implementation is likely to be beneficial compared to
+ *   multiple indirections through a map. if we want this to be really good, we may have
+ *   to rewrite it.
  */
 
 using IntFloatGraph = Digraph<int, float, Map>;
@@ -115,10 +128,10 @@ void test_bare_maps() {
     delta_t t_admap    = time_add_10k_nodes_map(admap);
     delta_t t_aflatmap = time_add_10k_nodes_map(aflatmap);
     
-    std::cout << "-           std::unordered_map: " << t_umap.count() << " ms" << std::endl;
-    std::cout << "- ankerl::unordered_dense::map: " << t_admap.count() << " ms" << std::endl;
+    std::cout << "-           std::unordered_map: " << t_umap.count()     << " ms" << std::endl;
+    std::cout << "- ankerl::unordered_dense::map: " << t_admap.count()    << " ms" << std::endl;
     std::cout << "-          absl::flat_hash_map: " << t_aflatmap.count() << " ms" << std::endl;
-    std::cout << "  ratio (unordered_dense : unordered_map): " << (t_admap.count() / (double)t_umap.count())    << std::endl;
+    std::cout << "  ratio (unordered_dense : unordered_map): " << (t_admap.count()    / (double)t_umap.count()) << std::endl;
     std::cout << "  ratio (flat_hash       : unordered_map): " << (t_aflatmap.count() / (double)t_umap.count()) << std::endl;
     std::cout << std::endl;
 }

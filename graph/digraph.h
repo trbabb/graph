@@ -10,13 +10,15 @@
 //   - insert_..._vertex()
 // todo: reorder_edge(edge_iterator edge, edge_iterator before)
 // todo: add insertion, reordering, sorting, etc. to the edge range
+
+// todo: testing reveals this entire premise is kinda flawed.
+//    it's likely faster to use a direct node pointer approach.
+//    this would allow for stable references, and would also allow us top skip
+//    a hash lookup when traversing edges or stitching edge lists.
+//    the hash lookup is going to add extra cache random access, in addition to
+//    all the other arithmetic + indirection.
  
 // todo: testing. exercise all the code paths
-// todo: make Digraph and GraphMap inherit from a common [private] base class but not each
-//    other.
-//    it must not be possible to slice a GraphMap to a Digraph and edit it; as this would
-//    invalidate the key-value mapping.
-//    > consider also the access granted by shared iterator and range classes.
 // todo: edge insertion could use try_emplace for better forwarding semantics.
 //    also document that behavior
 // todo: wbn to have a pre-built class that indexes edges by Pair<VertexId>
